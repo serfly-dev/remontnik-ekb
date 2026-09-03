@@ -1,0 +1,134 @@
+import sqlite3 from 'sqlite3';
+import bcrypt from 'bcryptjs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import dotenv from 'dotenv';
+import { mkdirSync, existsSync, unlinkSync } from 'fs';
+
+dotenv.config();
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const rootDir = join(__dirname, '..', '..');
+
+const dbPath = process.env.DB_PATH || join(rootDir, 'server', 'database', 'database.sqlite');
+const adminUsername = process.env.ADMIN_USERNAME || 'admin';
+const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+
+console.log('🔧 Initializing database...');
+console.log(`📁 Database path: ${dbPath}`);
+
+// Ensure directory exists
+const dbDir = dirname(dbPath);
+if (!existsSync(dbDir)) {
+  mkdirSync(dbDir, { recursive: true });
+}
+
+// Remove existing database if requested
+let isNew = true;
+if (existsSync(dbPath)) {
+  unlinkSync(dbPath);
+  console.log('🗑️  Old database deleted');
+}
+
+// Connect to database
+const db = new sqlite3.Database(dbPath);
+
+// Helper for promisified exec
+function runSql(sql) {
+  return new Promise((resolve, reject) => {
+    db.exec(sql, (err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+}
+
+function runStatement(sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.run(sql, params, function (err) {
+      if (err) reject(err);
+      else resolve({ changes: this.changes, lastInsertRowid: this.lastInsertRowid });
+    });
+  });
+}
+
+function getRow(sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.get(sql, params, (err, row) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  });
+}
+
+async function init() {
+  db.run('PRAGMA journal_mode = WAL');
+
+  // Applications table
+  await runSql(`
+    CREATE TABLE IF NOT EXISTS applications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      preferred_time TEXT,
+      comment TEXT,
+      calculator_data TEXT,
+      calculated_price INTEGER,
+      status TEXT NOT NULL DEFAULT 'new',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  await runSql(`
+    CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);
+    CREATE INDEX IF NOT EXISTS idx_applications_created_at ON applications(created_at DESC);
+  `);
+  console.log('✅ applications table created');
+
+  // Users table
+  await runSql(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  console.log('✅ users table created');
+
+  // Create admin user
+  const passwordHash = bcrypt.hashSync(adminPassword, 10);
+  const existing = await getRow('SELECT id FROM users WHERE username = ?', [adminUsername]);
+
+  if (!existing) {
+    await runStatement('INSERT INTO users (username, password_hash) VALUES (?, ?)', [adminUsername, passwordHash]);
+    console.log(`\n👤 Admin user created:`);
+    console.log(`   Username: ${adminUsername}`);
+    console.log(`   Password: ${adminPassword}`);
+    console.log('\n⚠️  IMPORTANT: Change this password after first login!');
+  } else {
+    console.log('\n📝 Existing admin user preserved');
+  }
+
+  // Settings table for future use
+  await runSql(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  console.log('✅ settings table created');
+
+  db.close();
+  console.log('\n✨ Database initialization complete!');
+  console.log('\n📌 Next steps:');
+  console.log('   1. Run: npm start');
+  console.log('   2. Open: http://localhost:3000');
+}
+
+init().catch(err => {
+  console.error('❌ Init failed:', err);
+  db.close();
+  process.exit(1);
+});

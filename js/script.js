@@ -451,7 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const formStatus = document.getElementById('formStatus');
 
   if (applicationForm) {
-    applicationForm.addEventListener('submit', (e) => {
+    applicationForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       // Simple validation
@@ -478,23 +478,70 @@ document.addEventListener('DOMContentLoaded', () => {
         phoneInput.classList.remove('invalid');
       }
 
-      if (isValid) {
+      if (!isValid) {
+        formStatus.textContent = 'Пожалуйста, заполните все обязательные поля';
+        formStatus.classList.add('form__status--error', 'form__status--visible');
+        return;
+      }
+
+      // Build payload — include calculator data if present
+      const payload = {
+        name: nameInput.value.trim(),
+        phone: phoneInput.value,
+        preferred_time: applicationForm.elements['contactTime']?.value || '',
+        comment: applicationForm.elements['comment']?.value || ''
+      };
+
+      // Attach calculator data from hidden field or live state
+      const hiddenData = document.getElementById('formCalculatorData')?.value;
+      if (hiddenData) {
+        try {
+          payload.calculator_data = JSON.parse(hiddenData);
+        } catch (err) {
+          payload.calculator_data = { raw: hiddenData };
+        }
+      }
+
+      // Submit to backend
+      const submitBtn = applicationForm.querySelector('button[type="submit"]');
+      const originalText = submitBtn?.textContent;
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Отправка…';
+      }
+
+      try {
+        const response = await fetch('/api/applications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.message || 'Ошибка при отправке');
+        }
+
+        // Success
         formStatus.textContent = 'Заявка отправлена';
         formStatus.classList.add('form__status--success', 'form__status--visible');
 
-        // Reset form
         applicationForm.reset();
 
-        // Clear status after delay
         setTimeout(() => {
           formStatus.classList.remove('form__status--visible');
         }, 5000);
 
-        // Scroll to form
         applicationForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else {
-        formStatus.textContent = 'Пожалуйста, заполните все обязательные поля';
+      } catch (err) {
+        formStatus.textContent = err.message || 'Не удалось отправить заявку';
         formStatus.classList.add('form__status--error', 'form__status--visible');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
       }
     });
 

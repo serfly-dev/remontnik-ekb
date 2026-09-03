@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Заявки — Админ-панель</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@700&family=Satoshi:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+  <a class="skip-link visually-hidden" href="#main">Перейти к содержанию</a>
+
+  <header class="admin-header">
+    <div class="container">
+      <div class="admin-header__inner">
+        <a href="/" class="logo" aria-label="На главную">
+          <span class="logo__mark" aria-hidden="true">NK</span>
+          <span class="logo__type">
+            <span class="logo__name">Никита Начаткин</span>
+            <span class="logo__role">Админ-панель</span>
+          </span>
+        </a>
+        <div class="admin-header__right">
+          <span class="admin-header__user" id="adminUser">—</span>
+          <button class="btn btn--ghost" id="logoutBtn">Выйти</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="container">
+
+      <!-- Stats -->
+      <section class="admin-stats" aria-labelledby="stats-title">
+        <h2 class="visually-hidden" id="stats-title">Статистика</h2>
+        <div class="admin-stats__grid">
+          <div class="stat-card">
+            <span class="stat-card__num" id="statTotal">—</span>
+            <span class="stat-card__label">Всего заявок</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__num" id="statNew">—</span>
+            <span class="stat-card__label">Новые</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__num" id="statProgress">—</span>
+            <span class="stat-card__label">В работе</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__num" id="statCompleted">—</span>
+            <span class="stat-card__label">Завершены</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Toolbar -->
+      <section class="admin-toolbar" aria-label="Фильтры и поиск">
+        <div class="admin-toolbar__search">
+          <label for="searchInput" class="visually-hidden">Поиск по имени или телефону</label>
+          <input
+            type="search"
+            id="searchInput"
+            class="admin-toolbar__input"
+            placeholder="Поиск по имени или телефону…"
+          >
+        </div>
+        <div class="admin-toolbar__filters">
+          <label for="statusFilter" class="visually-hidden">Фильтр по статусу</label>
+          <select id="statusFilter" class="admin-toolbar__select">
+            <option value="">Все статусы</option>
+            <option value="new">Новая</option>
+            <option value="in_progress">В работе</option>
+            <option value="completed">Завершена</option>
+            <option value="cancelled">Отменена</option>
+          </select>
+          <label for="sortSelect" class="visually-hidden">Сортировка</label>
+          <select id="sortSelect" class="admin-toolbar__select">
+            <option value="created_at:desc">По дате (новые)</option>
+            <option value="created_at:asc">По дате (старые)</option>
+            <option value="name:asc">По имени (А–Я)</option>
+            <option value="status:asc">По статусу</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Table -->
+      <section class="admin-table-section" aria-labelledby="applications-title">
+        <div class="admin-table-section__head">
+          <h2 class="section-title" id="applications-title">Заявки</h2>
+          <div class="admin-table-section__actions">
+            <button class="btn btn--ghost" id="refreshBtn">Обновить</button>
+          </div>
+        </div>
+
+        <!-- Loading state -->
+        <div class="admin-table-section__loading" id="loadingState">
+          <span class="spinner"></span>
+          <span>Загрузка заявок…</span>
+        </div>
+
+        <!-- Empty state -->
+        <div class="admin-table-section__empty" id="emptyState" hidden>
+          <p class="admin-table-section__empty-text">Нет заявок</p>
+        </div>
+
+        <!-- Error state -->
+        <div class="admin-table-section__error" id="errorState" hidden>
+          <p class="admin-table-section__error-text">Ошибка при загрузке заявок</p>
+          <button class="btn btn--ghost" id="retryBtn">Попробовать снова</button>
+        </div>
+
+        <!-- Table -->
+        <div class="admin-table-wrapper" id="tableWrapper" hidden>
+          <table class="admin-table" id="applicationsTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Имя</th>
+                <th>Телефон</th>
+                <th>Статус</th>
+                <th>Дата</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <nav class="admin-pagination" id="pagination" aria-label="Пагинация" hidden>
+        </nav>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="detailModal" hidden aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal__head">
+        <h2 class="modal__title" id="modalTitle">Заявка</h2>
+        <button class="modal__close" id="modalClose" aria-label="Закрыть">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal__body" id="modalBody">
+      </div>
+      <div class="modal__foot" id="modalFoot">
+        <div class="modal__status-group">
+          <label for="statusSelect" class="modal__label">Статус</label>
+          <select id="statusSelect" class="admin-toolbar__select">
+            <option value="new">Новая</option>
+            <option value="in_progress">В работе</option>
+            <option value="completed">Завершена</option>
+            <option value="cancelled">Отменена</option>
+          </select>
+        </div>
+        <button class="btn btn--primary" id="saveStatusBtn">Сохранить</button>
+        <button class="btn btn--danger" id="deleteStatusBtn">Удалить</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/api.js"></script>
+  <script type="module" src="js/applications.js"></script>
+</body>
+</html>
