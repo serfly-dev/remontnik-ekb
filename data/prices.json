@@ -1,0 +1,25 @@
+{
+  "description": "Тестовые расценки для демонстрации калькулятора. Реальные цены уточняются после замера.",
+  "units": "₽/м²",
+  "measurement": {
+    "basic": 3000,
+    "extended": 10000
+  },
+  "repair": {
+    "newBuilding": {
+      "finished": { "rate": 4500 },
+      "unfinished": { "rate": 5500 },
+      "whiteBox": { "rate": 5000 }
+    },
+    "secondary": {
+      "finished": { "rate": 5000 },
+      "unfinished": { "rate": 6000 },
+      "whiteBox": { "rate": 5500 }
+    }
+  },
+  "project": {
+    "hasProject": { "coefficient": 1.0 },
+    "needsChanges": { "coefficient": 1.3 },
+    "noProject": { "coefficient": 1.5 }
+  }
+}

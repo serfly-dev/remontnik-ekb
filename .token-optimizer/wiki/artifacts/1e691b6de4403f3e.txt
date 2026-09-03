@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "pattern": "autofocus|tabindex",
+  "metadata": {
+    "totalMatches": 0,
+    "filesSearched": 1,
+    "filesWithMatches": 0,
+    "returnedMatches": 0,
+    "truncated": false,
+    "tokensSaved": 0,
+    "tokenCount": 4,
+    "originalTokenCount": 4,
+    "compressionRatio": 1,
+    "duration": 1,
+    "cacheHit": false,
+    "savingsClassification": "unmeasured",
+    "savingsReason": "No comparable unoptimized grep response was materialized; repository bytes scanned are not model-context tokens."
+  },
+  "matches": []
+}

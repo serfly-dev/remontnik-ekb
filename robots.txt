@@ -1,0 +1,7 @@
+# robots.txt for nikitanachatkin.ru
+User-agent: *
+Allow: /
+Disallow: /data/
+
+# Sitemap
+Sitemap: https://nikitanachatkin.ru/sitemap.xml

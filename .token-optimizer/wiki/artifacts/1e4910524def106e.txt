@@ -1,0 +1,135 @@
+{
+  "success": true,
+  "pattern": "calc__result|calc__field|calc__body|calc__meta|calc__footer|calc__wrapper",
+  "metadata": {
+    "totalMatches": 19,
+    "filesSearched": 1,
+    "filesWithMatches": 1,
+    "returnedMatches": 19,
+    "truncated": false,
+    "tokensSaved": 0,
+    "tokenCount": 686,
+    "originalTokenCount": 686,
+    "compressionRatio": 1,
+    "duration": 3,
+    "cacheHit": false,
+    "savingsClassification": "unmeasured",
+    "savingsReason": "No comparable unoptimized grep response was materialized; repository bytes scanned are not model-context tokens."
+  },
+  "matches": [
+    {
+      "file": "index.html",
+      "lineNumber": 427,
+      "line": "      <div class=\"calc__meta\" id=\"calcMeta\">",
+      "match": "calc__meta"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 437,
+      "line": "      <div class=\"calc__body\" id=\"calcBody\">",
+      "match": "calc__body"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 438,
+      "line": "        <div class=\"calc__field\" data-step=\"1\">",
+      "match": "calc__field"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 453,
+      "line": "        <div class=\"calc__field\" data-step=\"2\" hidden>",
+      "match": "calc__field"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 473,
+      "line": "        <div class=\"calc__field\" data-step=\"3\" hidden>",
+      "match": "calc__field"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 477,
+      "line": "        <div class=\"calc__field\" data-step=\"4\" hidden>",
+      "match": "calc__field"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 486,
+      "line": "        <div class=\"calc__field\" data-step=\"5\" hidden>",
+      "match": "calc__field"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 494,
+      "line": "        <div class=\"calc__field\" data-step=\"6\" hidden>",
+      "match": "calc__field"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 502,
+      "line": "      <div class=\"calc__footer\" id=\"calcFooter\">",
+      "match": "calc__footer"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 506,
+      "line": "      <div class=\"calc__result\" id=\"calcResult\" hidden>",
+      "match": "calc__result"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 507,
+      "line": "        <p class=\"calc__result__value\" id=\"calcResultValue\">— ₽</p>",
+      "match": "calc__result"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 508,
+      "line": "        <p class=\"calc__result__approx\">Ориентировочная стоимость работ</p>",
+      "match": "calc__result"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 509,
+      "line": "        <dl class=\"calc__result__params\" id=\"calcResultParams\">",
+      "match": "calc__result"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 510,
+      "line": "          <div class=\"calc__result__params__row\">",
+      "match": "calc__result"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 514,
+      "line": "          <div class=\"calc__result__params__row\">",
+      "match": "calc__result"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 518,
+      "line": "          <div class=\"calc__result__params__row\">",
+      "match": "calc__result"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 522,
+      "line": "          <div class=\"calc__result__params__row\">",
+      "match": "calc__result"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 527,
+      "line": "        <p class=\"calc__result__note\">Точная стоимость определяется после замера и подготовки сметы.</p>",
+      "match": "calc__result"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 528,
+      "line": "        <div class=\"calc__result__cta\">",
+      "match": "calc__result"
+    }
+  ]
+}

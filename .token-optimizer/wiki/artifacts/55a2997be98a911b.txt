@@ -1,0 +1,39 @@
+{
+  "success": true,
+  "pattern": "scrollIntoView|focus\\(\\)",
+  "metadata": {
+    "totalMatches": 3,
+    "filesSearched": 1,
+    "filesWithMatches": 1,
+    "returnedMatches": 3,
+    "truncated": false,
+    "tokensSaved": 0,
+    "tokenCount": 91,
+    "originalTokenCount": 91,
+    "compressionRatio": 1,
+    "duration": 2,
+    "cacheHit": false,
+    "savingsClassification": "unmeasured",
+    "savingsReason": "No comparable unoptimized grep response was materialized; repository bytes scanned are not model-context tokens."
+  },
+  "matches": [
+    {
+      "file": "script.js",
+      "lineNumber": 53,
+      "line": "        burger.focus();",
+      "match": "focus()"
+    },
+    {
+      "file": "script.js",
+      "lineNumber": 341,
+      "line": "      if (firstInput) firstInput.focus();",
+      "match": "focus()"
+    },
+    {
+      "file": "script.js",
+      "lineNumber": 494,
+      "line": "        applicationForm.scrollIntoView({ behavior: 'smooth', block: 'center' });",
+      "match": "scrollIntoView"
+    }
+  ]
+}

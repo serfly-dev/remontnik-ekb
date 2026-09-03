@@ -1,0 +1,663 @@
+{
+  "success": true,
+  "pattern": "display:\\s*[^n][^o]",
+  "metadata": {
+    "totalMatches": 107,
+    "filesSearched": 1,
+    "filesWithMatches": 1,
+    "returnedMatches": 107,
+    "truncated": false,
+    "tokensSaved": 0,
+    "tokenCount": 2926,
+    "originalTokenCount": 2926,
+    "compressionRatio": 1,
+    "duration": 6,
+    "cacheHit": false,
+    "savingsClassification": "unmeasured",
+    "savingsReason": "No comparable unoptimized grep response was materialized; repository bytes scanned are not model-context tokens."
+  },
+  "matches": [
+    {
+      "file": "style.css",
+      "lineNumber": 39,
+      "line": "  --font-display: 'Clash Display', Georgia, serif;",
+      "match": "display: 'C"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 107,
+      "line": "img, svg { display: block; max-width: 100%; }",
+      "match": "display: bl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 157,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 184,
+      "line": "  display: inline-flex;",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 201,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 240,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 261,
+      "line": "  display: inline-flex;",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 308,
+      "line": "  display: inline-block;",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 329,
+      "line": ".echo { position: relative; display: inline-block; }",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 334,
+      "line": "  display: inline-block;",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 358,
+      "line": "  display: block;",
+      "match": "display: bl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 385,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 396,
+      "line": "  display: inline-flex;",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 404,
+      "line": "  display: inline-flex;",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 416,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 423,
+      "line": ".nav { display: none; }",
+      "match": "display: n"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 425,
+      "line": "  .nav { display: block; }",
+      "match": "display: bl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 428,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 436,
+      "line": "  display: inline-block;",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 458,
+      "line": ".header__actions { display: flex; align-items: center; gap: 1rem; }",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 461,
+      "line": "  display: none;",
+      "match": "display: n"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 476,
+      "line": "  display: block;",
+      "match": "display: bl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 479,
+      "line": "  .header__phone { display: inline-flex; }",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 482,
+      "line": ".header__cta { display: none; }",
+      "match": "display: n"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 484,
+      "line": "  .header__cta { display: inline-flex; }",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 488,
+      "line": "  display: inline-flex;",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 498,
+      "line": "@media (min-width: 1024px) { .burger { display: none; } }",
+      "match": "display: n"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 500,
+      "line": "  display: block;",
+      "match": "display: bl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 517,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 530,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 538,
+      "line": "  display: block;",
+      "match": "display: bl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 554,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 562,
+      "line": "  display: inline-flex;",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 571,
+      "line": "  display: block;",
+      "match": "display: bl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 583,
+      "line": "  display: inline-flex;",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 604,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 641,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 658,
+      "line": "  display: inline-flex;",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 670,
+      "line": "  display: inline-block;",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 692,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 699,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 709,
+      "line": ".hero__proof__item { display: flex; flex-direction: column; gap: 0.25rem; }",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 746,
+      "line": "  display: block;",
+      "match": "display: bl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 763,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 793,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 809,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 864,
+      "line": "  display: block;",
+      "match": "display: bl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 883,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 918,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 965,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 979,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1000,
+      "line": "  display: block;",
+      "match": "display: bl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1009,
+      "line": "  display: block;",
+      "match": "display: bl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1017,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1026,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1075,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1081,
+      "line": "  display: inline-flex;",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1098,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1109,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1119,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1150,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1181,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1186,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1211,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1247,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1288,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1313,
+      "line": ".calc__body { display: flex; flex-direction: column; min-height: 360px; position: relative; }",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1314,
+      "line": ".calc__field { display: flex; flex-direction: column; flex: 1; transition: opacity 300ms var(--ease-precise), transform 300ms var(--ease-precise); }",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1315,
+      "line": ".calc__field[hidden] { display: none; }",
+      "match": "display: n"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1346,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1351,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1367,
+      "line": "  display: inline-flex;",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1427,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1458,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1469,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1494,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1510,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1527,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1535,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1558,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1564,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1583,
+      "line": "  display: block;",
+      "match": "display: bl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1631,
+      "line": "  display: block;",
+      "match": "display: bl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1640,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1664,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1712,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1743,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1770,
+      "line": "  display: block;",
+      "match": "display: bl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1801,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1819,
+      "line": "  .accordion__question-num { display: none; }",
+      "match": "display: n"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1831,
+      "line": "  display: inline-flex;",
+      "match": "display: in"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1859,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1866,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1899,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1907,
+      "line": ".cta-final__copy { display: flex; flex-direction: column; }",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1927,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1934,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1959,
+      "line": ".cta-final__cta { display: flex; flex-direction: column; gap: 1rem; }",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1976,
+      "line": "  display: none;",
+      "match": "display: n"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1978,
+      "line": "@media (min-width: 1024px) { .cta-final__note { display: block; } }",
+      "match": "display: bl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1989,
+      "line": "  display: grid;",
+      "match": "display: gr"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 2024,
+      "line": ".footer__nav { display: flex; flex-direction: column; gap: 0.5rem; }",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 2032,
+      "line": ".footer__contacts { display: flex; flex-direction: column; gap: 0.5rem; }",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 2036,
+      "line": "  display: flex;",
+      "match": "display: fl"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 2079,
+      "line": "  .header__cta { display: none; }",
+      "match": "display: n"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 2080,
+      "line": "  .header__phone { display: none; }",
+      "match": "display: n"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 2081,
+      "line": "  .burger { display: inline-flex; }",
+      "match": "display: in"
+    }
+  ]
+}

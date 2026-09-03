@@ -1,0 +1,57 @@
+{
+  "success": true,
+  "pattern": "updateStepUI",
+  "metadata": {
+    "totalMatches": 6,
+    "filesSearched": 1,
+    "filesWithMatches": 1,
+    "returnedMatches": 6,
+    "truncated": false,
+    "tokensSaved": 0,
+    "tokenCount": 156,
+    "originalTokenCount": 156,
+    "compressionRatio": 1,
+    "duration": 1,
+    "cacheHit": false,
+    "savingsClassification": "unmeasured",
+    "savingsReason": "No comparable unoptimized grep response was materialized; repository bytes scanned are not model-context tokens."
+  },
+  "matches": [
+    {
+      "file": "script.js",
+      "lineNumber": 144,
+      "line": "  function updateStepUI(options = {}) {",
+      "match": "updateStepUI"
+    },
+    {
+      "file": "script.js",
+      "lineNumber": 332,
+      "line": "    updateStepUI();",
+      "match": "updateStepUI"
+    },
+    {
+      "file": "script.js",
+      "lineNumber": 357,
+      "line": "          updateStepUI();",
+      "match": "updateStepUI"
+    },
+    {
+      "file": "script.js",
+      "lineNumber": 370,
+      "line": "      updateStepUI();",
+      "match": "updateStepUI"
+    },
+    {
+      "file": "script.js",
+      "lineNumber": 375,
+      "line": "  updateStepUI({ focus: false });",
+      "match": "updateStepUI"
+    },
+    {
+      "file": "script.js",
+      "lineNumber": 395,
+      "line": "            updateStepUI();",
+      "match": "updateStepUI"
+    }
+  ]
+}

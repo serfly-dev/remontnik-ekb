@@ -1,0 +1,39 @@
+{
+  "success": true,
+  "pattern": "\\[hidden\\]|calc__footer",
+  "metadata": {
+    "totalMatches": 3,
+    "filesSearched": 1,
+    "filesWithMatches": 1,
+    "returnedMatches": 3,
+    "truncated": false,
+    "tokensSaved": 0,
+    "tokenCount": 96,
+    "originalTokenCount": 96,
+    "compressionRatio": 1,
+    "duration": 1,
+    "cacheHit": false,
+    "savingsClassification": "unmeasured",
+    "savingsReason": "No comparable unoptimized grep response was materialized; repository bytes scanned are not model-context tokens."
+  },
+  "matches": [
+    {
+      "file": "style.css",
+      "lineNumber": 1315,
+      "line": ".calc__field[hidden] { display: none; }",
+      "match": "[hidden]"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1426,
+      "line": ".calc__footer {",
+      "match": "calc__footer"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 2102,
+      "line": "  .calc__footer { flex-direction: column-reverse; }",
+      "match": "calc__footer"
+    }
+  ]
+}

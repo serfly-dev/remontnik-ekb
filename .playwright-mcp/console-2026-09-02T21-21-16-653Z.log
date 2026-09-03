@@ -1,0 +1,4 @@
+[     509ms] TypeError: Cannot set properties of null (setting 'textContent')
+    at updateStepUI (http://localhost:8080/js/script.js:140:26)
+    at HTMLDocument.<anonymous> (http://localhost:8080/js/script.js:355:3)
+[     525ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8080/favicon.ico:0

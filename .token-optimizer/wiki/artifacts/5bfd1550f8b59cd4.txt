@@ -1,0 +1,33 @@
+{
+  "success": true,
+  "pattern": "calc__meta|calc__footer",
+  "metadata": {
+    "totalMatches": 2,
+    "filesSearched": 1,
+    "filesWithMatches": 1,
+    "returnedMatches": 2,
+    "truncated": false,
+    "tokensSaved": 0,
+    "tokenCount": 60,
+    "originalTokenCount": 60,
+    "compressionRatio": 1,
+    "duration": 2,
+    "cacheHit": false,
+    "savingsClassification": "unmeasured",
+    "savingsReason": "No comparable unoptimized grep response was materialized; repository bytes scanned are not model-context tokens."
+  },
+  "matches": [
+    {
+      "file": "index.html",
+      "lineNumber": 427,
+      "line": "      <div class=\"calc__meta\">",
+      "match": "calc__meta"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 531,
+      "line": "      <div class=\"calc__footer\">",
+      "match": "calc__footer"
+    }
+  ]
+}

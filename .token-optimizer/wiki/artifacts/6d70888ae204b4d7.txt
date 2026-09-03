@@ -1,0 +1,117 @@
+{
+  "success": true,
+  "pattern": "calc__result",
+  "metadata": {
+    "totalMatches": 16,
+    "filesSearched": 1,
+    "filesWithMatches": 1,
+    "returnedMatches": 16,
+    "truncated": false,
+    "tokensSaved": 0,
+    "tokenCount": 534,
+    "originalTokenCount": 534,
+    "compressionRatio": 1,
+    "duration": 9,
+    "cacheHit": false,
+    "savingsClassification": "unmeasured",
+    "savingsReason": "No comparable unoptimized grep response was materialized; repository bytes scanned are not model-context tokens."
+  },
+  "matches": [
+    {
+      "file": "style.css",
+      "lineNumber": 1318,
+      "line": ".calc__result {",
+      "match": "calc__result"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1434,
+      "line": ".calc__result__badge {",
+      "match": "calc__result"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1445,
+      "line": ".calc__result__label {",
+      "match": "calc__result"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1453,
+      "line": ".calc__result__value {",
+      "match": "calc__result"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1462,
+      "line": ".calc__result__approx {",
+      "match": "calc__result"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1468,
+      "line": ".calc__result__params {",
+      "match": "calc__result"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1479,
+      "line": "  .calc__result__params { grid-template-columns: 1fr 1fr; }",
+      "match": "calc__result"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1481,
+      "line": ".calc__result__params__row {",
+      "match": "calc__result"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1486,
+      "line": ".calc__result__params__row dt {",
+      "match": "calc__result"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1494,
+      "line": ".calc__result__params__row dd {",
+      "match": "calc__result"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1500,
+      "line": ".calc__result__note {",
+      "match": "calc__result"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1506,
+      "line": ".calc__result__cta {",
+      "match": "calc__result"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1511,
+      "line": ".calc__result__cta .btn--primary { background: var(--bg); color: var(--ink); border-color: var(--bg); }",
+      "match": "calc__result"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1512,
+      "line": ".calc__result__cta .btn--primary:hover { background: var(--depth); border-color: var(--depth); }",
+      "match": "calc__result"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1513,
+      "line": ".calc__result__cta .btn--ghost { color: var(--bg); border-color: var(--bg); }",
+      "match": "calc__result"
+    },
+    {
+      "file": "style.css",
+      "lineNumber": 1514,
+      "line": ".calc__result__cta .btn--ghost:hover { background: var(--bg); color: var(--ink); }",
+      "match": "calc__result"
+    }
+  ]
+}

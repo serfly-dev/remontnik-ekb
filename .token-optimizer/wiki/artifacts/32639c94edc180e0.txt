@@ -1,0 +1,63 @@
+{
+  "success": true,
+  "pattern": "id=&quot;calculator&quot;|id=&quot;calcBody&quot;|calc__body|calc__field",
+  "metadata": {
+    "totalMatches": 7,
+    "filesSearched": 1,
+    "filesWithMatches": 1,
+    "returnedMatches": 7,
+    "truncated": false,
+    "tokensSaved": 0,
+    "tokenCount": 245,
+    "originalTokenCount": 245,
+    "compressionRatio": 1,
+    "duration": 2,
+    "cacheHit": false,
+    "savingsClassification": "unmeasured",
+    "savingsReason": "No comparable unoptimized grep response was materialized; repository bytes scanned are not model-context tokens."
+  },
+  "matches": [
+    {
+      "file": "index.html",
+      "lineNumber": 437,
+      "line": "      <div class=\"calc__body\" id=\"calcBody\">",
+      "match": "calc__body"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 438,
+      "line": "        <div class=\"calc__field\" data-step=\"1\">",
+      "match": "calc__field"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 453,
+      "line": "        <div class=\"calc__field\" data-step=\"2\" hidden>",
+      "match": "calc__field"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 473,
+      "line": "        <div class=\"calc__field\" data-step=\"3\" hidden>",
+      "match": "calc__field"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 477,
+      "line": "        <div class=\"calc__field\" data-step=\"4\" hidden>",
+      "match": "calc__field"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 486,
+      "line": "        <div class=\"calc__field\" data-step=\"5\" hidden>",
+      "match": "calc__field"
+    },
+    {
+      "file": "index.html",
+      "lineNumber": 494,
+      "line": "        <div class=\"calc__field\" data-step=\"6\" hidden>",
+      "match": "calc__field"
+    }
+  ]
+}
