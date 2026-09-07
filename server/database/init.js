@@ -120,6 +120,19 @@ async function init() {
   `);
   console.log('✅ settings table created');
 
+  // Sections table for editable landing page content
+  await runSql(`
+    CREATE TABLE IF NOT EXISTS sections (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      key TEXT UNIQUE NOT NULL,
+      title TEXT,
+      content JSON NOT NULL,
+      order_index INTEGER DEFAULT 0,
+      updated_at DATETIME DEFAULT (datetime('now'))
+    )
+  `);
+  console.log('✅ sections table created');
+
   db.close();
   console.log('\n✨ Database initialization complete!');
   console.log('\n📌 Next steps:');

@@ -175,11 +175,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update back button visibility
     calcBackBtn.hidden = currentStep === 1;
 
-    // Update next button text
-    if (currentStep === totalSteps) {
-      calcNextBtn.textContent = 'Получить результат';
-    } else {
-      calcNextBtn.textContent = 'Далее';
+    // Update next button text (preserve icon span)
+    const nextText = calcNextBtn.querySelector('.calc__next-text');
+    if (nextText) {
+      nextText.textContent = currentStep === totalSteps ? 'Получить результат' : 'Далее';
     }
   }
 
@@ -234,19 +233,19 @@ document.addEventListener('DOMContentLoaded', () => {
   function calculatePrice() {
     if (!calculatorData.propertyType || !calculatorData.condition || !calculatorData.area) return null;
 
-    // Base rates (matching data/prices.json structure)
-    const rates = {
+    // Rates loaded from /api/sections (calculator section) or fallback to /api/prices
+    const rates = window.SECTION_RATES || {
       newBuilding: { finished: 4500, unfinished: 5500, whiteBox: 5000 },
       secondary: { finished: 5000, unfinished: 6000, whiteBox: 5500 }
     };
 
-    const baseRate = rates[calculatorData.propertyType][calculatorData.condition];
+    const baseRate = rates[calculatorData.propertyType]?.[calculatorData.condition];
     if (!baseRate) return null;
 
     const basePrice = baseRate * parseFloat(calculatorData.area);
 
     // Project coefficient
-    const projectCoeffs = {
+    const projectCoeffs = window.SECTION_COEFFICIENTS || {
       hasProject: 1.0,
       needsChanges: 1.3,
       noProject: 1.5
@@ -254,8 +253,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let totalPrice = basePrice * projectCoeffs[calculatorData.hasProject];
 
     // Add measurement fee if needed
+    const measurementFee = window.SECTION_MEASUREMENT_FEE ?? 3000;
     if (calculatorData.measurement === 'yes') {
-      totalPrice += 3000; // measurement fee
+      totalPrice += measurementFee;
     }
 
     return Math.round(totalPrice);

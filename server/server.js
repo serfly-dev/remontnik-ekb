@@ -9,6 +9,8 @@ import config from './config/index.js';
 import { closeDb } from './database/connection.js';
 import { initAdminRoutes } from './routes/auth.routes.js';
 import { initApplicationsRoutes } from './routes/applications.routes.js';
+import { initSectionsRoutes } from './routes/sections.routes.js';
+import { initPricesRoutes } from './routes/prices.routes.js';
 
 dotenv.config();
 
@@ -47,6 +49,8 @@ app.get('/health', (req, res) => {
 // API routes
 initAdminRoutes(app);
 initApplicationsRoutes(app);
+initSectionsRoutes(app);
+initPricesRoutes(app);
 
 // Static — public/ first
 app.use(express.static(path.join(rootDir, 'public')));

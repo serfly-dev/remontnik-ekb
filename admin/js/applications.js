@@ -248,6 +248,9 @@ function renderStats(stats) {
   document.getElementById('statCompleted').textContent = stats.byStatus?.completed ?? 0;
 }
 
+// Expose for tab switching
+window.loadApplications = loadApplications;
+
 // ── Load data ──
 async function loadApplications() {
   showLoading();
