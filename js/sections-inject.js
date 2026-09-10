@@ -36,9 +36,7 @@
 
     const echoLayers = ['0.04em', '0.08em', '0.12em', '0.16em']
       .map((offset, i) => {
-        const colors = ['#bfbfbf', '#c5c5c5', '#cdcdcd', '#d3d3d3', '#d9d9d9'];
-        const color = colors[i] || colors[colors.length - 1];
-        return `<span class="echo__layer echo__layer--${i + 1}" aria-hidden="true" style="color:${color};text-shadow:-${offset} 0 0 ${color}">${escapeHtml(content.title)}</span>`;
+        return `<span class="echo__layer echo__layer--${i + 1}" aria-hidden="true" style="-webkit-text-stroke:${offset} var(--echo-${i + 1})">${escapeHtml(content.title)}</span>`;
       })
       .join('');
 
@@ -98,7 +96,6 @@
     root.innerHTML = `
       <div class="container">
         <div class="section-head">
-          <p class="eyebrow eyebrow--marker">${escapeHtml(content.eyebrow || '')}</p>
           <h2 class="section-title" id="services-title">${escapeHtml(content.title || '')}</h2>
         </div>
         <ul class="services__index">
@@ -132,7 +129,6 @@
     root.innerHTML = `
       <div class="container">
         <div class="section-head">
-          <p class="eyebrow eyebrow--marker">${escapeHtml(content.eyebrow || '')}${content.eyebrow_num ? `<span class="eyebrow__num">${escapeHtml(content.eyebrow_num)}</span>` : ''}</p>
           <h2 class="section-title" id="works-title">${escapeHtml(content.title || '')}</h2>
           ${noteHtml}
         </div>
@@ -196,7 +192,6 @@
     root.innerHTML = `
       <div class="container">
         <div class="section-head">
-          <p class="eyebrow eyebrow--marker">${escapeHtml(content.eyebrow || '')}</p>
           <h2 class="section-title" id="formats-title">${escapeHtml(content.title || '')}</h2>
         </div>
         <div class="formats__grid">
@@ -273,7 +268,6 @@
     root.innerHTML = `
       <div class="container">
         <div class="section-head">
-          <p class="eyebrow eyebrow--marker">${escapeHtml(content.eyebrow || '')}${content.eyebrow_num ? `<span class="eyebrow__num">${escapeHtml(content.eyebrow_num)}</span>` : ''}</p>
           <h2 class="section-title" id="faq-title">${escapeHtml(content.title || '')}</h2>
         </div>
         <div class="faq__list" id="accordion">
@@ -307,7 +301,6 @@
     root.innerHTML = `
       <div class="container">
         <div class="process__head">
-          <p class="eyebrow eyebrow--marker">${escapeHtml(content.eyebrow || '')}${content.eyebrow_num ? `<span class="eyebrow__num">${escapeHtml(content.eyebrow_num)}</span>` : ''}</p>
           <h2 class="section-title" id="process-title">${escapeHtml(content.title || '')}</h2>
         </div>
         <div class="process__phases">

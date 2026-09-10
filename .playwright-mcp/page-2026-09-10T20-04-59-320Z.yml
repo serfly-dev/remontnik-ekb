@@ -1,0 +1,481 @@
+- generic [active] [ref=f1e1]:
+  - link "Перейти к содержанию" [ref=f1e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f1e3]:
+    - generic [ref=f1e4]:
+      - link "На главную" [ref=f1e5] [cursor=pointer]:
+        - /url: "#hero"
+      - navigation "Основная навигация" [ref=f1e7]:
+        - list [ref=f1e8]:
+          - listitem [ref=f1e9]:
+            - link "Опыт" [ref=f1e10] [cursor=pointer]:
+              - /url: "#experience"
+          - listitem [ref=f1e11]:
+            - link "Услуги" [ref=f1e12] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=f1e13]:
+            - link "Работы" [ref=f1e14] [cursor=pointer]:
+              - /url: "#works"
+          - listitem [ref=f1e15]:
+            - link "Форматы" [ref=f1e16] [cursor=pointer]:
+              - /url: "#formats"
+          - listitem [ref=f1e17]:
+            - link "Калькулятор" [ref=f1e18] [cursor=pointer]:
+              - /url: "#calculator"
+          - listitem [ref=f1e19]:
+            - link "Контакты" [ref=f1e20] [cursor=pointer]:
+              - /url: "#contacts"
+      - generic [ref=f1e21]:
+        - link "Позвонить" [ref=f1e22] [cursor=pointer]:
+          - /url: tel:+79502085138
+          - generic [ref=f1e25]: +7 950 208 51 38
+        - link "Забронировать замер" [ref=f1e26] [cursor=pointer]:
+          - /url: "#application"
+  - generic [aria-hidden]:
+    - button
+    - navigation:
+      - link:
+        - /url: "#experience"
+        - text: Опыт
+      - link:
+        - /url: "#services"
+        - text: Услуги
+      - link:
+        - /url: "#works"
+        - text: Работы
+      - link:
+        - /url: "#formats"
+        - text: Форматы
+      - link:
+        - /url: "#calculator"
+        - text: Калькулятор
+      - link:
+        - /url: "#contacts"
+        - text: Контакты
+    - generic:
+      - link:
+        - /url: "#formats"
+        - text: Забронировать замер
+      - link:
+        - /url: tel:+79502085138
+        - text: Позвонить
+  - main [ref=f1e27]:
+    - region [ref=f1e28]:
+      - generic [ref=f1e30]:
+        - generic [ref=f1e31]:
+          - paragraph [ref=f1e32]: Ремонт квартиры в Екатеринбурге
+          - heading "Ремонт квартиры без лишних переплат и иллюзий" [level=1] [ref=f1e33]:
+            - generic [ref=f1e34]:
+              - generic [ref=f1e35]: Ремонт квартиры без лишних переплат и иллюзий
+              - generic [aria-hidden]: Ремонт квартиры без лишних переплат и иллюзий
+              - generic [aria-hidden]: Ремонт квартиры без лишних переплат и иллюзий
+              - generic [aria-hidden]: Ремонт квартиры без лишних переплат и иллюзий
+              - generic [aria-hidden]: Ремонт квартиры без лишних переплат и иллюзий
+          - paragraph [ref=f1e36]: Более 10 лет в строительстве. Опыт крупных объектов и ремонт по дизайн-проекту. Прозрачная смета и понятный процесс от замера до результата.
+          - generic [ref=f1e37]:
+            - link "Забронировать замер" [ref=f1e38] [cursor=pointer]:
+              - /url: "#formats"
+            - link "Рассчитать стоимость" [ref=f1e39] [cursor=pointer]:
+              - /url: "#calculator"
+          - generic [ref=f1e40]:
+            - generic [ref=f1e41]: 10+ лет в строительстве
+            - generic [ref=f1e42]: Clever Park крупный проект
+            - generic [ref=f1e43]: Пермь аэропорт
+            - generic [ref=f1e44]: "@nikitanachatkin Telegram"
+        - generic [ref=f1e46]:
+          - img "Фото отремонтированной квартиры" [ref=f1e47]
+          - generic [ref=f1e48]: Пример работы — гостиная
+    - region [ref=f1e49]:
+      - generic [ref=f1e51]:
+        - generic [ref=f1e52]:
+          - paragraph [ref=f1e53]: Опыт
+          - heading "Путь от фундамента до готовой квартиры" [level=2] [ref=f1e54]: Путь от фундаментадо готовой квартиры
+        - generic [ref=f1e55]:
+          - generic [ref=f1e56]:
+            - generic [ref=f1e57]:
+              - generic [ref=f1e58]: Этап 01
+              - generic [ref=f1e59]:
+                - heading "Фундаменты и каркасы" [level=3] [ref=f1e60]
+                - paragraph [ref=f1e61]: Начал с нулевого цикла — фундаменты, несущие конструкции.
+            - generic [ref=f1e62]:
+              - generic [ref=f1e63]: Этап 02
+              - generic [ref=f1e64]:
+                - heading "Clever Park · Аэропорт в Перми" [level=3] [ref=f1e65]
+                - paragraph [ref=f1e66]: Участие в крупных строительных проектах масштаба выше бытового.
+            - generic [ref=f1e67]:
+              - generic [ref=f1e68]: Этап 03
+              - generic [ref=f1e69]:
+                - heading "Мастер СМР" [level=3] [ref=f1e70]
+                - paragraph [ref=f1e71]: Работа на объекте, организация процессов, контроль качества.
+            - generic [ref=f1e72]:
+              - generic [ref=f1e73]: Этап 04
+              - generic [ref=f1e74]:
+                - heading "Руководитель проектов" [level=3] [ref=f1e75]
+                - paragraph [ref=f1e76]: Планирование процессов, контроль выполнения, управление бюджетом.
+            - generic [ref=f1e77]:
+              - generic [ref=f1e78]: Этап 05
+              - generic [ref=f1e79]:
+                - heading "Ремонт по дизайн-проекту" [level=3] [ref=f1e80]
+                - paragraph [ref=f1e81]: Специализация на ремонте квартир — прозрачно, понятно, по договору.
+          - generic [ref=f1e82]:
+            - paragraph [ref=f1e83]: "\"Я занимаюсь строительством уже более 10 лет. Опыт большого строительства и практический опыт ремонта позволяют организовать ремонт квартиры более прозрачно и профессионально.\""
+            - generic [ref=f1e84]: Никита Начаткин
+    - region [ref=f1e85]:
+      - generic [ref=f1e86]:
+        - generic [ref=f1e87]:
+          - paragraph [ref=f1e88]: Услуги
+          - heading "Чем могу помочь" [level=2] [ref=f1e89]
+        - list [ref=f1e90]:
+          - listitem [ref=f1e91]:
+            - generic [ref=f1e92]: "01"
+            - heading "Ремонт новостройки" [level=3] [ref=f1e93]
+            - paragraph [ref=f1e94]: Комплексный ремонт от черновой отделки до готовности к жизни.
+            - list [ref=f1e95]:
+              - listitem [ref=f1e96]: — Подготовка стен и полов
+              - listitem [ref=f1e97]: — Электропроводка и сантехника
+              - listitem [ref=f1e98]: — Чистовая отделка
+              - listitem [ref=f1e99]: — Установка дверей и плинтусов
+            - generic [aria-hidden] [ref=f1e100]: →
+          - listitem [ref=f1e101]:
+            - generic [ref=f1e102]: "02"
+            - heading "Ремонт вторичного жилья" [level=3] [ref=f1e103]
+            - paragraph [ref=f1e104]: Обновление квартиры с учётом существующих коммуникаций.
+            - list [ref=f1e105]:
+              - listitem [ref=f1e106]: — Демонтаж старых покрытий
+              - listitem [ref=f1e107]: — Замена коммуникаций
+              - listitem [ref=f1e108]: — Выравнивание поверхностей
+              - listitem [ref=f1e109]: — Чистовая отделка
+            - generic [aria-hidden] [ref=f1e110]: →
+          - listitem [ref=f1e111]:
+            - generic [ref=f1e112]: "03"
+            - heading "Ремонт по дизайн-проекту" [level=3] [ref=f1e113]
+            - paragraph [ref=f1e114]: Реализация проекта с точным соблюдением всех решений.
+            - list [ref=f1e115]:
+              - listitem [ref=f1e116]: — Работа по проекту
+              - listitem [ref=f1e117]: — Подбор и закупка материалов
+              - listitem [ref=f1e118]: — Сложные конструкции
+              - listitem [ref=f1e119]: — Премиальная отделка
+            - generic [aria-hidden] [ref=f1e120]: →
+          - listitem [ref=f1e121]:
+            - generic [ref=f1e122]: "04"
+            - heading "Ремонт ванной" [level=3] [ref=f1e123]
+            - paragraph [ref=f1e124]: Отдельный ремонт санузла — от плитки до сантехники.
+            - list [ref=f1e125]:
+              - listitem [ref=f1e126]: — Гидроизоляция
+              - listitem [ref=f1e127]: — Плиточные работы
+              - listitem [ref=f1e128]: — Установка сантехники
+              - listitem [ref=f1e129]: — Освещение и вентиляция
+            - generic [aria-hidden] [ref=f1e130]: →
+          - listitem [ref=f1e131]:
+            - generic [ref=f1e132]: "05"
+            - heading "Отделочные работы" [level=3] [ref=f1e133]
+            - paragraph [ref=f1e134]: Покраска, обои, плитка, полы — часть ремонта или отдельно.
+            - list [ref=f1e135]:
+              - listitem [ref=f1e136]: — Малярные работы
+              - listitem [ref=f1e137]: — Укладка плитки
+              - listitem [ref=f1e138]: — Монтаж полов
+              - listitem [ref=f1e139]: — Поклейка обоев
+            - generic [aria-hidden] [ref=f1e140]: →
+    - region [ref=f1e141]:
+      - generic [ref=f1e142]:
+        - generic [ref=f1e143]:
+          - paragraph [ref=f1e144]:
+            - text: Портфолио
+            - generic [ref=f1e145]: "3"
+          - heading "Примеры работ" [level=2] [ref=f1e146]
+          - paragraph [ref=f1e147]: i Реальные фотографии работ будут добавлены после согласования с клиентами.
+        - generic [ref=f1e148]:
+          - figure "Квартира Новостройка Ремонт трёхкомнатной квартиры" [ref=f1e149]:
+            - img "Пример ремонта квартиры — гостиная" [ref=f1e151]
+            - generic [ref=f1e152]:
+              - generic [ref=f1e153]:
+                - generic [ref=f1e154]: Квартира
+                - generic [ref=f1e155]: Новостройка
+              - heading "Ремонт трёхкомнатной квартиры" [level=3] [ref=f1e156]
+          - figure "Интерьер Современный интерьер" [ref=f1e157]:
+            - img "Пример отделки интерьера" [ref=f1e159]
+            - generic [ref=f1e160]:
+              - generic [ref=f1e161]: Интерьер
+              - heading "Современный интерьер" [level=3] [ref=f1e163]
+          - figure "Санузел Ремонт ванной комнаты" [ref=f1e164]:
+            - img "Пример ремонта ванной" [ref=f1e166]
+            - generic [ref=f1e167]:
+              - generic [ref=f1e168]: Санузел
+              - heading "Ремонт ванной комнаты" [level=3] [ref=f1e170]
+          - figure "Гостиная Гостиная с панорамным окном" [ref=f1e171]:
+            - img "Пример ремонта гостиной" [ref=f1e173]
+            - generic [ref=f1e174]:
+              - generic [ref=f1e175]: Гостиная
+              - heading "Гостиная с панорамным окном" [level=3] [ref=f1e177]
+          - figure "Спальня Спальня в скандинавском стиле" [ref=f1e178]:
+            - img "Пример отделки спальни" [ref=f1e180]
+            - generic [ref=f1e181]:
+              - generic [ref=f1e182]: Спальня
+              - heading "Спальня в скандинавском стиле" [level=3] [ref=f1e184]
+          - figure "Кухня Кухня-гостиная" [ref=f1e185]:
+            - img "Пример кухни" [ref=f1e187]
+            - generic [ref=f1e188]:
+              - generic [ref=f1e189]: Кухня
+              - heading "Кухня-гостиная" [level=3] [ref=f1e191]
+    - region [ref=f1e192]:
+      - generic [ref=f1e193]:
+        - generic [ref=f1e194]:
+          - paragraph [ref=f1e195]: Варианты сотрудничества
+          - heading "Выберите формат работы" [level=2] [ref=f1e196]
+        - generic [ref=f1e197]:
+          - generic [ref=f1e198]:
+            - generic [ref=f1e199]: "01"
+            - heading "Замер + смета на работы" [level=3] [ref=f1e200]
+            - paragraph [ref=f1e201]: Подходит тем, кто хочет получить понятную стоимость работ и самостоятельно заниматься закупкой материалов.
+            - paragraph [ref=f1e202]:
+              - generic [ref=f1e203]: 3 000
+              - generic [ref=f1e204]: ₽
+            - list [ref=f1e205]:
+              - listitem [ref=f1e206]: Выезд на объект и замер
+              - listitem [ref=f1e207]: Смета на работы
+              - listitem [ref=f1e208]: Согласование сметы
+              - listitem [ref=f1e209]: Подписание договора
+              - listitem [ref=f1e210]: Выбор даты начала
+            - link "Выбрать вариант" [ref=f1e211] [cursor=pointer]:
+              - /url: "#calculator"
+          - generic [ref=f1e212]:
+            - generic [ref=f1e213]: Для полного понимания бюджета
+            - generic [ref=f1e214]: "02"
+            - heading "Замер + смета на работы и материалы" [level=3] [ref=f1e215]
+            - paragraph [ref=f1e216]: Подходит тем, кто хочет заранее понимать практически весь бюджет ремонта.
+            - paragraph [ref=f1e217]:
+              - generic [ref=f1e218]: 10 000
+              - generic [ref=f1e219]: ₽
+            - list [ref=f1e220]:
+              - listitem [ref=f1e221]: Выезд на объект и замер
+              - listitem [ref=f1e222]: Смета на работы и материалы
+              - listitem [ref=f1e223]: Согласование сметы
+              - listitem [ref=f1e224]: Подписание договора
+              - listitem [ref=f1e225]: Выбор даты начала
+            - link "Выбрать вариант" [ref=f1e226] [cursor=pointer]:
+              - /url: "#calculator"
+        - generic [ref=f1e227]:
+          - generic [ref=f1e228]:
+            - heading "Вариант 1" [level=4] [ref=f1e229]
+            - paragraph [ref=f1e230]: Подходит тем, кто хочет получить понятную стоимость работ и самостоятельно заниматься закупкой материалов.
+          - generic [ref=f1e231]:
+            - heading "Вариант 2" [level=4] [ref=f1e232]
+            - paragraph [ref=f1e233]: Во втором варианте мы считаем не только стоимость работ, но и материалы — от черновых до чистовых. В итоге у вас появляется понятная картина бюджета всего ремонта. Вы заранее понимаете, на какие расходы рассчитывать, можете планировать свои деньги и спокойно двигаться к новоселью.
+    - region [ref=f1e234]:
+      - generic [ref=f1e236]:
+        - generic [ref=f1e237]:
+          - generic [ref=f1e239]:
+            - generic [ref=f1e240]: 1 / 6
+            - generic [ref=f1e241]: Тип объекта
+          - paragraph
+        - generic [ref=f1e243]:
+          - paragraph [ref=f1e244]: Тип объекта
+          - generic [ref=f1e245]:
+            - generic [ref=f1e246] [cursor=pointer]:
+              - radio "Новостройка"
+              - generic [ref=f1e248]: Новостройка
+            - generic [ref=f1e249] [cursor=pointer]:
+              - radio "Вторичное жильё"
+              - generic [ref=f1e251]: Вторичное жильё
+        - button "→ Далее" [ref=f1e253] [cursor=pointer]:
+          - generic [ref=f1e254]: →
+          - generic [ref=f1e255]: Далее
+    - region [ref=f1e256]:
+      - generic [ref=f1e258]:
+        - generic [ref=f1e259]:
+          - paragraph [ref=f1e260]: Заявка
+          - heading "Хотите получить точную смету?" [level=2] [ref=f1e261]
+          - paragraph [ref=f1e262]: Оставьте заявку — я свяжусь с вами, обсудим задачу и согласую дату замера.
+          - generic [ref=f1e263]:
+            - link "Telegram @nikitanachatkin" [ref=f1e264] [cursor=pointer]:
+              - /url: https://t.me/nikitanachatkin
+              - generic [ref=f1e265]: Telegram
+              - generic [ref=f1e266]: "@nikitanachatkin"
+            - link "WhatsApp +7 950 208 5138" [ref=f1e267] [cursor=pointer]:
+              - /url: https://wa.me/79502085138
+              - generic [ref=f1e268]: WhatsApp
+              - generic [ref=f1e269]: +7 950 208 5138
+        - generic [ref=f1e270]:
+          - generic [ref=f1e271]:
+            - generic [ref=f1e272]:
+              - generic [ref=f1e273]: Имя
+              - textbox "Имя" [ref=f1e274]:
+                - /placeholder: Ваше имя
+            - generic [ref=f1e276]:
+              - generic [ref=f1e277]: Телефон
+              - textbox "Телефон" [ref=f1e278]:
+                - /placeholder: +7 (___) ___-__-__
+          - generic [ref=f1e280]:
+            - generic [ref=f1e281]:
+              - generic [ref=f1e282]: Удобное время связи
+              - combobox "Удобное время связи" [ref=f1e283] [cursor=pointer]:
+                - option "Выберите" [selected]
+                - option "Утром"
+                - option "Днём"
+                - option "Вечером"
+                - option "В любое время"
+            - generic [ref=f1e285]:
+              - generic [ref=f1e286]: Комментарий
+              - textbox "Комментарий" [ref=f1e287]:
+                - /placeholder: Расскажите о квартире и задаче
+          - generic [ref=f1e288]:
+            - button "Отправить заявку" [ref=f1e289] [cursor=pointer]
+            - status
+    - region [ref=f1e290]:
+      - generic [ref=f1e292]:
+        - generic [ref=f1e293]:
+          - paragraph [ref=f1e294]: Обо мне
+          - heading "Ваш комфорт — наш приоритет" [level=2] [ref=f1e295]: Ваш комфорт —наш приоритет
+          - generic [ref=f1e296]:
+            - paragraph [ref=f1e297]: Я занимаюсь строительством уже более 10 лет. Начинал с фундаментов, участвовал в проектах Clever Park и аэропорта в Перми, прошёл путь от мастера СМР до руководителя проектов.
+            - paragraph [ref=f1e298]: "Сейчас я специализируюсь на ремонте квартир по дизайн-проектам. Главное для меня — прозрачность: понятная смета, аргументация решений, контроль расходов и результат, который радует."
+            - paragraph [ref=f1e299]: Я стараюсь держать процесс максимально прозрачным и понятным для клиента. Клиент не должен переплачивать за ненужные процессы и лишних посредников.
+        - generic [ref=f1e300]:
+          - img "Никита Начаткин — специалист по ремонту квартир" [ref=f1e301]
+          - generic [ref=f1e302]: Никита Начаткин
+    - region [ref=f1e303]:
+      - generic [ref=f1e304]:
+        - generic [ref=f1e305]:
+          - paragraph [ref=f1e306]:
+            - text: Как это работает
+            - generic [ref=f1e307]: "8"
+          - heading "Путь от заявки до результата" [level=2] [ref=f1e308]
+        - generic [ref=f1e309]:
+          - generic [ref=f1e310]:
+            - paragraph [ref=f1e311]: Этап 01–02(--)
+            - heading "Заявка и обсуждение(--)" [level=3] [ref=f1e312]
+            - list [ref=f1e313]:
+              - listitem [ref=f1e314]: Оставляете заявку(--)
+              - listitem [ref=f1e315]: Обсуждаем задачу(--)
+              - listitem [ref=f1e316]: (--)
+              - listitem [ref=f1e317]: (--)
+          - generic [ref=f1e318]:
+            - paragraph [ref=f1e319]: Этап 03–05(--)
+            - heading "(--)Выезд и замер" [level=3] [ref=f1e320]
+            - list [ref=f1e321]:
+              - listitem [ref=f1e322]: Подготовка сметы(--)
+          - generic [ref=f1e323]:
+            - paragraph [ref=f1e324]: Этап 06–08(--)
+            - heading "Согласование и договор(--)" [level=3] [ref=f1e325]
+            - list [ref=f1e326]:
+              - listitem [ref=f1e327]: Согласование сметы(--)
+              - listitem [ref=f1e328]: Подписание договора(--)
+              - listitem [ref=f1e329]: (--) даты начала
+          - generic [ref=f1e330]:
+            - paragraph [ref=f1e331]: (--)Этап 09–10
+            - heading "(--)Ремонт и результат" [level=3] [ref=f1e332]
+            - list [ref=f1e333]:
+              - listitem [ref=f1e334]: Выполнение работ(--)
+              - listitem [ref=f1e335]: (--)Сдача объекта
+          - generic [ref=f1e336]:
+            - paragraph [ref=f1e337]: (--)
+            - heading "(--)" [level=3] [ref=f1e338]
+            - list [ref=f1e339]:
+              - listitem [ref=f1e340]: (--)
+          - generic [ref=f1e341]:
+            - paragraph [ref=f1e342]: (--)
+            - heading "(--)" [level=3] [ref=f1e343]
+            - list [ref=f1e344]:
+              - listitem [ref=f1e345]: (--)
+    - region [ref=f1e346]:
+      - generic [ref=f1e347]:
+        - generic [ref=f1e348]:
+          - paragraph [ref=f1e349]:
+            - text: Частые вопросы
+            - generic [ref=f1e350]: "6"
+          - heading "Что спрашивают клиенты" [level=2] [ref=f1e351]
+        - generic [ref=f1e352]:
+          - group [ref=f1e353]:
+            - generic "01 Какие материалы используются?" [ref=f1e354] [cursor=pointer]:
+              - generic [ref=f1e355]: "01"
+              - generic [ref=f1e356]: Какие материалы используются?
+            - generic [ref=f1e358]: Материалы подбираются под бюджет и задачу — от черновых до чистовых. При варианте 2 смета включает полную картину закупок.
+          - group [ref=f1e360]:
+            - generic "02 Работаете ли вы по дизайн-проекту?(--)" [ref=f1e361] [cursor=pointer]:
+              - generic [ref=f1e362]: "02"
+              - generic [ref=f1e363]: Работаете ли вы по дизайн-проекту?(--)
+          - group [ref=f1e365]:
+            - generic "03 Сколько длится ремонт?" [ref=f1e366] [cursor=pointer]:
+              - generic [ref=f1e367]: "03"
+              - generic [ref=f1e368]: Сколько длится ремонт?
+          - group [ref=f1e370]:
+            - generic "04 Договор — это официально?" [ref=f1e371] [cursor=pointer]:
+              - generic [ref=f1e372]: "04"
+              - generic [ref=f1e373]: Договор — это официально?
+          - group [ref=f1e375]:
+            - generic "05 (--)" [ref=f1e376] [cursor=pointer]:
+              - generic [ref=f1e377]: "05"
+              - generic [ref=f1e378]: (--)
+    - region [ref=f1e380]:
+      - generic [ref=f1e381]:
+        - paragraph [ref=f1e382]: Доказательства
+        - heading "Опыт, который говорит сам за себя" [level=2] [ref=f1e383]
+        - generic [ref=f1e384]:
+          - generic [ref=f1e385]:
+            - generic [ref=f1e386]: 10+
+            - generic [ref=f1e387]: лет в строительстве
+          - generic [ref=f1e388]:
+            - generic [ref=f1e389]: Clever Park
+            - generic [ref=f1e390]: участвовал в проекте
+          - generic [ref=f1e391]:
+            - generic [ref=f1e392]: Пермский аэропорт
+            - generic [ref=f1e393]: участвовал в проекте
+          - generic [ref=f1e394]:
+            - generic [ref=f1e395]: СМР → рук.
+            - generic [ref=f1e396]: карьерный путь
+          - generic [ref=f1e397]:
+            - generic [ref=f1e398]: Прозрачная
+            - generic [ref=f1e399]: смета без скрытых расходов
+          - generic [ref=f1e400]:
+            - generic [ref=f1e401]: Договор
+            - generic [ref=f1e402]: фиксированные условия
+    - region [ref=f1e403]:
+      - generic [ref=f1e404]:
+        - generic [ref=f1e405]:
+          - generic [ref=f1e406]:
+            - heading "Готовы обсудить ремонт?" [level=2] [ref=f1e407]
+            - paragraph [ref=f1e408]: Расскажите о вашей квартире, и мы обсудим, с чего лучше начать.
+            - generic [ref=f1e409]:
+              - link "Telegram @nikitanachatkin" [ref=f1e410] [cursor=pointer]:
+                - /url: https://t.me/nikitanachatkin
+                - generic [ref=f1e411]: Telegram
+                - generic [ref=f1e412]: "@nikitanachatkin"
+              - link "WhatsApp +7 950 208 5138" [ref=f1e413] [cursor=pointer]:
+                - /url: https://wa.me/79502085138
+                - generic [ref=f1e414]: WhatsApp
+                - generic [ref=f1e415]: +7 950 208 5138
+          - generic [ref=f1e416]:
+            - link "Забронировать дату замера" [ref=f1e417] [cursor=pointer]:
+              - /url: "#application"
+            - link "Рассчитать стоимость" [ref=f1e418] [cursor=pointer]:
+              - /url: "#calculator"
+        - paragraph [ref=f1e419]: Ремонт квартир — Никита Начаткин
+  - contentinfo [ref=f1e420]:
+    - generic [ref=f1e421]:
+      - generic [ref=f1e422]:
+        - generic [ref=f1e423]:
+          - paragraph [ref=f1e424]: Ремонт квартирбез лишних переплат
+          - paragraph [ref=f1e425]: Прозрачная смета · понятный процесс · результат
+        - generic [ref=f1e426]:
+          - paragraph [ref=f1e427]: Навигация
+          - navigation [ref=f1e428]:
+            - link "Варианты" [ref=f1e429] [cursor=pointer]:
+              - /url: "#formats"
+            - link "Калькулятор" [ref=f1e430] [cursor=pointer]:
+              - /url: "#calculator"
+            - link "FAQ" [ref=f1e431] [cursor=pointer]:
+              - /url: "#faq"
+            - link "Политика конфиденциальности" [ref=f1e432] [cursor=pointer]:
+              - /url: privacy.html
+        - generic [ref=f1e433]:
+          - paragraph [ref=f1e434]: Контакты
+          - 'link "Telegram: @nikitanachatkin" [ref=f1e435] [cursor=pointer]':
+            - /url: https://t.me/nikitanachatkin
+          - 'link "WhatsApp: +7 950 208 5138" [ref=f1e436] [cursor=pointer]':
+            - /url: https://wa.me/79502085138
+          - 'link "Телефон: +7 950 208 5138" [ref=f1e437] [cursor=pointer]':
+            - /url: tel:+79502085138
+      - generic [ref=f1e438]:
+        - generic [ref=f1e439]: © 2026 Ремонт квартиры — Никита Начаткин
+        - link "Политика конфиденциальности" [ref=f1e440] [cursor=pointer]:
+          - /url: privacy.html

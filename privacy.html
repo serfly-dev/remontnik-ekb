@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Политика конфиденциальности — Никита Начаткин</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Satoshi:wght@400;500;700&display=swap" rel="stylesheet" media="screen">
+  <link rel="stylesheet" href="/css/fonts.css">
 
   <meta name="theme-color" content="#f2f2f2">
   <meta name="color-scheme" content="light">
@@ -23,6 +21,8 @@
       --text-primary: #111111;
       --text-secondary: #b6b5b5;
       --text-dark: #838282;
+      --font-display: 'Golos Text', system-ui, -apple-system, sans-serif;
+      --font-body: 'Manrope', system-ui, -apple-system, sans-serif;
       --space-sm: 1rem;
       --space-md: 1.5rem;
       --space-lg: 2rem;
@@ -30,7 +30,7 @@
     }
 
     body {
-      font-family: 'Satoshi', system-ui, -system-font, sans-serif;
+      font-family: var(--font-body);
       font-size: 1rem;
       line-height: 1.6;
       background: var(--bg);
@@ -46,7 +46,7 @@
     }
 
     h1 {
-      font-family: 'Clash Display', serif;
+      font-family: var(--font-display);
       font-size: 2rem;
       font-weight: 700;
       line-height: 1.2;
@@ -141,10 +141,13 @@
     <p>Последнее обновление: 02 сентября 2026 г.</p>
   </div>
 
-  <footer class="footer" style="margin-top: var(--space-xl); padding: var(--space-lg) 0; border-top: 1px solid var(--text-depth);">
+  <footer class="footer" style="margin-top: var(--space-xl); padding: var(--space-lg) 0; border-top: 1px solid var(--text-depth); background: rgb(0, 0, 0);">
     <div class="container" style="max-width: none;">
       <div style="text-align: center; margin-bottom: var(--space-lg);">
-        <span style="font-size: 0.875rem; color: var(--text-primary);">© 2026 Ремонт квартиры — Никита Начаткин</span>
+        <img src="/public/images/logo_white_in_black_circle.png" alt="Логотип: Никита Начаткин" style="max-width: 200px; width: 100%; height: auto; display: block; margin-bottom: var(--space-md);">
+        <span style="font-size: 0.875rem; color: var(--text-primary); display: inline-flex; align-items: center; gap: 0.5rem;">
+      © 2026 Ремонт квартиры — Никита Начаткин
+    </span>
       </div>
       <div style="display: flex; justify-content: center; gap: var(--space-lg); flex-wrap: wrap;">
         <a href="index.html" style="color: var(--text-primary); text-decoration: none;">Главная</a>
