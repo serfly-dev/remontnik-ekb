@@ -13,6 +13,12 @@ const VALID_SECTION_KEYS = [
   'applications'
 ];
 
+// Fields stored in section content that must never leave the server
+// through the public sections list (admin panel still gets full content).
+const INTERNAL_FIELDS_BY_SECTION = {
+  calculator: ['rates', 'coefficients', 'measurement_fee']
+};
+
 function isValidKey(key) {
   return VALID_SECTION_KEYS.includes(key);
 }
@@ -31,7 +37,17 @@ function logAdminEvent(event, req, extra = {}) {
 export async function listSections(req, res) {
   try {
     const sections = await fetchSections();
-    res.json({ success: true, data: sections });
+    const publicSections = sections.map((section) => {
+      const internalFields = INTERNAL_FIELDS_BY_SECTION[section.key];
+      if (!internalFields || !section.content) return section;
+
+      const content = { ...section.content };
+      for (const field of internalFields) {
+        delete content[field];
+      }
+      return { ...section, content };
+    });
+    res.json({ success: true, data: publicSections });
   } catch (err) {
     console.error('List sections error:', err);
     res.status(500).json({ success: false, message: 'Ошибка при загрузке секций' });
