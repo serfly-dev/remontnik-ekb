@@ -139,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const calcArea = document.getElementById('calcArea');
   const calcError = document.getElementById('calcError');
   const calcResultValue = document.getElementById('calcResultValue');
+  const calcResultApprox = document.querySelector('.calc__result__approx');
   const calcResult = document.getElementById('calcResult');
   const calcMeta = document.getElementById('calcMeta');
   const calcBody = document.getElementById('calcBody');
@@ -347,7 +348,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // Show result step — replace questions with result
   function showResult() {
     const price = calculatePrice();
-    calcResultValue.textContent = price ? `${formatNumber(price)} ₽` : '— ₽';
+    if (price) {
+      // Действующие расценки носят ориентировочный характер — показываем
+      // диапазон ±10 %, а не ложную точную цифру. Точная сумма — после
+      // замера и подготовки сметы.
+      const lo = Math.round(price * 0.9);
+      const hi = Math.round(price * 1.1);
+      calcResultValue.textContent = `${formatNumber(lo)} – ${formatNumber(hi)} ₽`;
+      if (calcResultApprox) {
+        calcResultApprox.textContent = 'Ориентировочный диапазон на основе действующих расценок. Точная стоимость — после замера и подготовки сметы.';
+      }
+    } else {
+      calcResultValue.textContent = '— ₽';
+    }
 
     // Update params display
     calcParams.property.textContent =

@@ -23,7 +23,44 @@
   }
 
   // ---- HERO (id="hero") ----
-  function renderHero(content) {
+  // Real work comparison («До → После») as the hero signature when gallery
+  // has a before/after pair; falls back to the single hero photo.
+  function buildHeroVisual(content, all) {
+    const pair = (all && all.gallery && Array.isArray(all.gallery.items))
+      ? all.gallery.items.find(item => item && item.before && item.after)
+      : null;
+
+    if (pair) {
+      const name = pair.name || '';
+      return `
+        <figure class="hero__ba">
+          <div class="hero__ba__panels">
+            <div class="hero__ba__panel">
+              <img src="${escapeHtml(pair.before)}" alt="${escapeHtml(name ? 'До: ' + name : 'До')}" width="600" height="800" loading="eager" decoding="async" draggable="false">
+              <span class="hero__ba__label">До</span>
+            </div>
+            <span class="hero__ba__arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12h15"/><path d="M13 6l6 6-6 6"/></svg>
+            </span>
+            <div class="hero__ba__panel">
+              <img src="${escapeHtml(pair.after)}" alt="${escapeHtml(name ? 'После: ' + name : 'После')}" width="600" height="800" loading="eager" decoding="async" draggable="false">
+              <span class="hero__ba__label">После</span>
+            </div>
+          </div>
+          ${content.imageCaption ? `<figcaption class="hero__ba__caption">${escapeHtml(content.imageCaption)}</figcaption>` : ''}
+        </figure>
+      `;
+    }
+
+    return `
+      <div class="hero__media" ${content.image ? `style="background-image:url('${escapeHtml(content.image)}')"` : ''}>
+        <img src="${escapeHtml(content.image || '')}" alt="${escapeHtml(content.imageAlt || '')}" width="900" height="1100" loading="eager" decoding="async">
+        <span class="hero__media__caption">${escapeHtml(content.imageCaption || '')}</span>
+      </div>
+    `;
+  }
+
+  function renderHero(content, all) {
     const root = document.getElementById('hero');
     if (!root) return;
 
@@ -60,10 +97,7 @@
             </div>
           </div>
           <div class="hero__visual">
-            <div class="hero__media" ${content.image ? `style="background-image:url('${escapeHtml(content.image)}')"` : ''}>
-              <img src="${escapeHtml(content.image || '')}" alt="${escapeHtml(content.imageAlt || '')}" width="900" height="1100" loading="eager" decoding="async">
-              <span class="hero__media__caption">${escapeHtml(content.imageCaption || '')}</span>
-            </div>
+            ${buildHeroVisual(content, all)}
           </div>
         </div>
       </div>
@@ -117,6 +151,11 @@
         <h3 class="format__title">${escapeHtml(o1.title || '')}</h3>
         <p class="format__desc">${escapeHtml(o1.desc || '')}</p>
         ${typeof o1.price === 'number' ? `<p class="format__price"><span class="format__price-num">${formatPrice(o1.price)}</span> <span class="format__price-cur">₽</span></p>` : ''}
+        ${Array.isArray(o1.include) && o1.include.length ? `
+        <ul class="format__include">
+          ${o1.include.map(i => `<li>${escapeHtml(i)}</li>`).join('')}
+        </ul>
+        ` : ''}
         <ol class="format__steps">
           ${(Array.isArray(o1.steps) ? o1.steps : []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}
         </ol>
@@ -131,6 +170,11 @@
         <h3 class="format__title">${escapeHtml(o2.title || '')}</h3>
         <p class="format__desc">${escapeHtml(o2.desc || '')}</p>
         ${typeof o2.price === 'number' ? `<p class="format__price"><span class="format__price-num">${formatPrice(o2.price)}</span> <span class="format__price-cur">₽</span></p>` : ''}
+        ${Array.isArray(o2.include) && o2.include.length ? `
+        <ul class="format__include">
+          ${o2.include.map(i => `<li>${escapeHtml(i)}</li>`).join('')}
+        </ul>
+        ` : ''}
         <ol class="format__steps">
           ${(Array.isArray(o2.steps) ? o2.steps : []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}
         </ol>
@@ -641,11 +685,15 @@
       const data = await res.json();
       if (!data.success || !Array.isArray(data.data)) return;
 
+      const byKey = {};
+      for (const section of data.data) {
+        if (section && section.key && section.content) byKey[section.key] = section.content;
+      }
       for (const section of data.data) {
         const renderer = RENDERERS[section.key];
         if (renderer && section.content) {
           try {
-            renderer(section.content);
+            renderer(section.content, byKey);
           } catch (err) {
             console.warn(`[sections-inject] Failed to render ${section.key}:`, err);
           }
