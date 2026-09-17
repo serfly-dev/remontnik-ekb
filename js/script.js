@@ -14,6 +14,25 @@ history.scrollRestoration = 'manual';
 window.scrollTo(0, 0);
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Cookie banner
+  const cookieBanner = document.getElementById('cookieBanner');
+  const cookieAcceptBtn = document.getElementById('cookieAcceptBtn');
+  if (cookieBanner && cookieAcceptBtn) {
+    function updateCookieBanner() {
+      if (localStorage.getItem('cookieAccepted') !== 'true') {
+        cookieBanner.hidden = false;
+        document.body.style.paddingBottom = cookieBanner.offsetHeight + 'px';
+      }
+    }
+    updateCookieBanner();
+    window.addEventListener('resize', updateCookieBanner);
+    cookieAcceptBtn.addEventListener('click', () => {
+      localStorage.setItem('cookieAccepted', 'true');
+      cookieBanner.hidden = true;
+      document.body.style.paddingBottom = '';
+    });
+  }
+
   // Reduced motion detection
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -118,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const calcStepLabel = document.getElementById('calcStepLabel');
   const calcHint = document.querySelector('.calc__hint');
   const calcArea = document.getElementById('calcArea');
+  const calcError = document.getElementById('calcError');
   const calcResultValue = document.getElementById('calcResultValue');
   const calcResult = document.getElementById('calcResult');
   const calcMeta = document.getElementById('calcMeta');
@@ -132,6 +152,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let currentStep = 1;
   const totalSteps = 6;
+
+  // Clear calculator error when the user edits the area field
+  if (calcArea) {
+    calcArea.addEventListener('input', () => {
+      if (calcError && !calcError.classList.contains('hidden')) {
+        calcError.classList.add('hidden');
+        calcArea.classList.remove('invalid');
+      }
+    });
+  }
 
   // Step labels and hints
   const stepLabels = {
@@ -180,10 +210,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (nextText) {
       nextText.textContent = currentStep === totalSteps ? 'Получить результат' : 'Далее';
     }
+
+    // Hide "Next" button on radio steps (auto-advance on select);
+    // keep it only on the area input step (step 3) and on result.
+    const currentField = document.querySelector(`.calc__field[data-step="${currentStep}"]`);
+    const hasRadios = currentField && currentField.querySelector('input[type="radio"]');
+    if (hasRadios && currentStep !== 3) {
+      calcNextBtn.hidden = true;
+    } else {
+      calcNextBtn.hidden = false;
+    }
   }
 
   // Validate current step
   function validateStep() {
+    // Clear previous calculator error
+    if (calcError) {
+      calcError.textContent = '';
+      calcError.classList.add('hidden');
+      calcArea.classList.remove('invalid');
+    }
+
     const currentField = document.querySelector(`.calc__field[data-step="${currentStep}"]`);
     if (!currentField) return true;
 
@@ -201,7 +248,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // Additional validation
     if (currentStep === 3) { // Area step
       const areaVal = parseFloat(calcArea.value);
-      if (isNaN(areaVal) || areaVal < 10 || areaVal > 500) return false;
+      if (isNaN(areaVal)) {
+        // Empty or non-numeric input
+        if (calcArea.value.trim() === '') {
+          showCalcError('Пожалуйста, введите площадь квартиры');
+        } else {
+          showCalcError('Площадь должна быть числом');
+        }
+        calcArea.classList.add('invalid');
+        return false;
+      }
+      if (areaVal < 10) {
+        showCalcError('Площадь не может быть меньше 10 м²');
+        calcArea.classList.add('invalid');
+        return false;
+      }
+      if (areaVal > 500) {
+        showCalcError('Площадь не может быть больше 500 м²');
+        calcArea.classList.add('invalid');
+        return false;
+      }
+      // Clear error if valid
+      if (calcArea.classList.contains('invalid')) {
+        calcError.classList.add('hidden');
+        calcArea.classList.remove('invalid');
+      }
     }
 
     if (currentStep === 6) { // Measurement step
@@ -210,6 +281,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     return true;
+  }
+
+  // Show calculator error message
+  function showCalcError(message) {
+    if (!calcError) return;
+    calcError.textContent = message;
+    calcError.classList.remove('hidden');
   }
 
   // Collect data from current step into calculatorData
@@ -641,7 +719,61 @@ document.addEventListener('DOMContentLoaded', () => {
   // PONYTAIL MODE ACTIVE — level: full
   // Summary: Native DOM APIs, IntersectionObserver for reveals,
   // calculator with 6-step state machine, form validation, mobile menu.
-  // Skipped: GSAP (replaced with CSS transitions + IntersectionObserver).
-  // Add when: complex scroll-based animations beyond reveal effects needed.
+  // GSAP: scroll reveals for gallery (before/after) + client video
+  // carousel. Initialized on 'sectionsRendered' because section DOM is
+  // built asynchronously by sections-inject.js.
   // =========================================================================
+
+  // ============================================================
+  // GSAP — portfolio motion (gallery + client video)
+  // ============================================================
+  gsap.registerPlugin(ScrollTrigger);
+
+  function initPortfolioMotion() {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const gate = reduceMotion ? { duration: 0 } : { duration: 0.9, ease: 'expo.out' };
+
+    gsap.utils.toArray('.ba-pair').forEach((pair) => {
+      const panels = pair.querySelectorAll('.ba-panel');
+      const arrow = pair.querySelector('.ba-pair__arrow');
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: pair,
+          start: 'top 86%',
+          onEnter: () => console.log('[QA-ST] gallery enter'),
+          onLeave: () => console.log('[QA-ST] gallery leave')
+        },
+        defaults: gate
+      });
+      tl.fromTo(
+        panels,
+        { clipPath: 'inset(10% 8% 10% 8% round 24px)', y: 40, autoAlpha: 0 },
+        { clipPath: 'inset(0% 0% 0% 0% round 24px)', y: 0, autoAlpha: 1, stagger: 0.16 }
+      );
+      if (arrow) {
+        tl.fromTo(
+          arrow,
+          { scale: 0, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.7)' },
+          '-=0.25'
+        );
+      }
+    });
+
+    const videoSection = document.querySelector('.client-video');
+    if (videoSection) {
+      gsap.fromTo(
+        videoSection,
+        { autoAlpha: 0, y: 40 },
+        { autoAlpha: 1, y: 0, ...gate, scrollTrigger: { trigger: videoSection, start: 'top 82%', onEnter: () => console.log('[QA-ST] video enter'), onLeave: () => console.log('[QA-ST] video leave') } }
+      );
+    }
+  }
+
+  document.addEventListener('sectionsRendered', initPortfolioMotion);
+  // Sections may already be rendered if this handler runs after
+  // sections-inject.js finished; otherwise the event covers it.
+  if (document.querySelector('.ba-pair') || document.querySelector('.client-video')) {
+    initPortfolioMotion();
+  }
 });

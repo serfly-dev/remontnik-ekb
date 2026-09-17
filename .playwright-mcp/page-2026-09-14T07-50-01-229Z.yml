@@ -1,0 +1,95 @@
+- generic [ref=e1]:
+  - link "Перейти к содержанию" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=e3]:
+    - generic [ref=e5]:
+      - link "На главную" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - generic [aria-hidden] [ref=e7]: NK
+        - generic [ref=e8]:
+          - generic [ref=e9]: Никита Начаткин
+          - generic [ref=e10]: Админ-панель
+      - generic [ref=e11]:
+        - generic [ref=e12]: admin
+        - button "Выйти" [ref=e13] [cursor=pointer]
+  - main [ref=e14]:
+    - generic [ref=e15]:
+      - region [ref=e16]:
+        - heading "Статистика" [level=2] [ref=e17]
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - generic [ref=e20]: "7"
+            - generic [ref=e21]: Всего заявок
+          - generic [ref=e22]:
+            - generic [ref=e23]: "7"
+            - generic [ref=e24]: Новые
+          - generic [ref=e25]:
+            - generic [ref=e26]: "0"
+            - generic [ref=e27]: В работе
+          - generic [ref=e28]:
+            - generic [ref=e29]: "0"
+            - generic [ref=e30]: Завершены
+      - region [ref=e31]:
+        - heading "Редактор секций" [level=2] [ref=e32]
+        - tablist "Секции сайта" [ref=e33]:
+          - tab "Hero" [active] [selected] [ref=e34] [cursor=pointer]
+          - tab "Услуги" [ref=e35] [cursor=pointer]
+          - tab "Портфолио" [ref=e36] [cursor=pointer]
+          - tab "Галерея" [ref=e37] [cursor=pointer]
+          - tab "Видео клиента" [ref=e38] [cursor=pointer]
+          - tab "Варианты" [ref=e39] [cursor=pointer]
+          - tab "Калькулятор" [ref=e40] [cursor=pointer]
+          - tab "CTA" [ref=e41] [cursor=pointer]
+          - tab "FAQ" [ref=e42] [cursor=pointer]
+          - tab "Процесс" [ref=e43] [cursor=pointer]
+          - tab "Заявки" [ref=e44] [cursor=pointer]
+        - generic [ref=e45]:
+          - generic [ref=e101]:
+            - heading "Hero — Главный экран" [level=2] [ref=e102]
+            - generic [ref=e103]: "Ключ: hero"
+          - generic [ref=e104]:
+            - generic [ref=e105]:
+              - generic [ref=e106]: Заголовок
+              - textbox [ref=e107]: Заголовок
+              - generic [ref=e108]: Используйте \n для переносов строк
+            - generic [ref=e109]:
+              - generic [ref=e110]: Подзаголовок
+              - textbox [ref=e111]: Подзаголовок
+            - generic [ref=e112]:
+              - generic [ref=e113]: Кнопка 1 (текст)
+              - textbox [ref=e114]: Кнопка 1 (текст)
+            - generic [ref=e115]:
+              - generic [ref=e116]: Кнопка 1 (ссылка)
+              - textbox [ref=e117]
+            - generic [ref=e118]:
+              - generic [ref=e119]: Кнопка 2 (текст)
+              - textbox [ref=e120]: Кнопка 2 (текст)
+            - generic [ref=e121]:
+              - generic [ref=e122]: Кнопка 2 (ссылка)
+              - textbox [ref=e123]
+            - generic [ref=e124]:
+              - generic [ref=e125]: Фоновое изображение
+              - button "Choose File" [ref=e129]
+            - generic [ref=e130]:
+              - generic [ref=e131]: Alt изображения
+              - textbox [ref=e132]: Alt изображения
+            - generic [ref=e133]:
+              - generic [ref=e134]: Подпись под фото
+              - textbox [ref=e135]: Подпись под фото
+            - generic [ref=e136]:
+              - generic [ref=e137]: Роль в подписи
+              - textbox [ref=e138]: Роль в подписи
+            - generic [ref=e139]:
+              - generic [ref=e140]: Доказательства
+              - generic [ref=e141]:
+                - generic [ref=e142]:
+                  - generic [ref=e143]:
+                    - generic [ref=e144]: "1"
+                    - button "Удалить" [ref=e145] [cursor=pointer]
+                  - generic [ref=e147]:
+                    - generic [ref=e148]: Подпись
+                    - textbox [ref=e149]: Подпись
+                - button "+ Добавить" [ref=e150] [cursor=pointer]
+            - generic [ref=e152]:
+              - button "Сохранить" [ref=e153] [cursor=pointer]
+              - button "Сбросить" [ref=e155] [cursor=pointer]

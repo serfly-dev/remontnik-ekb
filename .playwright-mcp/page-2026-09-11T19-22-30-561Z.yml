@@ -1,0 +1,133 @@
+- generic [active] [ref=f11e1]:
+  - link "Перейти к содержанию" [ref=f11e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f11e3]:
+    - generic [ref=f11e5]:
+      - link "На главную" [ref=f11e6] [cursor=pointer]:
+        - /url: /
+        - generic [aria-hidden] [ref=f11e7]: NK
+        - generic [ref=f11e8]:
+          - generic [ref=f11e9]: Никита Начаткин
+          - generic [ref=f11e10]: Админ-панель
+      - generic [ref=f11e11]:
+        - generic [ref=f11e12]: admin
+        - button "Выйти" [ref=f11e13] [cursor=pointer]
+  - main [ref=f11e14]:
+    - generic [ref=f11e15]:
+      - region [ref=f11e16]:
+        - heading "Статистика" [level=2] [ref=f11e17]
+        - generic [ref=f11e18]:
+          - generic [ref=f11e19]:
+            - generic [ref=f11e20]: "0"
+            - generic [ref=f11e21]: Всего заявок
+          - generic [ref=f11e22]:
+            - generic [ref=f11e23]: "0"
+            - generic [ref=f11e24]: Новые
+          - generic [ref=f11e25]:
+            - generic [ref=f11e26]: "0"
+            - generic [ref=f11e27]: В работе
+          - generic [ref=f11e28]:
+            - generic [ref=f11e29]: "0"
+            - generic [ref=f11e30]: Завершены
+      - region [ref=f11e31]:
+        - heading "Редактор секций" [level=2] [ref=f11e32]
+        - tablist "Секции сайта" [ref=f11e33]:
+          - tab "Hero" [selected] [ref=f11e34] [cursor=pointer]
+          - tab "Услуги" [ref=f11e35] [cursor=pointer]
+          - tab "Портфолио" [ref=f11e36] [cursor=pointer]
+          - tab "Галерея" [ref=f11e37] [cursor=pointer]
+          - tab "Видео клиента" [ref=f11e38] [cursor=pointer]
+          - tab "Варианты" [ref=f11e39] [cursor=pointer]
+          - tab "Калькулятор" [ref=f11e40] [cursor=pointer]
+          - tab "CTA" [ref=f11e41] [cursor=pointer]
+          - tab "FAQ" [ref=f11e42] [cursor=pointer]
+          - tab "Процесс" [ref=f11e43] [cursor=pointer]
+          - tab "Заявки" [ref=f11e44] [cursor=pointer]
+        - generic [ref=f11e45]:
+          - generic [ref=f11e46]:
+            - heading "Hero — Главный экран" [level=2] [ref=f11e47]
+            - generic [ref=f11e48]: "Ключ: hero"
+          - generic [ref=f11e49]:
+            - generic [ref=f11e50]:
+              - generic [ref=f11e51]: Эйбров (надзаголовок)
+              - textbox [ref=f11e52]: Ремонт квартиры в Екатеринбурге
+            - generic [ref=f11e53]:
+              - generic [ref=f11e54]: Заголовок
+              - textbox [ref=f11e55]: Ремонт квартиры без лишних переплат и иллюзий
+              - generic [ref=f11e56]: Используйте \n для переносов строк
+            - generic [ref=f11e57]:
+              - generic [ref=f11e58]: Подзаголовок
+              - textbox [ref=f11e59]: Более 10 лет в строительстве. Опыт крупных объектов и ремонт по дизайн-проекту. Прозрачная смета и понятный процесс от замера до результата.
+            - generic [ref=f11e60]:
+              - generic [ref=f11e61]: Кнопка 1 (текст)
+              - textbox [ref=f11e62]: Забронировать замер
+            - generic [ref=f11e63]:
+              - generic [ref=f11e64]: Кнопка 1 (ссылка)
+              - textbox [ref=f11e65]: "#formats"
+            - generic [ref=f11e66]:
+              - generic [ref=f11e67]: Кнопка 2 (текст)
+              - textbox [ref=f11e68]: Рассчитать стоимость
+            - generic [ref=f11e69]:
+              - generic [ref=f11e70]: Кнопка 2 (ссылка)
+              - textbox [ref=f11e71]: "#calculator"
+            - generic [ref=f11e72]:
+              - generic [ref=f11e73]: Фоновое изображение
+              - generic [ref=f11e76]:
+                - button "Choose File" [ref=f11e77]
+                - textbox "Или вставьте URL изображения" [ref=f11e78]: public/images/hero-interior.jpg
+            - generic [ref=f11e79]:
+              - generic [ref=f11e80]: Alt изображения
+              - textbox [ref=f11e81]: Фото отремонтированной квартиры
+            - generic [ref=f11e82]:
+              - generic [ref=f11e83]: Подпись под фото
+              - textbox [ref=f11e84]: Пример работы — гостиная
+            - generic [ref=f11e85]:
+              - generic [ref=f11e86]: Роль в подписи
+              - textbox [ref=f11e87]
+            - generic [ref=f11e88]:
+              - generic [ref=f11e89]: Доказательства
+              - generic [ref=f11e90]:
+                - generic [ref=f11e91]:
+                  - generic [ref=f11e92]:
+                    - generic [ref=f11e93]: "1"
+                    - button "Удалить" [ref=f11e94] [cursor=pointer]
+                  - generic [ref=f11e96]:
+                    - generic [ref=f11e97]: Число
+                    - textbox [ref=f11e98]: 10+
+                  - generic [ref=f11e100]:
+                    - generic [ref=f11e101]: Подпись
+                    - textbox [ref=f11e102]: лет в строительстве
+                - generic [ref=f11e103]:
+                  - generic [ref=f11e104]:
+                    - generic [ref=f11e105]: "2"
+                    - button "Удалить" [ref=f11e106] [cursor=pointer]
+                  - generic [ref=f11e108]:
+                    - generic [ref=f11e109]: Число
+                    - textbox [ref=f11e110]: Clever Park
+                  - generic [ref=f11e112]:
+                    - generic [ref=f11e113]: Подпись
+                    - textbox [ref=f11e114]: крупный проект
+                - generic [ref=f11e115]:
+                  - generic [ref=f11e116]:
+                    - generic [ref=f11e117]: "3"
+                    - button "Удалить" [ref=f11e118] [cursor=pointer]
+                  - generic [ref=f11e120]:
+                    - generic [ref=f11e121]: Число
+                    - textbox [ref=f11e122]: Пермь
+                  - generic [ref=f11e124]:
+                    - generic [ref=f11e125]: Подпись
+                    - textbox [ref=f11e126]: аэропорт
+                - generic [ref=f11e127]:
+                  - generic [ref=f11e128]:
+                    - generic [ref=f11e129]: "4"
+                    - button "Удалить" [ref=f11e130] [cursor=pointer]
+                  - generic [ref=f11e132]:
+                    - generic [ref=f11e133]: Число
+                    - textbox [ref=f11e134]: "@nikitanachatkin"
+                  - generic [ref=f11e136]:
+                    - generic [ref=f11e137]: Подпись
+                    - textbox [ref=f11e138]: Telegram
+                - button "+ Добавить" [ref=f11e139] [cursor=pointer]
+            - generic [ref=f11e141]:
+              - button "Сохранить" [ref=f11e142] [cursor=pointer]
+              - button "Сбросить" [ref=f11e144] [cursor=pointer]

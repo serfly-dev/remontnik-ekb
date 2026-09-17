@@ -29,16 +29,34 @@ export class ApiClient {
       }
 
       if (!response.ok) {
-        const error = data && data.message ? data.message : `Ошибка ${response.status}`;
-        throw new Error(error);
+        const error = new Error(
+          (data && data.message) || `Ошибка ${response.status}`
+        );
+        error.status = response.status;
+        error.data = data;
+        throw error;
       }
 
       return data;
     } catch (err) {
-      if (err.name === 'TypeError' && err.message.includes('fetch')) {
-        throw new Error('Не удалось соединиться с сервером');
+      // Already an Error we created with status
+      if (err instanceof Error && err.status) {
+        throw err;
       }
-      throw err;
+      if (err.name === 'AbortError') {
+        const error = new Error('Запрос отменён');
+        error.status = 0;
+        throw error;
+      }
+      if (err.name === 'TypeError') {
+        const error = new Error('Не удалось соединиться с сервером');
+        error.status = 0;
+        throw error;
+      }
+      // Non-JSON response or unexpected error
+      const error = new Error(err.message || 'Неожиданная ошибка');
+      error.status = 0;
+      throw error;
     }
   }
 

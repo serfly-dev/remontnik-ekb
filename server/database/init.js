@@ -11,8 +11,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, '..', '..');
 
 const dbPath = process.env.DB_PATH || join(rootDir, 'server', 'database', 'database.sqlite');
-const adminUsername = process.env.ADMIN_USERNAME || 'admin';
-const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+
+if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD) {
+  console.error('❌ ADMIN_USERNAME and ADMIN_PASSWORD environment variables are required to initialize the database.');
+  process.exit(1);
+}
+
+const adminUsername = process.env.ADMIN_USERNAME;
+const adminPassword = process.env.ADMIN_PASSWORD;
 
 console.log('🔧 Initializing database...');
 console.log(`📁 Database path: ${dbPath}`);

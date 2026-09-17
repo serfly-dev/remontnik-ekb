@@ -49,7 +49,6 @@
       <ul class="nav__list">
         <li><a href="#experience" class="nav__link">Опыт</a></li>
         <li><a href="#services" class="nav__link">Услуги</a></li>
-        <li><a href="#works" class="nav__link">Работы</a></li>
         <li><a href="#formats" class="nav__link">Форматы</a></li>
         <li><a href="#calculator" class="nav__link">Калькулятор</a></li>
         <li><a href="#contacts" class="nav__link">Контакты</a></li>
@@ -76,7 +75,6 @@
   <nav class="mobile-menu__nav">
     <a href="#experience" class="mobile-menu__link">Опыт</a>
     <a href="#services" class="mobile-menu__link">Услуги</a>
-    <a href="#works" class="mobile-menu__link">Работы</a>
     <a href="#formats" class="mobile-menu__link">Форматы</a>
     <a href="#calculator" class="mobile-menu__link">Калькулятор</a>
     <a href="#contacts" class="mobile-menu__link">Контакты</a>
@@ -160,16 +158,23 @@
 </section>
 
 <!-- ================================================================
-     WORKS / PORTFOLIO
+     FORMATS
      ================================================================ -->
-<section class="works" id="works" aria-labelledby="works-title">
+<section class="formats" id="formats" aria-labelledby="formats-title">
   <div class="container"></div>
 </section>
 
 <!-- ================================================================
-     FORMATS
+     GALLERY
      ================================================================ -->
-<section class="formats" id="formats" aria-labelledby="formats-title">
+<section class="gallery" id="gallery" aria-labelledby="gallery-title">
+  <div class="container"></div>
+</section>
+
+<!-- ================================================================
+     CLIENT VIDEO
+     ================================================================ -->
+<section class="client-video" id="clientVideo" aria-labelledby="clientVideo-title">
   <div class="container"></div>
 </section>
 
@@ -227,7 +232,8 @@
         </div>
         <div class="calc__field" data-step="3" hidden>
           <p class="calc__question">Площадь квартиры</p>
-          <input type="number" class="calc__input" id="calcArea" name="area" placeholder="Введите м²" min="10" max="500" aria-label="Площадь квартиры в квадратных метрах">
+          <input type="number" class="calc__input" id="calcArea" name="area" placeholder="Введите м²" min="1" max="1000" aria-label="Площадь квартиры в квадратных метрах">
+          <p class="calc__error" id="calcError" hidden></p>
         </div>
         <div class="calc__field" data-step="4" hidden>
           <p class="calc__question">Когда хотите начать ремонт?</p>
@@ -551,9 +557,6 @@
 <footer class="footer">
   <div class="container">
     <div class="footer__top">
-      <div class="footer__brand">
-        <img src="/public/images/logo_white_in_black_circle.png" alt="Логотип: Никита Начаткин" class="footer__logo">
-      </div>
       <div>
         <p class="footer__heading">Навигация</p>
         <nav class="footer__nav">
@@ -569,6 +572,9 @@
         <a class="footer__contact" href="https://wa.me/79502085138" target="_blank" rel="noopener">WhatsApp: +7 950 208 5138</a>
         <a class="footer__contact" href="tel:+79502085138">Телефон: +7 950 208 5138</a>
       </div>
+      <div class="footer__brand">
+        <a href="/" aria-label="На главную"><img src="/public/images/logo_white_in_black_circle.png" alt="Логотип: Никита Начаткин" class="footer__logo"></a>
+      </div>
     </div>
     <div class="footer__bottom">
       <span>© 2026 Ремонт квартиры — Никита Начаткин</span>
@@ -577,7 +583,18 @@
   </div>
 </footer>
 
+
+<script src="js/vendor/gsap.min.js" defer></script>
+<script src="js/vendor/ScrollTrigger.min.js" defer></script>
 <script src="js/sections-inject.js" defer></script>
 <script src="js/script.js" defer></script>
+
+<!-- Cookie banner -->
+<div class="cookie-banner" id="cookieBanner" hidden>
+  <div class="container cookie-banner__inner">
+    <p class="cookie-banner__text">Мы используем файлы cookie для улучшения работы сайта. Продолжая просмотр, вы соглашаетесь с <a href="privacy.html">политикой конфиденциальности</a>.</p>
+    <button class="btn btn--primary btn--sm" id="cookieAcceptBtn">Принимаю</button>
+  </div>
+</div>
 </body>
 </html>

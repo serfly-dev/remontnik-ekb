@@ -11,6 +11,7 @@ import { initAdminRoutes } from './routes/auth.routes.js';
 import { initApplicationsRoutes } from './routes/applications.routes.js';
 import { initSectionsRoutes } from './routes/sections.routes.js';
 import { initPricesRoutes } from './routes/prices.routes.js';
+import { initUploadRoutes } from './routes/upload.routes.js';
 
 dotenv.config();
 
@@ -23,9 +24,16 @@ app.use(helmet({
   contentSecurityPolicy: false
 }));
 
+// Request ID middleware — correlation ID for all logs within a request
+app.use((req, res, next) => {
+  req.id = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  res.setHeader('X-Request-ID', req.id);
+  next();
+});
+
 // Body parsers
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Session
 app.use(session({
@@ -51,6 +59,7 @@ initAdminRoutes(app);
 initApplicationsRoutes(app);
 initSectionsRoutes(app);
 initPricesRoutes(app);
+initUploadRoutes(app);
 
 // Static — public/ first
 app.use(express.static(path.join(rootDir, 'public')));
@@ -70,6 +79,16 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
+  console.info(JSON.stringify({
+    event: 'ADMIN_SERVER_ERROR',
+    timestamp: new Date().toISOString(),
+    requestId: req.id,
+    endpoint: req.originalUrl || req.url,
+    method: req.method,
+    statusCode: res.statusCode || 500,
+    error: err.message,
+    stack: err.stack
+  }));
   console.error('⚠️  Server error:', err.message);
   res.status(500).json({ success: false, message: 'Internal server error' });
 });

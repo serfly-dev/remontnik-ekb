@@ -1,0 +1,95 @@
+- generic [active] [ref=f1e1]:
+  - link "Перейти к содержанию" [ref=f1e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f1e3]:
+    - generic [ref=f1e5]:
+      - link "На главную" [ref=f1e6] [cursor=pointer]:
+        - /url: /
+        - generic [aria-hidden] [ref=f1e7]: NK
+        - generic [ref=f1e8]:
+          - generic [ref=f1e9]: Никита Начаткин
+          - generic [ref=f1e10]: Админ-панель
+      - generic [ref=f1e11]:
+        - generic [ref=f1e12]: admin
+        - button "Выйти" [ref=f1e13] [cursor=pointer]
+  - main [ref=f1e14]:
+    - generic [ref=f1e15]:
+      - region [ref=f1e16]:
+        - heading "Статистика" [level=2] [ref=f1e17]
+        - generic [ref=f1e18]:
+          - generic [ref=f1e19]:
+            - generic [ref=f1e20]: "7"
+            - generic [ref=f1e21]: Всего заявок
+          - generic [ref=f1e22]:
+            - generic [ref=f1e23]: "7"
+            - generic [ref=f1e24]: Новые
+          - generic [ref=f1e25]:
+            - generic [ref=f1e26]: "0"
+            - generic [ref=f1e27]: В работе
+          - generic [ref=f1e28]:
+            - generic [ref=f1e29]: "0"
+            - generic [ref=f1e30]: Завершены
+      - region [ref=f1e31]:
+        - heading "Редактор секций" [level=2] [ref=f1e32]
+        - tablist "Секции сайта" [ref=f1e33]:
+          - tab "Hero" [selected] [ref=f1e34] [cursor=pointer]
+          - tab "Услуги" [ref=f1e35] [cursor=pointer]
+          - tab "Портфолио" [ref=f1e36] [cursor=pointer]
+          - tab "Галерея" [ref=f1e37] [cursor=pointer]
+          - tab "Видео клиента" [ref=f1e38] [cursor=pointer]
+          - tab "Варианты" [ref=f1e39] [cursor=pointer]
+          - tab "Калькулятор" [ref=f1e40] [cursor=pointer]
+          - tab "CTA" [ref=f1e41] [cursor=pointer]
+          - tab "FAQ" [ref=f1e42] [cursor=pointer]
+          - tab "Процесс" [ref=f1e43] [cursor=pointer]
+          - tab "Заявки" [ref=f1e44] [cursor=pointer]
+        - generic [ref=f1e45]:
+          - generic [ref=f1e46]:
+            - heading "Hero — Главный экран" [level=2] [ref=f1e47]
+            - generic [ref=f1e48]: "Ключ: hero"
+          - generic [ref=f1e49]:
+            - generic [ref=f1e50]:
+              - generic [ref=f1e51]: Заголовок
+              - textbox [ref=f1e52]: Заголовок
+              - generic [ref=f1e53]: Используйте \n для переносов строк
+            - generic [ref=f1e54]:
+              - generic [ref=f1e55]: Подзаголовок
+              - textbox [ref=f1e56]: Подзаголовок
+            - generic [ref=f1e57]:
+              - generic [ref=f1e58]: Кнопка 1 (текст)
+              - textbox [ref=f1e59]: Кнопка 1 (текст)
+            - generic [ref=f1e60]:
+              - generic [ref=f1e61]: Кнопка 1 (ссылка)
+              - textbox [ref=f1e62]
+            - generic [ref=f1e63]:
+              - generic [ref=f1e64]: Кнопка 2 (текст)
+              - textbox [ref=f1e65]: Кнопка 2 (текст)
+            - generic [ref=f1e66]:
+              - generic [ref=f1e67]: Кнопка 2 (ссылка)
+              - textbox [ref=f1e68]
+            - generic [ref=f1e69]:
+              - generic [ref=f1e70]: Фоновое изображение
+              - button "Choose File" [ref=f1e74]
+            - generic [ref=f1e75]:
+              - generic [ref=f1e76]: Alt изображения
+              - textbox [ref=f1e77]: Alt изображения
+            - generic [ref=f1e78]:
+              - generic [ref=f1e79]: Подпись под фото
+              - textbox [ref=f1e80]: Подпись под фото
+            - generic [ref=f1e81]:
+              - generic [ref=f1e82]: Роль в подписи
+              - textbox [ref=f1e83]: Роль в подписи
+            - generic [ref=f1e84]:
+              - generic [ref=f1e85]: Доказательства
+              - generic [ref=f1e86]:
+                - generic [ref=f1e87]:
+                  - generic [ref=f1e88]:
+                    - generic [ref=f1e89]: "1"
+                    - button "Удалить" [ref=f1e90] [cursor=pointer]
+                  - generic [ref=f1e92]:
+                    - generic [ref=f1e93]: Подпись
+                    - textbox [ref=f1e94]: Подпись
+                - button "+ Добавить" [ref=f1e95] [cursor=pointer]
+            - generic [ref=f1e97]:
+              - button "Сохранить" [ref=f1e98] [cursor=pointer]
+              - button "Сбросить" [ref=f1e100] [cursor=pointer]

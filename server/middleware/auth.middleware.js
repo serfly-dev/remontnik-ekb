@@ -7,6 +7,8 @@ export function requireAuth(req, res, next) {
     return next();
   }
 
+  logAdminEvent('ADMIN_AUTH_ACCESS_DENIED', req, { reason: 'missing_session' });
+
   // For API requests
   if (req.xhr || req.headers.accept?.includes('json')) {
     return res.status(401).json({
@@ -27,4 +29,15 @@ export function optionalAuth(req, res, next) {
     };
   }
   next();
+}
+
+function logAdminEvent(event, req, extra = {}) {
+  console.info(JSON.stringify({
+    event,
+    timestamp: new Date().toISOString(),
+    requestId: req.id,
+    endpoint: req.originalUrl || req.url,
+    method: req.method,
+    ...extra
+  }));
 }

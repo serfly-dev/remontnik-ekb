@@ -568,3 +568,40 @@ main { padding: 32px 0 64px; }
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ─── Crop Modal ─── */
+.crop-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.crop-preview {
+  width: 100%;
+  min-height: 300px;
+  background: var(--bg);
+  border: 1px solid var(--light-gray);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crop-preview img {
+  max-width: 100%;
+  max-height: 500px;
+  display: block;
+}
+
+.crop-info {
+  display: flex;
+  gap: 16px;
+  font-size: 0.875rem;
+  color: var(--dark-gray);
+}
+
+.crop-aspect-ratio,
+.crop-dimensions {
+  font-weight: 500;
+}

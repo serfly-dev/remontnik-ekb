@@ -6,6 +6,7 @@
   <title>Заявки — Админ-панель</title>
   <link rel="stylesheet" href="/css/fonts.css">
   <link rel="stylesheet" href="/admin/css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 </head>
 <body>
 
@@ -174,5 +175,33 @@
   <script type="module" src="/admin/js/api.js"></script>
   <script type="module" src="/admin/js/sections.js"></script>
   <script type="module" src="/admin/js/applications.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+  <!-- Crop Modal -->
+  <div class="modal-overlay" id="cropModal" hidden aria-hidden="true" role="dialog" aria-labelledby="cropModalTitle">
+    <div class="modal" id="cropModalContent">
+      <div class="modal__head">
+        <h2 class="modal__title" id="cropModalTitle">Обрезка изображения</h2>
+        <button class="modal__close" id="cropModalClose" aria-label="Закрыть">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal__body">
+        <div class="crop-container">
+          <div class="crop-preview">
+            <img id="cropImage" src="" alt="Изображение для обрезки">
+          </div>
+          <div class="crop-info">
+            <p class="crop-aspect-ratio" id="cropAspectRatio"></p>
+            <p class="crop-dimensions" id="cropDimensions"></p>
+          </div>
+        </div>
+      </div>
+      <div class="modal__foot">
+        <button class="btn btn--ghost" id="cropCancelBtn">Отмена</button>
+        <button class="btn btn--primary" id="cropConfirmBtn">Готово</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

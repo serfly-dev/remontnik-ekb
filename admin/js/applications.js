@@ -280,6 +280,7 @@ async function loadApplications() {
     showTable();
   } catch (err) {
     console.error('Load error:', err);
+    $errorState.textContent = err.message || 'Не удалось загрузить заявки';
     showError();
   }
 }
@@ -338,6 +339,112 @@ async function openApplication(id) {
   }
 }
 
+// ── Inline notification helpers ──
+function showModalNotification(type, text) {
+  const existing = $modalBody.querySelector('.modal-notification');
+  if (existing) existing.remove();
+
+  const notification = document.createElement('div');
+  notification.className = `modal-notification modal-notification--${type}`;
+  notification.setAttribute('role', 'alert');
+  notification.textContent = text;
+  Object.assign(notification.style, {
+    padding: '12px 16px',
+    borderRadius: 'var(--radius)',
+    fontSize: '0.875rem',
+    fontWeight: '600',
+    marginBottom: '16px',
+    lineHeight: '1.5'
+  });
+  if (type === 'error') {
+    Object.assign(notification.style, {
+      background: '#fef2f2',
+      color: '#dc2626',
+      border: '1px solid #fecaca'
+    });
+  } else {
+    Object.assign(notification.style, {
+      background: '#f0fdf4',
+      color: '#16a34a',
+      border: '1px solid #bbf7d0'
+    });
+  }
+  // Insert at the top of modal body, after any existing header content
+  if ($modalBody.firstChild) {
+    $modalBody.insertBefore(notification, $modalBody.firstChild);
+  } else {
+    $modalBody.appendChild(notification);
+  }
+  // Auto-dismiss after 8 seconds
+  setTimeout(() => notification.remove(), 8000);
+}
+
+function showModalLoading() {
+  const existing = $modalBody.querySelector('.modal-notification');
+  if (existing) existing.remove();
+  $modalBody.textContent = '';
+  const loading = document.createElement('div');
+  loading.className = 'admin-table-section__loading';
+  const spinner = document.createElement('span');
+  spinner.className = 'spinner';
+  const label = document.createElement('span');
+  label.textContent = 'Сохранение…';
+  loading.append(spinner, label);
+  $modalBody.appendChild(loading);
+}
+
+// Custom confirmation that returns a Promise resolving to true/false
+function customConfirm(message) {
+  return new Promise((resolve) => {
+    // Remove any existing confirm overlay
+    const existing = $modalBody.querySelector('.modal-confirm');
+    if (existing) existing.remove();
+
+    const confirmBox = document.createElement('div');
+    confirmBox.className = 'modal-confirm';
+    Object.assign(confirmBox.style, {
+      padding: '16px',
+      background: '#fef2f2',
+      border: '1px solid #fecaca',
+      borderRadius: 'var(--radius)',
+      marginBottom: '16px'
+    });
+
+    const text = document.createElement('p');
+    text.textContent = message;
+    Object.assign(text.style, {
+      marginBottom: '12px',
+      fontSize: '0.875rem',
+      color: '#dc2626'
+    });
+
+    const actions = document.createElement('div');
+    Object.assign(actions.style, { display: 'flex', gap: '8px' });
+
+    const confirmButton = document.createElement('button');
+    confirmButton.className = 'btn btn--danger';
+    confirmButton.textContent = 'Удалить';
+    Object.assign(confirmButton.style, { padding: '6px 16px', fontSize: '0.8rem' });
+
+    const cancelButton = document.createElement('button');
+    cancelButton.className = 'btn btn--ghost';
+    cancelButton.textContent = 'Отмена';
+    Object.assign(cancelButton.style, { padding: '6px 16px', fontSize: '0.8rem' });
+
+    actions.append(confirmButton, cancelButton);
+    confirmBox.append(text, actions);
+
+    if ($modalBody.firstChild) {
+      $modalBody.insertBefore(confirmBox, $modalBody.firstChild);
+    } else {
+      $modalBody.appendChild(confirmBox);
+    }
+
+    confirmButton.addEventListener('click', () => { confirmBox.remove(); resolve(true); });
+    cancelButton.addEventListener('click', () => { confirmBox.remove(); resolve(false); });
+  });
+}
+
 // ── Save status ──
 async function saveStatus() {
   if (!state.currentApplicationId) return;
@@ -347,10 +454,11 @@ async function saveStatus() {
 
   try {
     await api.patch(`/api/applications/${state.currentApplicationId}`, { status: newStatus });
+    showModalNotification('success', 'Статус заявки #' + state.currentApplicationId + ' обновлён');
     closeModal();
     await Promise.all([loadApplications(), loadStats()]);
   } catch (err) {
-    alert('Не удалось сохранить: ' + err.message);
+    showModalNotification('error', 'Не удалось сохранить статус: ' + err.message);
   } finally {
     $saveStatusBtn.disabled = false;
     $saveStatusBtn.textContent = 'Сохранить';
@@ -360,17 +468,20 @@ async function saveStatus() {
 // ── Delete ──
 async function deleteApplication() {
   if (!state.currentApplicationId) return;
-  if (!confirm('Удалить заявку #' + state.currentApplicationId + '?')) return;
+
+  const confirmed = await customConfirm('Удалить заявку #' + state.currentApplicationId + '?');
+  if (!confirmed) return;
 
   $deleteStatusBtn.disabled = true;
   $deleteStatusBtn.textContent = 'Удаление…';
 
   try {
     await api.delete(`/api/applications/${state.currentApplicationId}`);
+    showModalNotification('success', 'Заявка #' + state.currentApplicationId + ' удалена');
     closeModal();
     await Promise.all([loadApplications(), loadStats()]);
   } catch (err) {
-    alert('Не удалось удалить: ' + err.message);
+    showModalNotification('error', 'Не удалось удалить заявку: ' + err.message);
   } finally {
     $deleteStatusBtn.disabled = false;
     $deleteStatusBtn.textContent = 'Удалить';

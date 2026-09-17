@@ -91,25 +91,6 @@ const SECTIONS = [
     order_index: 2
   },
   {
-    key: 'portfolio',
-    title: 'Портфолио',
-    content: {
-      eyebrow: 'Портфолио',
-      eyebrow_num: '3',
-      title: 'Примеры работ',
-      note: 'Реальные фотографии работ будут добавлены после согласования с клиентами.',
-      items: [
-        { image: 'public/images/work-1.jpg', alt: 'Пример ремонта квартиры — гостиная', tags: ['Квартира', 'Новостройка'], title: 'Ремонт трёхкомнатной квартиры', type: 'feature' },
-        { image: 'public/images/work-2.jpg', alt: 'Пример отделки интерьера', tags: ['Интерьер'], title: 'Современный интерьер', type: 'wide' },
-        { image: 'public/images/work-3.jpg', alt: 'Пример ремонта ванной', tags: ['Санузел'], title: 'Ремонт ванной комнаты', type: 'std' },
-        { image: 'public/images/work-4.jpg', alt: 'Пример ремонта гостиной', tags: ['Гостиная'], title: 'Гостиная с панорамным окном', type: 'tall' },
-        { image: 'public/images/work-5.jpg', alt: 'Пример отделки спальни', tags: ['Спальня'], title: 'Спальня в скандинавском стиле', type: 'std' },
-        { image: 'public/images/work-6.jpg', alt: 'Пример кухни', tags: ['Кухня'], title: 'Кухня-гостиная', type: 'wide' }
-      ]
-    },
-    order_index: 3
-  },
-  {
     key: 'variants',
     title: 'Варианты сотрудничества',
     content: {
@@ -252,6 +233,28 @@ const SECTIONS = [
       ]
     },
     order_index: 8
+  },
+  {
+    key: 'gallery',
+    title: 'Галерея',
+    content: {
+      eyebrow: 'Галерея',
+      eyebrow_num: '9',
+      title: 'До и после',
+      items: []
+    },
+    order_index: 9
+  },
+  {
+    key: 'clientVideo',
+    title: 'Видео клиентов',
+    content: {
+      eyebrow: 'Видео клиентов',
+      eyebrow_num: '10',
+      title: 'Видео о ремонте',
+      items: []
+    },
+    order_index: 10
   }
 ];
 

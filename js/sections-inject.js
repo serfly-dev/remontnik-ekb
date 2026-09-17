@@ -44,7 +44,6 @@
       <div class="container">
         <div class="hero__grid">
           <div class="hero__copy">
-            <p class="hero__eyebrow">${escapeHtml(content.eyebrow || '')}</p>
             <h1 class="hero__title" id="hero-title">
               <span class="echo">
                 <span class="echo__base">${escapeHtml(content.title)}</span>
@@ -80,7 +79,6 @@
       const subItems = Array.isArray(item.items) ? item.items : [];
       return `
         <li class="service-row">
-          <span class="service-row__num">${escapeHtml(item.num || '')}</span>
           <h3 class="service-row__title">${escapeHtml(item.title || '')}</h3>
           <p class="service-row__desc">${escapeHtml(item.desc || '')}</p>
           ${subItems.length > 0 ? `
@@ -88,7 +86,6 @@
               ${subItems.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
             </ul>
           ` : ''}
-          <span class="service-row__arrow" aria-hidden="true">→</span>
         </li>
       `;
     }).join('');
@@ -101,40 +98,6 @@
         <ul class="services__index">
           ${itemsHtml}
         </ul>
-      </div>
-    `;
-  }
-
-  // ---- WORKS / PORTFOLIO (id="works") ----
-  function renderPortfolio(content) {
-    const root = document.getElementById('works');
-    if (!root) return;
-
-    const itemsHtml = (Array.isArray(content.items) ? content.items : []).map(item => {
-      const tags = Array.isArray(item.tags) ? item.tags : [];
-      return `
-        <figure class="work work--${escapeHtml(item.type || 'std')}">
-          <div class="work__media">
-            <img src="${escapeHtml(item.image || '')}" alt="${escapeHtml(item.alt || item.title || '')}" width="600" height="750" loading="lazy" decoding="async">
-          </div>
-          <figcaption class="work__overlay">
-            <div class="work__meta">${tags.map(t => `<span>${escapeHtml(t)}</span>`).join('')}</div>
-            <h3 class="work__title">${escapeHtml(item.title || '')}</h3>
-          </figcaption>
-        </figure>
-      `;
-    }).join('');
-
-    const noteHtml = content.note ? `<p class="works__note">${escapeHtml(content.note)}</p>` : '';
-    root.innerHTML = `
-      <div class="container">
-        <div class="section-head">
-          <h2 class="section-title" id="works-title">${escapeHtml(content.title || '')}</h2>
-          ${noteHtml}
-        </div>
-        <div class="works__grid">
-          ${itemsHtml}
-        </div>
       </div>
     `;
   }
@@ -164,7 +127,6 @@
     const isFeatured = o2.is_featured && o2.is_featured !== 'off';
     const format2Html = `
       <div class="format${isFeatured ? ' format--featured' : ''}">
-        ${isFeatured && o2.num_badge ? `<span class="format__badge">${escapeHtml(o2.num_badge)}</span>` : ''}
         <span class="format__num">${escapeHtml(o2.num || '')}</span>
         <h3 class="format__title">${escapeHtml(o2.title || '')}</h3>
         <p class="format__desc">${escapeHtml(o2.desc || '')}</p>
@@ -201,6 +163,356 @@
         ${compareHtml}
       </div>
     `;
+  }
+
+  // ---- GALLERY (id="gallery") — «До → После» side-by-side pairs ----
+  // First pair spans the full viewport width, the rest stack below in a
+  // centered column. Before is always on the left, after on the right,
+  // with an arrow pointing from До to После.
+  function renderGallery(content) {
+    const root = document.getElementById('gallery');
+    if (!root) return;
+
+    const items = Array.isArray(content.items) ? content.items : [];
+    if (!items.length) {
+      root.innerHTML = '';
+      return;
+    }
+
+    const pairHtml = (item, index) => `
+      <article class="ba-pair ${index === 0 ? 'ba-pair--featured' : 'ba-pair--stacked'}" data-ba-pair>
+        <div class="ba-pair__layout">
+          <figure class="ba-panel ba-panel--before">
+            <img class="ba-panel__img" src="${escapeHtml(item.before || '')}"
+              alt="${escapeHtml(item.name ? 'До: ' + item.name : 'До')}" loading="lazy" decoding="async" draggable="false">
+            <figcaption class="ba-panel__label" aria-hidden="true">До</figcaption>
+          </figure>
+          <div class="ba-pair__arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4.5 12h15"/><path d="M13 6l6 6-6 6"/>
+            </svg>
+          </div>
+          <figure class="ba-panel ba-panel--after">
+            <img class="ba-panel__img" src="${escapeHtml(item.after || '')}"
+              alt="${escapeHtml(item.name ? 'После: ' + item.name : 'После')}" loading="lazy" decoding="async" draggable="false">
+            <figcaption class="ba-panel__label" aria-hidden="true">После</figcaption>
+          </figure>
+        </div>
+        <div class="ba-pair__copy">
+          ${item.name ? `<h3 class="gallery__name">${escapeHtml(item.name)}</h3>` : ''}
+          ${item.description ? `<p class="gallery__description">${escapeHtml(item.description)}</p>` : ''}
+        </div>
+      </article>
+    `;
+
+    const itemsHtml = items.map(pairHtml).join('');
+
+    root.innerHTML = `
+      <div class="container">
+        <div class="section-head">
+          <h2 class="section-title" id="gallery-title">${escapeHtml(content.title || '')}</h2>
+        </div>
+      </div>
+      <div class="gallery__grid">
+        ${itemsHtml}
+      </div>
+    `;
+
+    // Preserve each uploaded photo's native aspect ratio on its panel.
+    root.querySelectorAll('.ba-panel').forEach((panel) => {
+      const img = panel.querySelector('.ba-panel__img');
+      if (!img) return;
+      const apply = () => {
+        if (img.naturalWidth && img.naturalHeight) {
+          panel.style.aspectRatio = img.naturalWidth + ' / ' + img.naturalHeight;
+        }
+      };
+      if (img.complete && img.naturalWidth) apply();
+      else img.addEventListener('load', apply, { once: true });
+    });
+  }
+
+  // ---- CLIENT VIDEO (id="clientVideo") ----
+  function renderClientVideo(content) {
+    const root = document.getElementById('clientVideo');
+    if (!root) return;
+
+    const items = Array.isArray(content.items) ? content.items : [];
+    if (!items.length) {
+      root.innerHTML = '';
+      return;
+    }
+
+    const pad = (n) => String(n).padStart(2, '0');
+    const itemsHtml = items.map((item, i) => `
+      <div class="cv-item" data-index="${i}" data-active="${i === 0 ? 'true' : 'false'}" aria-hidden="${i === 0 ? 'false' : 'true'}" style="opacity:0">
+        <div class="cv-media">
+          <video class="cv-video" preload="metadata" playsinline muted aria-label="${escapeHtml(item.name || 'Видео клиента')}">
+            <source src="${escapeHtml(item.video || '')}" type="video/mp4">
+          </video>
+          <button class="cv-play" type="button" aria-label="Воспроизвести видео" aria-pressed="false">
+            <svg class="cv-play__icon cv-play__icon--play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+            <svg class="cv-play__icon cv-play__icon--pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg>
+          </button>
+        </div>
+        ${item.name ? `<p class="cv-name">${escapeHtml(item.name)}</p>` : ''}
+        ${item.description ? `<p class="cv-desc">${escapeHtml(item.description)}</p>` : ''}
+      </div>
+    `).join('');
+
+    root.innerHTML = `
+      <div class="section-head">
+        <h2 class="section-title" id="clientVideo-title">${escapeHtml(content.title || '')}</h2>
+      </div>
+      <div class="video-carousel" role="region" aria-roledescription="карусель" aria-label="Видео клиентов">
+        <div class="video-carousel__viewport" tabindex="0" role="group" aria-label="Листайте видео стрелками клавиатуры или свайпом">
+          <div class="video-carousel__stage">
+            ${itemsHtml}
+          </div>
+        </div>
+        <button class="video-carousel__arrow video-carousel__arrow--prev" type="button" aria-label="Предыдущее видео">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <button class="video-carousel__arrow video-carousel__arrow--next" type="button" aria-label="Следующее видео">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+        <div class="video-carousel__meta">
+          <span class="video-carousel__counter" aria-live="polite">${pad(1)} / ${pad(items.length)}</span>
+          <div class="video-carousel__dots">
+            ${items.map((_, i) => `<button type="button" class="video-carousel__dot" data-dot="${i}" aria-label="Видео ${i + 1}" aria-selected="${i === 0 ? 'true' : 'false'}"></button>`).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+
+    attachVideoCarousel(root);
+  }
+
+  function attachVideoCarousel(root) {
+    const carousel = root.querySelector('.video-carousel');
+    const viewport = carousel?.querySelector('.video-carousel__viewport');
+    const stage = carousel?.querySelector('.video-carousel__stage');
+    const prevBtn = carousel?.querySelector('.video-carousel__arrow--prev');
+    const nextBtn = carousel?.querySelector('.video-carousel__arrow--next');
+    const counter = carousel?.querySelector('.video-carousel__counter');
+    const dots = carousel ? Array.from(carousel.querySelectorAll('.video-carousel__dot')) : [];
+    if (!stage || !viewport || !prevBtn || !nextBtn) return;
+
+    const items = Array.from(stage.querySelectorAll('.cv-item'));
+    if (!items.length) return;
+
+    let activeIndex = 0;
+    let xPercentReady = false;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const DUR = reducedMotion ? 0 : 0.7;
+    const GAP = 44;
+    const hasGsap = typeof window.gsap !== 'undefined';
+    const setVars = (el, vars) => hasGsap ? gsap.set(el, vars) : Object.assign(el.style, vars);
+
+    if (!hasGsap) {
+      console.warn('[sections-inject] GSAP not loaded, carousel falls back to instant layout.');
+    }
+
+    // Stash each track item so width measurements are cheap and stable.
+    const mediaEls = items.map((it) => it.querySelector('.cv-media'));
+    const videos = items.map((it) => it.querySelector('.cv-video'));
+    const playBtns = items.map((it) => it.querySelector('.cv-play'));
+    const aspectRatios = items.map(() => null);
+
+    videos.forEach((video, i) => {
+      if (!video) return;
+      if (video.readyState >= 1 && video.videoWidth) {
+        rememberAspect(i);
+      } else {
+        video.addEventListener('loadedmetadata', () => rememberAspect(i), { once: true });
+      }
+    });
+
+    function rememberAspect(i) {
+      const video = videos[i];
+      if (!video || !video.videoWidth || !video.videoHeight) return;
+      aspectRatios[i] = video.videoWidth / video.videoHeight;
+      setVars(items[i], { '--ar': aspectRatios[i] });
+      setVars(mediaEls[i], { '--ar': aspectRatios[i] });
+      layout(true);
+    }
+
+    // Cyclic distance: the track wraps, so every slide always has a
+    // neighbour on both sides — the carousel never shows a beginning or an end.
+    function cyclicDist(i) {
+      const d = (i - activeIndex + items.length) % items.length;
+      return d > items.length / 2 ? d - items.length : d;
+    }
+
+    function offsetFor(i) {
+      const dist = cyclicDist(i);
+      if (dist === 0) return 0;
+      const dir = dist > 0 ? 1 : -1;
+      const wI = mediaEls[i] ? mediaEls[i].getBoundingClientRect().width : 0;
+      const wA = mediaEls[activeIndex] ? mediaEls[activeIndex].getBoundingClientRect().width : 0;
+      let off = dir * (wA / 2 + wI / 2 + GAP);
+      const kMax = Math.abs(dist);
+      for (let k = 1; k < kMax; k++) {
+        off += dir * ((mediaEls[(i - dir * k + items.length) % items.length]?.getBoundingClientRect().width || 0) + GAP);
+      }
+      return off;
+    }
+
+    function layout(animate) {
+      if (!hasGsap) {
+        items.forEach((it) => { it.style.opacity = '1'; });
+        viewport.style.height = 'auto';
+        return;
+      }
+
+      if (!xPercentReady) {
+        gsap.set(items, { xPercent: -50, y: 0, transformOrigin: '50% 50%' });
+        xPercentReady = true;
+      }
+
+      // Viewport height fits the tallest item (media + caption).
+      const maxH = Math.max(...items.map((it) => it.offsetHeight || 0));
+      viewport.style.height = maxH + 'px';
+
+      items.forEach((it, i) => {
+        const dist = cyclicDist(i);
+        const isActive = i === activeIndex;
+        const target = {
+          x: offsetFor(i),
+          scale: dist === 0 ? 1 : 0.88,
+          opacity: dist === 0 ? 1 : Math.abs(dist) === 1 ? 0.45 : 0,
+          zIndex: dist === 0 ? 3 : Math.abs(dist) === 1 ? 2 : 1,
+          duration: animate ? DUR : 0,
+          ease: reducedMotion ? 'none' : 'expo.inOut',
+          overwrite: 'auto'
+        };
+        if (animate) {
+          gsap.to(it, target);
+        } else {
+          gsap.set(it, target);
+        }
+        it.setAttribute('data-active', isActive ? 'true' : 'false');
+        it.setAttribute('aria-hidden', String(!isActive));
+        if (playBtns[i]) playBtns[i].tabIndex = isActive ? 0 : -1;
+        // Manual playback state belongs to the centered slide only.
+        if (!isActive && it.classList.contains('is-playing')) {
+          it.classList.remove('is-playing');
+          if (playBtns[i]) playBtns[i].setAttribute('aria-pressed', 'false');
+        }
+      });
+
+      counter.textContent = String(activeIndex + 1).padStart(2, '0') + ' / ' + String(items.length).padStart(2, '0');
+      dots.forEach((dot, i) => {
+        dot.setAttribute('aria-selected', String(i === activeIndex));
+      });
+
+      // Play only the visible slide (muted autoplay), pause the rest.
+      // Slides in manual playback (is-playing) keep their sound state.
+      videos.forEach((video, i) => {
+        if (!video) return;
+        if (i === activeIndex) {
+          if (video.paused && !items[i].classList.contains('is-playing')) {
+            const p = video.play();
+            if (p && p.catch) p.catch(() => {});
+          }
+        } else {
+          video.pause();
+          video.muted = true; // restoration to muted autoplay when it returns to center
+        }
+      });
+    }
+
+    function goTo(index, animate) {
+      const n = items.length;
+      activeIndex = ((index % n) + n) % n;
+      layout(animate);
+    }
+
+    prevBtn.addEventListener('click', () => goTo(activeIndex - 1, true));
+    nextBtn.addEventListener('click', () => goTo(activeIndex + 1, true));
+
+    // Keyboard navigation.
+    viewport.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(activeIndex - 1, true); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); goTo(activeIndex + 1, true); }
+    });
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => goTo(i, true));
+    });
+
+    // Pointer swipe with follow-the-finger drag (Apple-style snap).
+    let startX = 0;
+    let dragX = 0;
+    let isDragging = false;
+
+    viewport.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (e.target.closest('button, video')) return;
+      isDragging = true;
+      startX = e.clientX;
+      dragX = 0;
+      viewport.setPointerCapture(e.pointerId);
+    });
+
+    viewport.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      dragX = e.clientX - startX;
+      if (hasGsap) {
+        const active = items[activeIndex];
+        gsap.set(active, { x: offsetFor(activeIndex) + dragX, scale: 0.96, duration: 0 });
+      }
+    });
+
+    const endSwipe = (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      const diff = e.clientX - startX;
+      if (items.length > 1 && Math.abs(diff) > 64) {
+        goTo(activeIndex + (diff < 0 ? 1 : -1), true);
+      } else {
+        layout(true); // snap back
+      }
+    };
+    viewport.addEventListener('pointerup', endSwipe);
+    viewport.addEventListener('pointercancel', endSwipe);
+
+    // Single click plays from the very beginning with sound; the same
+    // control (button or the video itself) pauses when already playing.
+    function togglePlay(i) {
+      const video = videos[i];
+      const button = playBtns[i];
+      if (!video) return;
+      // Only the centered slide is playable.
+      if (i !== activeIndex) return;
+      const manualSession = items[i].classList.contains('is-playing');
+      if (manualSession && !video.paused) {
+        video.pause();
+        if (button) button.setAttribute('aria-pressed', 'false');
+        items[i].classList.remove('is-playing');
+      } else {
+        video.currentTime = 0; // always start from the beginning
+        video.muted = false;
+        const p = video.play();
+        if (p && p.catch) p.catch(() => {});
+        if (button) button.setAttribute('aria-pressed', 'true');
+        items[i].classList.add('is-playing');
+      }
+    }
+    playBtns.forEach((button, i) => {
+      button.addEventListener('click', () => togglePlay(i));
+    });
+    videos.forEach((video, i) => {
+      video.addEventListener('click', () => togglePlay(i));
+    });
+
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => layout(true), 120);
+    });
+
+    layout(hasGsap); // initial entrance (animated) or instant fallback
   }
 
   // ---- CALCULATOR (id="calculator") ----
@@ -313,8 +625,9 @@
   const RENDERERS = {
     hero: renderHero,
     services: renderServices,
-    portfolio: renderPortfolio,
     variants: renderVariants,
+    gallery: renderGallery,
+    clientVideo: renderClientVideo,
     calculator: renderCalculator,
     cta: renderCta,
     faq: renderFaq,
@@ -338,6 +651,7 @@
           }
         }
       }
+      document.dispatchEvent(new CustomEvent('sectionsRendered'));
     } catch (err) {
       console.warn('[sections-inject] Could not load sections:', err.message);
     }

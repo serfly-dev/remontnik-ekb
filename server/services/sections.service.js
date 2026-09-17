@@ -3,7 +3,7 @@ import { query, queryOne, execute } from '../database/connection.js';
 /**
  * Sections service — CRUD for editable landing page content.
  * Each section stores its content as a JSON object in the `content` column.
- * Section keys are stable identifiers (hero, services, portfolio, variants, calculator, cta).
+ * Section keys are stable identifiers (hero, services, variants, calculator, cta, gallery, ...).
  */
 
 export async function listSections() {
