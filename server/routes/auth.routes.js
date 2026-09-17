@@ -36,6 +36,23 @@ export function initAdminRoutes(app) {
     res.sendFile(path.join(ROOT_ADMIN_DIR, 'index.html'));
   });
 
-  // Serve admin static files (CSS, JS, etc.)
-  app.use('/admin', express.static(ROOT_ADMIN_DIR));
+  // Serve admin static files (CSS, JS, etc.).
+  // Only the login page and the assets it needs (admin.css, auth.js,
+  // fonts/images) are served without a session; dashboard HTML and the
+  // admin API/section source stay private.
+  app.use('/admin', (req, res, next) => {
+    const urlPath = req.path;
+    const publicCssImg = ['/css/', '/img/', '/images/', '/fonts/'].some((prefix) => urlPath.startsWith(prefix));
+    const isPublicJs = urlPath === '/js/auth.js';
+    if ((!publicCssImg && !isPublicJs) && urlPath !== '/login.html') {
+      if (req.session && req.session.userId) {
+        return express.static(ROOT_ADMIN_DIR)(req, res, next);
+      }
+      if (req.xhr || req.headers.accept?.includes('json')) {
+        return res.status(401).json({ success: false, message: 'Authentication required' });
+      }
+      return res.redirect('/admin/login.html');
+    }
+    return express.static(ROOT_ADMIN_DIR)(req, res, next);
+  });
 }

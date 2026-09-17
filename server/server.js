@@ -64,7 +64,22 @@ initUploadRoutes(app);
 // Static — public/ first
 app.use(express.static(path.join(rootDir, 'public')));
 
-// Then root files (index.html, css/, js/, data/, etc.)
+// Root files (index.html, css/, js/, data/, etc.).
+// Only approved public assets are served; everything internal (server/,
+// admin/, database, config) is blocked from HTTP without a session.
+const ROOT_PUBLIC_PREFIXES = ['/css/', '/js/', '/data/', '/public/'];
+const ROOT_PUBLIC_FILES = ['/', '/index.html', '/privacy.html', '/robots.txt', '/sitemap.xml'];
+
+app.use((req, res, next) => {
+  const urlPath = req.path;
+  const isPublicPrefix = ROOT_PUBLIC_PREFIXES.some((p) => urlPath.startsWith(p));
+  const isPublicFile = ROOT_PUBLIC_FILES.includes(urlPath);
+  if (!isPublicPrefix && !isPublicFile) {
+    return res.status(404).json({ success: false, message: 'Not found' });
+  }
+  next();
+});
+
 app.use(express.static(rootDir, { index: false }));
 
 // Root → index.html
