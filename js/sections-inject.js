@@ -23,10 +23,10 @@
   }
 
   // ---- HERO (id="hero") ----
-  // Real work comparison («До → После») as the hero signature when gallery
-  // has a before/after pair; falls back to the single hero photo.
+  // The admin-set hero photo (content.image) always wins. The «До → После»
+  // comparison from the gallery is only a fallback when no hero photo is set.
   function buildHeroVisual(content, all) {
-    const pair = (all && all.gallery && Array.isArray(all.gallery.items))
+    const pair = !content.image && (all && all.gallery && Array.isArray(all.gallery.items))
       ? all.gallery.items.find(item => item && item.before && item.after)
       : null;
 
