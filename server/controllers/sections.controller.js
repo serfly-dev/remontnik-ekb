@@ -19,6 +19,22 @@ const INTERNAL_FIELDS_BY_SECTION = {
   calculator: ['rates', 'coefficients', 'measurement_fee']
 };
 
+// File inputs live only in the admin form. Their *_{field}_file entries are
+// upload artifacts (empty objects) and must never reach the database.
+function stripFileArtifacts(value) {
+  if (Array.isArray(value)) {
+    value.forEach(stripFileArtifacts);
+    return value;
+  }
+  if (value && typeof value === 'object') {
+    for (const key of Object.keys(value)) {
+      if (key.endsWith('_file')) delete value[key];
+      else stripFileArtifacts(value[key]);
+    }
+  }
+  return value;
+}
+
 function isValidKey(key) {
   return VALID_SECTION_KEYS.includes(key);
 }
@@ -101,7 +117,8 @@ export async function upsertSection(req, res) {
       return res.status(400).json({ success: false, message: 'Поле content обязательно' });
     }
 
-    const section = await upsertSectionSvc(key, content, title ?? undefined);
+    const cleaned = stripFileArtifacts(content);
+    const section = await upsertSectionSvc(key, cleaned, title ?? undefined);
 
     logAdminEvent('ADMIN_DATA_UPDATE_SUCCESS', req, {
       sectionKey: key,

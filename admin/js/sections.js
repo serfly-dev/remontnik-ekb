@@ -1397,6 +1397,11 @@ function parseFormData(formData) {
   const result = {};
 
   for (const [key, value] of formData.entries()) {
+    // Skip file inputs — uploaded files are persisted via their *_url field only.
+    // Without this, empty file inputs would be saved as junk {}/"" in content.
+    if (typeof File !== 'undefined' && value instanceof File) {
+      continue;
+    }
     if (key.endsWith('_url')) {
       // Handle image/video URL fields - use setNested for proper nested path handling
       if (value) {
