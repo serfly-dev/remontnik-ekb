@@ -61,26 +61,21 @@ initSectionsRoutes(app);
 initPricesRoutes(app);
 initUploadRoutes(app);
 
-// Static — public/ first
+// Static — only explicitly whitelisted directories.
+// public/ is served by the dedicated mount below; root files
+// (index.html, css/, js/, data/, etc.) are served via explicit handlers.
+// NEVER serve rootDir wholesale — it would expose the database,
+// admin source, server controllers and config over plain HTTP.
 app.use(express.static(path.join(rootDir, 'public')));
+app.use('/css', express.static(path.join(rootDir, 'css')));
+app.use('/js', express.static(path.join(rootDir, 'js')));
+app.use('/data', express.static(path.join(rootDir, 'data')));
 
-// Root files (index.html, css/, js/, data/, etc.).
-// Only approved public assets are served; everything internal (server/,
-// admin/, database, config) is blocked from HTTP without a session.
-const ROOT_PUBLIC_PREFIXES = ['/css/', '/js/', '/data/', '/public/'];
-const ROOT_PUBLIC_FILES = ['/', '/index.html', '/privacy.html', '/robots.txt', '/sitemap.xml'];
-
-app.use((req, res, next) => {
-  const urlPath = req.path;
-  const isPublicPrefix = ROOT_PUBLIC_PREFIXES.some((p) => urlPath.startsWith(p));
-  const isPublicFile = ROOT_PUBLIC_FILES.includes(urlPath);
-  if (!isPublicPrefix && !isPublicFile) {
-    return res.status(404).json({ success: false, message: 'Not found' });
-  }
-  next();
-});
-
-app.use(express.static(rootDir, { index: false }));
+// Specific root files
+app.get('/index.html', (req, res) => res.sendFile(path.join(rootDir, 'index.html')));
+app.get('/privacy.html', (req, res) => res.sendFile(path.join(rootDir, 'privacy.html')));
+app.get('/robots.txt', (req, res) => res.sendFile(path.join(rootDir, 'robots.txt')));
+app.get('/sitemap.xml', (req, res) => res.sendFile(path.join(rootDir, 'sitemap.xml')));
 
 // Root → index.html
 app.get('/', (req, res) => {

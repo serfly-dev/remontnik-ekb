@@ -135,7 +135,7 @@ Premium + Trust + Construction + Modern UI
   --color-dark: #242424;
   --color-gray-900: #303030;
   --color-gray-700: #555555;
-  --color-gray-500: #777777;
+  --color-gray-500: #6b6b6b; /* AA 4.5:1 on #F8F8F5 (was #777, 4.21:1) */
   --color-gray-300: #D6D6D6;
   --color-gray-200: #E8E8E8;
   --color-gray-100: #F4F4F1;

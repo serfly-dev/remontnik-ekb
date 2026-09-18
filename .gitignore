@@ -13,3 +13,43 @@ dist/
 build/
 .impeccable/
 .token-optimizer/
+# Environment
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# SQLite runtime files
+*.sqlite-shm
+*.sqlite-wal
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+
+# Claude / AI tooling
+.claude/
+.impeccable/
+.token-optimizer/
+.remember/
+
+# Playwright
+.playwright-mcp/
+
+# Test reports
+test-reports/
+cookies.txt
+# SQLite runtime files
+*.sqlite-shm
+*.sqlite-wal
+
+# Local AI / tooling
+.claude/
+.impeccable/
+.token-optimizer/
+.remember/
+.playwright-mcp/
