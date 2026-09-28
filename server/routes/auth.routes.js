@@ -1,6 +1,7 @@
 import path from 'path';
 import express from 'express';
 import { fileURLToPath } from 'url';
+import { requireSameOrigin } from '../middleware/auth.middleware.js';
 import {
   getLoginLimiter,
   login,
@@ -17,7 +18,7 @@ export function initAdminRoutes(app) {
 
   // Auth APIs
   app.post('/api/auth/login', loginLimiter, login);
-  app.post('/api/auth/logout', logout);
+  app.post('/api/auth/logout', requireSameOrigin, logout);
   app.get('/api/auth/me', getMe);
 
   // Admin login page

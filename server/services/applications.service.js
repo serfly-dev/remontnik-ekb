@@ -10,7 +10,8 @@ export async function getApplications(options = {}) {
     limit = DEFAULT_LIMIT,
     search,
     sortBy = 'created_at',
-    sortOrder = 'DESC'
+    sortOrder = 'DESC',
+    adminId
   } = options;
 
   // Validate and sanitize inputs
@@ -43,7 +44,17 @@ export async function getApplications(options = {}) {
     params.push(searchTerm, searchTerm, searchTerm);
   }
 
-  const finalWhere = where ? 'WHERE ' + where.trim() : '';
+  // Ownership: show public submissions (admin_id IS NULL) plus records
+  // owned by the requesting admin.
+  let ownershipClause = '';
+  if (adminId) {
+    ownershipClause = 'admin_id IS NULL OR admin_id = ?';
+    params.push(adminId);
+  }
+
+  const finalWhere = where
+    ? 'WHERE ' + where.trim() + (ownershipClause ? ' AND (' + ownershipClause + ')' : '')
+    : (ownershipClause ? 'WHERE ' + ownershipClause : '');
 
   // Count total
   const countQuery = `SELECT COUNT(*) as total FROM applications ${finalWhere}`;
@@ -77,12 +88,15 @@ export async function getApplications(options = {}) {
   };
 }
 
-export async function getApplicationById(id) {
+// Ownership rule:
+//   - public submissions (admin_id IS NULL) are visible to any admin;
+//   - records created by an admin are only visible to that admin.
+export async function getApplicationById(id, adminId) {
   const app = await queryOne(`
     SELECT id, name, phone, preferred_time, comment, calculator_data,
            calculated_price, status, created_at, updated_at
-    FROM applications WHERE id = ?
-  `, [id]);
+    FROM applications WHERE id = ? AND (admin_id IS NULL OR admin_id = ?)
+  `, [id, adminId ?? null]);
 
   if (app) {
     return {
@@ -96,8 +110,8 @@ export async function getApplicationById(id) {
 export async function createApplication(data) {
   const stmt = await execute(`
     INSERT INTO applications
-    (name, phone, preferred_time, comment, calculator_data, calculated_price, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    (name, phone, preferred_time, comment, calculator_data, calculated_price, status, admin_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `, [
     data.name,
     data.phone,
@@ -105,18 +119,19 @@ export async function createApplication(data) {
     data.comment || null,
     data.calculator_data ? JSON.stringify(data.calculator_data) : null,
     data.calculated_price || null,
-    data.status || 'new'
+    data.status || 'new',
+    data.admin_id || null
   ]);
 
   return { id: stmt.lastInsertRowid, ...data };
 }
 
-export async function updateApplicationStatus(id, status) {
+export async function updateApplicationStatus(id, status, adminId) {
   const result = await execute(`
     UPDATE applications
     SET status = ?, updated_at = CURRENT_TIMESTAMP
-    WHERE id = ?
-  `, [status, id]);
+    WHERE id = ? AND (admin_id IS NULL OR admin_id = ?)
+  `, [status, id, adminId ?? null]);
 
   return result.changes > 0;
 }
@@ -171,8 +186,11 @@ export async function updateApplication(id, data) {
   return result.changes > 0;
 }
 
-export async function deleteApplication(id) {
-  const result = await execute('DELETE FROM applications WHERE id = ?', [id]);
+export async function deleteApplication(id, adminId) {
+  const result = await execute(
+    'DELETE FROM applications WHERE id = ? AND (admin_id IS NULL OR admin_id = ?)',
+    [id, adminId ?? null]
+  );
   return result.changes > 0;
 }
 

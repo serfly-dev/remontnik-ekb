@@ -39,6 +39,22 @@ function isValidKey(key) {
   return VALID_SECTION_KEYS.includes(key);
 }
 
+// Reject content that carries script-capable URL schemes in any string
+// value (href/src fields, nested gallery/variants items). This is a
+// defense-in-depth guard; the client also sanitizes rendered URLs.
+function hasUnsafeUrl(value) {
+  if (typeof value === 'string') {
+    return /^\s*(javascript|data|vbscript)\s*:/i.test(value);
+  }
+  if (Array.isArray(value)) {
+    return value.some(hasUnsafeUrl);
+  }
+  if (value && typeof value === 'object') {
+    return Object.values(value).some(hasUnsafeUrl);
+  }
+  return false;
+}
+
 function logAdminEvent(event, req, extra = {}) {
   console.info(JSON.stringify({
     event,
@@ -117,6 +133,15 @@ export async function upsertSection(req, res) {
       return res.status(400).json({ success: false, message: 'Поле content обязательно' });
     }
 
+    if (hasUnsafeUrl(content)) {
+      logAdminEvent('ADMIN_DATA_UPDATE_FAILED', req, {
+        sectionKey: key,
+        reason: 'unsafe_url_scheme',
+        durationMs: Date.now() - startTime
+      });
+      return res.status(400).json({ success: false, message: 'URL содержит недопустимую схему (javascript:, data:, vbscript:)' });
+    }
+
     const cleaned = stripFileArtifacts(content);
     const section = await upsertSectionSvc(key, cleaned, title ?? undefined);
 
@@ -131,7 +156,6 @@ export async function upsertSection(req, res) {
       sectionKey: key,
       reason: 'server_error',
       error: err.message,
-      stack: err.stack,
       durationMs: Date.now() - startTime
     });
     console.error('Upsert section error:', err);
@@ -175,7 +199,6 @@ export async function deleteSection(req, res) {
       sectionKey: key,
       reason: 'server_error',
       error: err.message,
-      stack: err.stack,
       durationMs: Date.now() - startTime
     });
     console.error('Delete section error:', err);

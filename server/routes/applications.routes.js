@@ -1,5 +1,5 @@
 import { rateLimit } from 'express-rate-limit';
-import { requireAuth } from '../middleware/auth.middleware.js';
+import { requireAuth, requireSameOrigin } from '../middleware/auth.middleware.js';
 import {
   listApplications,
   getApplication,
@@ -23,12 +23,12 @@ const applicationLimiter = rateLimit({
 
 export function initApplicationsRoutes(app) {
   // Public: create application from website
-  app.post('/api/applications', applicationLimiter, createApplicationHandler);
+  app.post('/api/applications', requireSameOrigin, applicationLimiter, createApplicationHandler);
 
   // Protected: admin only
   app.get('/api/applications', requireAuth, listApplications);
   app.get('/api/applications/stats', requireAuth, getStats);
   app.get('/api/applications/:id', requireAuth, getApplication);
-  app.patch('/api/applications/:id', requireAuth, updateApplicationHandler);
-  app.delete('/api/applications/:id', requireAuth, deleteApplicationHandler);
+  app.patch('/api/applications/:id', requireAuth, requireSameOrigin, updateApplicationHandler);
+  app.delete('/api/applications/:id', requireAuth, requireSameOrigin, deleteApplicationHandler);
 }

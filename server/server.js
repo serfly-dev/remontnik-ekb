@@ -32,8 +32,8 @@ app.use((req, res, next) => {
 });
 
 // Body parsers
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
 // Session
 app.use(session({
@@ -60,6 +60,27 @@ initApplicationsRoutes(app);
 initSectionsRoutes(app);
 initPricesRoutes(app);
 initUploadRoutes(app);
+
+// Cache headers: media and fonts are content-addressed (unique generated
+// filenames, never rewritten) so a long immutable cache is safe; CSS/JS keep
+// ETag revalidation with a short max-age; HTML and API responses stay fresh.
+const IMMUTABLE = [
+  '.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.ico', '.avif',
+  '.woff', '.woff2', '.ttf', '.otf', '.mp4', '.webm'
+];
+const SHORT_CACHE = ['.css', '.js', '.json'];
+app.use((req, res, next) => {
+  const ext = path.extname(req.path).toLowerCase();
+  if (req.path.startsWith('/api/')) return next();
+  if (IMMUTABLE.includes(ext)) {
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  } else if (SHORT_CACHE.includes(ext)) {
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+  } else {
+    res.setHeader('Cache-Control', 'no-cache');
+  }
+  next();
+});
 
 // Static — only explicitly whitelisted directories.
 // public/ is served by the dedicated mount below; root files
@@ -89,6 +110,10 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
+  if (err.type === 'entity.too.large') {
+    res.status(413).json({ success: false, message: 'Payload too large' });
+    return;
+  }
   console.info(JSON.stringify({
     event: 'ADMIN_SERVER_ERROR',
     timestamp: new Date().toISOString(),
@@ -96,8 +121,7 @@ app.use((err, req, res, next) => {
     endpoint: req.originalUrl || req.url,
     method: req.method,
     statusCode: res.statusCode || 500,
-    error: err.message,
-    stack: err.stack
+    error: err.message
   }));
   console.error('⚠️  Server error:', err.message);
   res.status(500).json({ success: false, message: 'Internal server error' });

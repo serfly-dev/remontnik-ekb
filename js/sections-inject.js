@@ -17,6 +17,16 @@
       .replace(/'/g, '&apos;');
   }
 
+  // Allow only safe URL schemes for href/src attributes. Everything else
+  // (javascript:, data:, vbscript:, ...) falls back to '#'.
+  function sanitizeUrl(url) {
+    if (url == null) return '#';
+    const value = String(url).trim();
+    if (/^(https?:|mailto:|tel:)/i.test(value)) return value;
+    if (value.startsWith('/') || value.startsWith('#') || value.startsWith('./') || value.startsWith('../')) return value;
+    return '#';
+  }
+
   function formatPrice(value) {
     if (typeof value !== 'number') return '';
     return new Intl.NumberFormat('ru-RU').format(value);
@@ -36,14 +46,14 @@
         <figure class="hero__ba">
           <div class="hero__ba__panels">
             <div class="hero__ba__panel">
-              <img src="${escapeHtml(pair.before)}" alt="${escapeHtml(name ? 'До: ' + name : 'До')}" width="600" height="800" loading="eager" decoding="async" draggable="false">
+              <img src="${sanitizeUrl(pair.before)}" alt="${escapeHtml(name ? 'До: ' + name : 'До')}" width="600" height="800" loading="eager" decoding="async" fetchpriority="high" draggable="false">
               <span class="hero__ba__label">До</span>
             </div>
             <span class="hero__ba__arrow" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12h15"/><path d="M13 6l6 6-6 6"/></svg>
             </span>
             <div class="hero__ba__panel">
-              <img src="${escapeHtml(pair.after)}" alt="${escapeHtml(name ? 'После: ' + name : 'После')}" width="600" height="800" loading="eager" decoding="async" draggable="false">
+              <img src="${sanitizeUrl(pair.after)}" alt="${escapeHtml(name ? 'После: ' + name : 'После')}" width="600" height="800" loading="eager" decoding="async" fetchpriority="high" draggable="false">
               <span class="hero__ba__label">После</span>
             </div>
           </div>
@@ -53,8 +63,8 @@
     }
 
     return `
-      <div class="hero__media" ${content.image ? `style="background-image:url('${escapeHtml(content.image)}')"` : ''}>
-        <img src="${escapeHtml(content.image || '')}" alt="${escapeHtml(content.imageAlt || '')}" width="900" height="1100" loading="eager" decoding="async">
+      <div class="hero__media" ${content.image ? `style="background-image:url('${sanitizeUrl(content.image)}')"` : ''}>
+        <img src="${sanitizeUrl(content.image || '')}" alt="${escapeHtml(content.imageAlt || '')}" width="900" height="1100" loading="eager" decoding="async" fetchpriority="high">
         <span class="hero__media__caption">${escapeHtml(content.imageCaption || '')}</span>
       </div>
     `;
@@ -89,8 +99,8 @@
             </h1>
             <p class="hero__sub">${escapeHtml(content.subtitle || '')}</p>
             <div class="hero__cta">
-              <a href="${escapeHtml(content.cta_primary_href || '#')}" class="btn btn--primary">${escapeHtml(content.cta_primary || '')}</a>
-              <a href="${escapeHtml(content.cta_secondary_href || '#')}" class="btn btn--ghost">${escapeHtml(content.cta_secondary || '')}</a>
+              <a href="${sanitizeUrl(content.cta_primary_href || '#')}" class="btn btn--primary">${escapeHtml(content.cta_primary || '')}</a>
+              <a href="${sanitizeUrl(content.cta_secondary_href || '#')}" class="btn btn--ghost">${escapeHtml(content.cta_secondary || '')}</a>
             </div>
             <div class="hero__proof">
               ${proofHtml}
@@ -159,7 +169,7 @@
         <ol class="format__steps">
           ${(Array.isArray(o1.steps) ? o1.steps : []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}
         </ol>
-        <a href="${escapeHtml(o1.cta_href || '#')}" class="format__cta btn btn--ghost">${escapeHtml(o1.cta || '')}</a>
+        <a href="${sanitizeUrl(o1.cta_href || '#')}" class="format__cta btn btn--ghost">${escapeHtml(o1.cta || '')}</a>
       </div>
     `;
 
@@ -178,7 +188,7 @@
         <ol class="format__steps">
           ${(Array.isArray(o2.steps) ? o2.steps : []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}
         </ol>
-        <a href="${escapeHtml(o2.cta_href || '#')}" class="format__cta btn btn--primary">${escapeHtml(o2.cta || '')}</a>
+        <a href="${sanitizeUrl(o2.cta_href || '#')}" class="format__cta btn btn--primary">${escapeHtml(o2.cta || '')}</a>
       </div>
     `;
 
@@ -223,11 +233,15 @@
       return;
     }
 
+    const MAX_VISIBLE_PAIRS = 4;
+    const visibleItems = items.slice(0, MAX_VISIBLE_PAIRS);
+    const hiddenItems = items.slice(MAX_VISIBLE_PAIRS);
+
     const pairHtml = (item, index) => `
       <article class="ba-pair ${index === 0 ? 'ba-pair--featured' : 'ba-pair--stacked'}" data-ba-pair>
         <div class="ba-pair__layout">
           <figure class="ba-panel ba-panel--before">
-            <img class="ba-panel__img" src="${escapeHtml(item.before || '')}"
+            <img class="ba-panel__img" src="${sanitizeUrl(item.before || '')}"
               alt="${escapeHtml(item.name ? 'До: ' + item.name : 'До')}" loading="lazy" decoding="async" draggable="false">
             <figcaption class="ba-panel__label" aria-hidden="true">До</figcaption>
           </figure>
@@ -237,7 +251,7 @@
             </svg>
           </div>
           <figure class="ba-panel ba-panel--after">
-            <img class="ba-panel__img" src="${escapeHtml(item.after || '')}"
+            <img class="ba-panel__img" src="${sanitizeUrl(item.after || '')}"
               alt="${escapeHtml(item.name ? 'После: ' + item.name : 'После')}" loading="lazy" decoding="async" draggable="false">
             <figcaption class="ba-panel__label" aria-hidden="true">После</figcaption>
           </figure>
@@ -249,7 +263,8 @@
       </article>
     `;
 
-    const itemsHtml = items.map(pairHtml).join('');
+    const itemsHtml = visibleItems.map(pairHtml).join('');
+    const hiddenItemsHtml = hiddenItems.map(pairHtml).join('');
 
     root.innerHTML = `
       <div class="container">
@@ -260,7 +275,30 @@
       <div class="gallery__grid">
         ${itemsHtml}
       </div>
+      ${hiddenItemsHtml ? `
+        <div class="gallery__more" id="gallery-more" hidden>
+          ${hiddenItemsHtml}
+        </div>
+      ` : ''}
+      ${hiddenItemsHtml ? `
+        <div class="gallery__toggle">
+          <button class="btn btn--ghost gallery__toggle-button" type="button" aria-controls="gallery-more" aria-expanded="false">
+            Показать все
+          </button>
+        </div>
+      ` : ''}
     `;
+
+    const toggleButton = root.querySelector('.gallery__toggle-button');
+    const moreItems = root.querySelector('#gallery-more');
+    if (toggleButton && moreItems) {
+      toggleButton.addEventListener('click', () => {
+        const isExpanded = moreItems.hidden;
+        moreItems.hidden = !isExpanded;
+        toggleButton.setAttribute('aria-expanded', String(isExpanded));
+        toggleButton.textContent = isExpanded ? 'Скрыть' : 'Показать все';
+      });
+    }
 
     // Preserve each uploaded photo's native aspect ratio on its panel.
     root.querySelectorAll('.ba-panel').forEach((panel) => {
@@ -292,7 +330,7 @@
       <div class="cv-item" data-index="${i}" data-active="${i === 0 ? 'true' : 'false'}" aria-hidden="${i === 0 ? 'false' : 'true'}" style="opacity:0">
         <div class="cv-media">
           <video class="cv-video" preload="metadata" playsinline muted aria-label="${escapeHtml(item.name || 'Видео клиента')}">
-            <source src="${escapeHtml(item.video || '')}" type="video/mp4">
+            <source src="${sanitizeUrl(item.video || '')}" type="video/mp4">
           </video>
           <button class="cv-play" type="button" aria-label="Воспроизвести видео" aria-pressed="false">
             <svg class="cv-play__icon cv-play__icon--play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
@@ -553,10 +591,53 @@
     let resizeTimer;
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => layout(true), 120);
+      resizeTimer = setTimeout(() => { if (entered) layout(true); }, 120);
     });
 
-    layout(hasGsap); // initial entrance (animated) or instant fallback
+    // Start the carousel (and thus the active video download) only when the
+    // section approaches the viewport — below-fold videos must not load on
+    // initial page load. Playback pauses again once the section scrolls away.
+    // The section shell is empty (zero-height) before rendering, and
+    // zero-area targets never intersect an observer, so a distance fallback
+    // mirroring the page's own reveal-scroll pattern is kept alongside IO.
+    let entered = false;
+    let sectionVisible = false;
+    const section = document.getElementById('clientVideo');
+    const startCarousel = () => {
+      if (entered) return;
+      entered = true;
+      layout(hasGsap); // initial entrance (animated) or instant fallback
+    };
+    const pauseAll = () => {
+      videos.forEach((v) => { if (v) { v.pause(); v.muted = true; } });
+      items.forEach((it) => it.classList.remove('is-playing'));
+      playBtns.forEach((b) => b && b.setAttribute('aria-pressed', 'false'));
+    };
+
+    if (section && typeof IntersectionObserver !== 'undefined') {
+      const io = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          startCarousel();
+        } else if (entered) {
+          pauseAll();
+        }
+      }, { rootMargin: '1000px 0px' });
+      io.observe(section);
+
+      const fallback = () => {
+        if (!section) return;
+        const rect = section.getBoundingClientRect();
+        const visible = rect.top < window.innerHeight && rect.bottom > 0;
+        sectionVisible = visible;
+        if (visible) startCarousel();
+        else if (entered) pauseAll();
+      };
+      window.addEventListener('scroll', fallback, { passive: true });
+      window.addEventListener('resize', fallback, { passive: true });
+      fallback();
+    } else {
+      startCarousel();
+    }
   }
 
   // ---- CALCULATOR (id="calculator") ----
@@ -582,19 +663,19 @@
             <h2 class="cta-final__title" id="cta-final-title">${escapeHtml(content.title || '')}</h2>
             <p class="cta-final__lead">${escapeHtml(content.subtitle || '')}</p>
             <div class="cta-final__contacts">
-              <a class="cta-final__contact" href="${escapeHtml(content.telegram_link || '#')}" target="_blank" rel="noopener">
+              <a class="cta-final__contact" href="${sanitizeUrl(content.telegram_link || '#')}" target="_blank" rel="noopener">
                 <span class="cta-final__contact__label">Telegram</span>
                 <span class="cta-final__contact__value">${escapeHtml(content.telegram || '')}</span>
               </a>
-              <a class="cta-final__contact" href="${escapeHtml(content.whatsapp_link || '#')}" target="_blank" rel="noopener">
+              <a class="cta-final__contact" href="${sanitizeUrl(content.whatsapp_link || '#')}" target="_blank" rel="noopener">
                 <span class="cta-final__contact__label">WhatsApp</span>
                 <span class="cta-final__contact__value">${escapeHtml(content.whatsapp || '')}</span>
               </a>
             </div>
           </div>
           <div class="cta-final__cta">
-            <a href="${escapeHtml(content.cta_primary_href || '#')}" class="btn btn--primary btn--lg">${escapeHtml(content.cta_primary || '')}</a>
-            <a href="${escapeHtml(content.cta_secondary_href || '#')}" class="btn btn--ghost btn--lg">${escapeHtml(content.cta_secondary || '')}</a>
+            <a href="${sanitizeUrl(content.cta_primary_href || '#')}" class="btn btn--primary btn--lg">${escapeHtml(content.cta_primary || '')}</a>
+            <a href="${sanitizeUrl(content.cta_secondary_href || '#')}" class="btn btn--ghost btn--lg">${escapeHtml(content.cta_secondary || '')}</a>
           </div>
         </div>
         <p class="cta-final__note">${escapeHtml(content.footer_note || '')}</p>

@@ -1,9 +1,26 @@
 import bcrypt from 'bcryptjs';
+import config from '../config/index.js';
 import { queryOne, execute } from '../database/connection.js';
 
-const SALT_ROUNDS = 10;
+const SALT_ROUNDS = 12;
+
+// Detects a bcrypt hash like $2a$10$...
+const isBcryptHash = (str) => typeof str === 'string' && /^\$2[aby]?\$\d+\$/.test(str);
 
 export async function findUserByUsername(username) {
+  // When ADMIN_USERNAME in .env is a bcrypt hash, the hash is the source of
+  // truth for the login: verify the submitted username against it and return
+  // the single admin account from the DB.
+  const expected = config.admin.username;
+  if (isBcryptHash(expected)) {
+    const valid = await bcrypt.compare(username, expected);
+    if (!valid) {
+      return null;
+    }
+    return await queryOne(
+      'SELECT id, username, password_hash FROM users ORDER BY id LIMIT 1'
+    );
+  }
   return await queryOne(
     'SELECT id, username, password_hash FROM users WHERE username = ?',
     [username]

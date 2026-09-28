@@ -50,12 +50,9 @@ export async function login(req, res) {
     });
   }
 
-  // Set session
-  req.session.userId = user.id;
-  req.session.username = user.username;
-
-  // Regenerate session to prevent session fixation
-  req.session.save((err) => {
+  // Regenerate session to prevent session fixation:
+  // creates a fresh session id so a planted cookie cannot be hijacked.
+  req.session.regenerate((err) => {
     if (err) {
       logAdminEvent('ADMIN_AUTH_LOGIN_FAILED', req, { error: err.message, status: 500 });
       return res.status(500).json({
@@ -63,11 +60,24 @@ export async function login(req, res) {
         message: 'Ошибка сервера'
       });
     }
-    logAdminEvent('ADMIN_AUTH_LOGIN_SUCCESS', req, { username: user.username });
-    res.json({
-      success: true,
-      message: 'Авторизация успешна',
-      user: { username: user.username }
+
+    req.session.userId = user.id;
+    req.session.username = user.username;
+
+    req.session.save((err) => {
+      if (err) {
+        logAdminEvent('ADMIN_AUTH_LOGIN_FAILED', req, { error: err.message, status: 500 });
+        return res.status(500).json({
+          success: false,
+          message: 'Ошибка сервера'
+        });
+      }
+      logAdminEvent('ADMIN_AUTH_LOGIN_SUCCESS', req, { username: user.username });
+      res.json({
+        success: true,
+        message: 'Авторизация успешна',
+        user: { username: user.username }
+      });
     });
   });
 }

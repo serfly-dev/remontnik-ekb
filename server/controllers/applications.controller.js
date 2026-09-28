@@ -17,6 +17,14 @@ function validatePhone(phone) {
   return /^\+7\s*\(\d{3}\)\s*\d{3}[-\s]*\d{2}[-\s]*\d{2}$/.test(phone);
 }
 
+// Log-safe phone: keep only the last 2 digits.
+function maskPhone(phone) {
+  if (!phone) return '';
+  const digits = String(phone).replace(/\D/g, '');
+  if (digits.length < 4) return '***';
+  return '***-***-' + digits.slice(-2);
+}
+
 function sanitizeStatus(status) {
   if (!status || !VALID_STATUSES.includes(status)) return 'new';
   return status;
@@ -47,6 +55,7 @@ export async function listApplications(req, res) {
       sortOrder
     };
 
+    options.adminId = req.session.userId;
     const result = await getApplications(options);
     logAdminEvent('ADMIN_APPLICATIONS_LIST_SUCCESS', req, { count: result?.length || 0, status, search });
     res.json({ success: true, ...result });
@@ -60,7 +69,7 @@ export async function listApplications(req, res) {
 export async function getApplication(req, res) {
   try {
     logAdminEvent('ADMIN_APPLICATION_GET_STARTED', req, { id: req.params.id });
-    const app = await getApplicationById(req.params.id);
+    const app = await getApplicationById(req.params.id, req.session.userId);
     if (!app) {
       logAdminEvent('ADMIN_APPLICATION_GET_FAILED', req, { id: req.params.id, error: 'not_found', status: 404 });
       return res.status(404).json({ success: false, message: 'Заявка не найдена' });
@@ -76,7 +85,7 @@ export async function getApplication(req, res) {
 
 export async function createApplicationHandler(req, res) {
   try {
-    logAdminEvent('ADMIN_APPLICATION_CREATE_STARTED', req, { name: req.body.name?.trim(), phone: req.body.phone });
+    logAdminEvent('ADMIN_APPLICATION_CREATE_STARTED', req, { name: req.body.name?.trim(), phone: maskPhone(req.body.phone) });
     const { name, phone, preferred_time, comment, calculator_data, calculated_price } = req.body;
 
     // Validation
@@ -100,7 +109,7 @@ export async function createApplicationHandler(req, res) {
       status: 'new'
     });
 
-    logAdminEvent('ADMIN_APPLICATION_CREATE_SUCCESS', req, { id: app?.id, name: app?.name });
+    logAdminEvent('ADMIN_APPLICATION_CREATE_SUCCESS', req, { id: app?.id });
     res.status(201).json({ success: true, data: app, message: 'Заявка создана' });
   } catch (err) {
     logAdminEvent('ADMIN_APPLICATION_CREATE_FAILED', req, { error: err.message });
@@ -117,16 +126,16 @@ export async function updateApplicationHandler(req, res) {
 
     if (status) {
       const safeStatus = sanitizeStatus(status);
-      await updateApplicationStatus(id, safeStatus);
+      await updateApplicationStatus(id, safeStatus, req.session.userId);
     }
 
-    const app = await getApplicationById(id);
+    const app = await getApplicationById(id, req.session.userId);
     if (!app) {
       logAdminEvent('ADMIN_APPLICATION_UPDATE_FAILED', req, { id, error: 'not_found', status: 404 });
       return res.status(404).json({ success: false, message: 'Заявка не найдена' });
     }
 
-    logAdminEvent('ADMIN_APPLICATION_UPDATE_SUCCESS', req, { id, status: app.status });
+    logAdminEvent('ADMIN_APPLICATION_UPDATE_SUCCESS', req, { id });
     res.json({ success: true, data: app, message: 'Статус обновлён' });
   } catch (err) {
     logAdminEvent('ADMIN_APPLICATION_UPDATE_FAILED', req, { id: req.params.id, error: err.message });
@@ -139,7 +148,7 @@ export async function deleteApplicationHandler(req, res) {
   try {
     logAdminEvent('ADMIN_APPLICATION_DELETE_STARTED', req, { id: req.params.id });
     const id = req.params.id;
-    const deleted = await deleteApplication(id);
+    const deleted = await deleteApplication(id, req.session.userId);
     if (!deleted) {
       logAdminEvent('ADMIN_APPLICATION_DELETE_FAILED', req, { id, error: 'not_found', status: 404 });
       return res.status(404).json({ success: false, message: 'Заявка не найдена' });

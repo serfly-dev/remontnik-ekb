@@ -5,6 +5,7 @@ import path from 'path';
 
 import multer from 'multer';
 import config from '../config/index.js';
+import { optimizeUploadedImage } from '../services/image.optimizer.js';
 
 // ─── Robust MP4 dimension parsing ──────────────────────────────────────────
 // Width/height are read from the `tkhd` (Track Header) box, which per
@@ -102,9 +103,10 @@ async function getVideoDimensions(filePath) {
 async function isImageCorrupted(filePath, mimetype) {
   try {
     const fd = await fs.open(filePath, 'r');
-    const buffer = Buffer.alloc(8);
-    await fd.read(buffer, 0, 8, 0);
+    const buffer = Buffer.alloc(16);
+    const { bytesRead } = await fd.read(buffer, 0, 16, 0);
     await fd.close();
+    const sig = buffer.subarray(0, 8);
 
     // JPEG: starts with FF D8 FF
     if (mimetype === 'image/jpeg') {
@@ -114,17 +116,23 @@ async function isImageCorrupted(filePath, mimetype) {
     // PNG: starts with 89 50 4E 47 0D 0A 1A 0A
     if (mimetype === 'image/png') {
       const pngSignature = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
-      return !buffer.equals(pngSignature);
+      return !sig.equals(pngSignature);
     }
 
-    // WebP: starts with RIFF header, first 4 bytes should be 'RIFF'
+    // WebP: full RIFF container signature + format chunk.
+    // Require RIFF + size + 'WEBP' + a valid chunk type (VP8 / VP8L / VP8X)
+    // so a file merely prefixed with 'RIFF' is rejected.
     if (mimetype === 'image/webp') {
-      // WebP RIFF header: 'RIFF' + size + 'WEBP' + 'VP80'
-      return !(buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46);
+      if (bytesRead < 16) return true;
+      const riffOk = buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46;
+      const webpOk = buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50;
+      const chunk = buffer.slice(12, 16).toString('latin1');
+      const chunkOk = chunk === 'VP8 ' || chunk === 'VP8L' || chunk === 'VP8X';
+      return !(riffOk && webpOk && chunkOk);
     }
 
-    // Unknown format - cannot verify
-    return false;
+    // Unknown format - cannot verify, reject to be safe
+    return true;
   } catch (err) {
     console.error('[IMAGE-CORRUPTION] Error checking file:', err.message);
     return false;
@@ -308,6 +316,30 @@ function validateVideoSize(files) {
   return !video || video.size <= MAX_VIDEO_SIZE;
 }
 
+// Check that a video file starts with a valid ISO BMFF ftyp box.
+// MP4/QuickTime files are box-based: first box size + 'ftyp' + major brand.
+async function isVideoSignatureValid(filePath) {
+  try {
+    const fd = await fs.open(filePath, 'r');
+    const buffer = Buffer.alloc(16);
+    await fd.read(buffer, 0, 16, 0);
+    await fd.close();
+
+    // box size (uint32 BE) + 'ftyp'
+    if (buffer.length < 12) return false;
+    if (buffer.readUInt32BE(0) < 8) return false;
+    const ftyp = buffer.slice(4, 8).toString('latin1');
+    if (ftyp !== 'ftyp') return false;
+
+    const brand = buffer.slice(8, 12).toString('latin1');
+    // Known ISO BMFF major brands (isom, iso2, mp41, mp42, avc1, M4V , qt  )
+    return ['isom', 'iso2', 'mp41', 'mp42', 'avc1', 'M4V ', 'qt  ', '3gp4', 'mp71'].includes(brand);
+  } catch (err) {
+    console.error('[VIDEO-SIGNATURE] Error checking video:', err.message);
+    return false;
+  }
+}
+
 async function validateVideoOrientation(files) {
   const video = files.find(f => f.fieldname === 'video');
   if (!video) return true; // No video = ok (will be handled elsewhere)
@@ -447,6 +479,27 @@ async function validateUploadedFiles(req, res, mediaType) {
     }
   }
 
+  // Magic-byte check for video uploads (ftyp box)
+  if (mediaType === 'video') {
+    for (const file of files) {
+      const sigOk = await isVideoSignatureValid(file.path);
+      if (!sigOk) {
+        await removeUploadedFiles(files);
+        console.info(JSON.stringify({
+          event: 'UPLOAD_VALIDATION_FAILED',
+          timestamp: new Date().toISOString(),
+          requestId: rid,
+          endpoint: req.originalUrl || req.url,
+          method: req.method,
+          reason: 'invalid_video_signature',
+          file: file.filename
+        }));
+        res.status(415).json({ success: false, message: 'Файл не является корректным MP4-видео' });
+        return false;
+      }
+    }
+  }
+
   // Vertical orientation check for video uploads
   if (mediaType === 'video') {
     const isVertical = await validateVideoOrientation(files);
@@ -466,6 +519,28 @@ async function validateUploadedFiles(req, res, mediaType) {
         success: false,
         message: 'Видео должно быть вертикальным (портретная ориентация). Загрузите видео, где высота больше ширины.'
       });
+      return false;
+    }
+  }
+
+  // Optimize uploaded images (compress + cap resolution + store as WebP).
+  // If sharp cannot decode a file, the temp file is deleted and the upload
+  // is rejected — unverified originals never reach the public directory.
+  if (mediaType !== 'video') {
+    try {
+      await Promise.all(files.map(optimizeUploadedImage));
+    } catch (err) {
+      await removeUploadedFiles(files);
+      console.info(JSON.stringify({
+        event: 'UPLOAD_VALIDATION_FAILED',
+        timestamp: new Date().toISOString(),
+        requestId: rid,
+        endpoint: req.originalUrl || req.url,
+        method: req.method,
+        reason: 'image_processing_failed',
+        error: err.message
+      }));
+      res.status(err.statusCode || 415).json({ success: false, message: err.message || 'Изображение не может быть обработано' });
       return false;
     }
   }
@@ -539,7 +614,7 @@ export async function uploadGalleryHandler(req, res) {
       endpoint: '/api/upload/gallery',
       method: 'POST',
       error: err.message,
-      stack: err.stack,
+
       durationMs: Date.now() - startTime
     }));
     res.status(500).json({
@@ -605,7 +680,7 @@ export async function uploadVideoHandler(req, res) {
       endpoint: '/api/upload/video',
       method: 'POST',
       error: err.message,
-      stack: err.stack,
+
       durationMs: Date.now() - startTime
     }));
     res.status(500).json({
@@ -671,7 +746,7 @@ export async function uploadImageHandler(req, res) {
       endpoint: '/api/upload/image',
       method: 'POST',
       error: err.message,
-      stack: err.stack,
+
       durationMs: Date.now() - startTime
     }));
     res.status(500).json({
@@ -819,7 +894,7 @@ export async function deleteUploadedFile(req, res) {
       filePath: rawPath,
       reason: 'server_error',
       error: err.message,
-      stack: err.stack,
+
       durationMs: Date.now() - startTime
     }));
     res.status(500).json({

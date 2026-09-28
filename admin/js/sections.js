@@ -6,16 +6,16 @@ import { api } from './api.js';
  */
 
 const SECTION_KEYS = [
-  { key: 'hero', label: 'Hero' },
-  { key: 'services', label: 'Услуги' },
-  { key: 'gallery', label: 'Галерея' },
-  { key: 'clientVideo', label: 'Видео клиента' },
-  { key: 'variants', label: 'Варианты' },
-  { key: 'calculator', label: 'Калькулятор' },
-  { key: 'cta', label: 'CTA' },
-  { key: 'faq', label: 'FAQ' },
-  { key: 'process', label: 'Процесс' },
-  { key: 'applications', label: 'Заявки' } // Special tab for applications
+  { key: 'hero', label: 'Hero', description: 'Главный экран сайта: заголовок, подзаголовок, кнопки и главное фото' },
+  { key: 'services', label: 'Услуги', description: 'Карточки услуг мастера с описанием и списком работ' },
+  { key: 'gallery', label: 'Галерея', description: 'Фото работ клиентов: пары изображений до/после' },
+  { key: 'clientVideo', label: 'Видео клиента', description: 'Видеоотзывы, которые выводятся на главной странице' },
+  { key: 'variants', label: 'Варианты', description: 'Форматы работы: "Замер" и "Замер + материалы" с ценами и этапами' },
+  { key: 'calculator', label: 'Калькулятор', description: 'Настройки тарифов, коэффициентов и цены за замер' },
+  { key: 'cta', label: 'Контакты', description: 'Финальный блок: призыв к действию, телефон, Telegram и WhatsApp' },
+  { key: 'faq', label: 'FAQ', description: 'Частые вопросы и ответы для посетителей' },
+  { key: 'process', label: 'Процесс', description: 'Пошаговый путь клиента от заявки до результата' },
+  { key: 'applications', label: 'Заявки', description: 'Список заявок клиентов, их статусы и действия с ними' }
 ];
 
 function logAdminEvent(event, extra = {}) {
@@ -63,9 +63,41 @@ function showPendingPreview(inputEl, file, previewId) {
   }
   const objectUrl = URL.createObjectURL(file);
   if (entry) entry.objectUrl = objectUrl;
-  const preview = document.getElementById(previewId);
-  if (preview) {
-    preview.style.backgroundImage = `url('${objectUrl}')`;
+  setPreviewBackground(document.getElementById(previewId), objectUrl);
+}
+
+// Apply a background image to a preview and drop the lazy-load marker, so a
+// later viewport entry never overwrites a freshly uploaded image.
+function setPreviewBackground(preview, url) {
+  if (!preview) return;
+  preview.style.backgroundImage = `url('${url}')`;
+  delete preview.dataset.bg;
+}
+
+// Lazy image previews: assign the background-image only when the row
+// approaches the viewport. A gallery with many heavy photos must not load
+// every thumbnail the moment its tab is opened.
+let previewObserver = null;
+if (typeof IntersectionObserver !== 'undefined') {
+  previewObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      const el = entry.target;
+      if (el.dataset.bg) {
+        el.style.backgroundImage = `url('${el.dataset.bg}')`;
+        delete el.dataset.bg;
+      }
+      previewObserver.unobserve(el);
+    }
+  }, { rootMargin: '400px' });
+}
+
+function observePreview(el) {
+  if (!el || !el.dataset.bg) return;
+  if (previewObserver) {
+    previewObserver.observe(el);
+  } else {
+    setPreviewBackground(el, el.dataset.bg);
   }
 }
 
@@ -180,7 +212,7 @@ const SECTION_FIELDS = {
   calculator: {
     fields: [
       { name: 'title', type: 'text', label: 'Заголовок' },
-      { name: 'rates', type: 'object', label: 'Тарифы (₽/м²)', itemFields: [
+      { name: 'rates', type: 'object', label: 'Тарифы (₽/м²)', description: 'Стоимость за квадратный метр для разных типов жилья и состояния', itemFields: [
         { name: 'newBuilding', type: 'object', label: 'Новостройка', itemFields: [
           { name: 'finished', type: 'number', label: 'Есть ремонт' },
           { name: 'unfinished', type: 'number', label: 'Без отделки' },
@@ -192,12 +224,12 @@ const SECTION_FIELDS = {
           { name: 'whiteBox', type: 'number', label: 'White Box' }
         ]}
       ]},
-      { name: 'coefficients', type: 'object', label: 'Коэффициенты проекта', itemFields: [
-        { name: 'hasProject', type: 'number', label: 'Есть проект' },
-        { name: 'needsChanges', type: 'number', label: 'Нужны правки' },
-        { name: 'noProject', type: 'number', label: 'Нет проекта' }
+      { name: 'coefficients', type: 'object', label: 'Коэффициенты проекта', description: 'Множители для корректировки цены в зависимости от ситуации', itemFields: [
+        { name: 'hasProject', type: 'number', label: 'Есть проект', description: 'Множитель, если у клиента уже есть дизайн-проект' },
+        { name: 'needsChanges', type: 'number', label: 'Нужны правки', description: 'Множитель, если требуется доработка проекта' },
+        { name: 'noProject', type: 'number', label: 'Нет проекта', description: 'Множитель, если проекта нет' }
       ]},
-      { name: 'measurement_fee', type: 'number', label: 'Плата за замер (₽)' }
+      { name: 'measurement_fee', type: 'number', label: 'Плата за замер (₽)', description: 'Фиксированная стоимость выезда и замера' }
     ]
   },
   cta: {
@@ -208,10 +240,10 @@ const SECTION_FIELDS = {
       { name: 'cta_primary_href', type: 'text', label: 'Кнопка 1 (ссылка)' },
       { name: 'cta_secondary', type: 'text', label: 'Кнопка 2 (текст)' },
       { name: 'cta_secondary_href', type: 'text', label: 'Кнопка 2 (ссылка)' },
-      { name: 'telegram', type: 'text', label: 'Telegram username' },
-      { name: 'telegram_link', type: 'text', label: 'Telegram URL' },
-      { name: 'whatsapp', type: 'text', label: 'WhatsApp (видимый)' },
-      { name: 'whatsapp_link', type: 'text', label: 'WhatsApp URL' },
+      { name: 'telegram', type: 'text', label: 'Telegram username', description: 'Ваш Telegram без @, например: nikitachatkin' },
+      { name: 'telegram_link', type: 'text', label: 'Telegram URL', description: 'Полная ссылка на Telegram, например: https://t.me/nikitachatkin' },
+      { name: 'whatsapp', type: 'text', label: 'WhatsApp (видимый)', description: 'Текст, который увидит клиент при клике на кнопку' },
+      { name: 'whatsapp_link', type: 'text', label: 'WhatsApp URL', description: 'Ссылка на WhatsApp, например: https://wa.me/79502085138' },
       { name: 'footer_note', type: 'text', label: 'Подвал' }
     ]
   }
@@ -240,8 +272,22 @@ async function renderTabs() {
   `).join('');
 
   tabsNav.querySelectorAll('.admin-tab').forEach(btn => {
-    btn.addEventListener('click', () => selectTab(btn.dataset.section));
+    btn.addEventListener('click', () => {
+      selectTab(btn.dataset.section);
+    });
   });
+}
+
+function scrollTabIntoView(key) {
+  const target = key === 'applications'
+    ? document.getElementById('applicationsSection')
+    : document.getElementById('sectionEditor');
+  if (!target) return;
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const behavior = prefersReduced ? 'auto' : 'smooth';
+
+  target.scrollIntoView({ behavior, block: 'start' });
 }
 
 async function selectTab(key) {
@@ -261,6 +307,7 @@ async function selectTab(key) {
     const applicationsSection = document.getElementById('applicationsSection');
     if (applicationsSection) {
       applicationsSection.hidden = false;
+      scrollTabIntoView(key);
       // Trigger applications loading if needed
       if (window.loadApplications) {
         window.loadApplications();
@@ -291,6 +338,7 @@ async function selectTab(key) {
   try {
     const section = await fetchSection(key);
     renderEditor(key, section);
+    scrollTabIntoView(key);
   } catch (err) {
     console.error('Failed to load section:', err);
     editorContainer.innerHTML = `
@@ -353,12 +401,47 @@ function renderEditor(key, section) {
   `;
 
   editorContainer.innerHTML = html;
+  editorContainer.querySelectorAll('.section-editor__image-preview[data-bg]').forEach(observePreview);
   editorContainer.setAttribute('aria-hidden', 'false');
 
   saveStatusEl = document.getElementById('saveStatus');
   const form = editorContainer.querySelector('form');
   const saveBtn = document.getElementById('saveBtn');
   const resetBtn = document.getElementById('resetBtn');
+
+  // Add event listeners for field-level info circles
+  editorContainer.addEventListener('mouseenter', (e) => {
+    if (e.target.classList.contains('field-info')) {
+      const tooltip = e.target.nextElementSibling;
+      if (tooltip && tooltip.classList.contains('field-tooltip')) {
+        tooltip.classList.add('show');
+      }
+    }
+  });
+  editorContainer.addEventListener('mouseleave', (e) => {
+    if (e.target.classList.contains('field-info')) {
+      const tooltip = e.target.nextElementSibling;
+      if (tooltip && tooltip.classList.contains('field-tooltip')) {
+        tooltip.classList.remove('show');
+      }
+    }
+  });
+  editorContainer.addEventListener('focusin', (e) => {
+    if (e.target.classList.contains('field-info')) {
+      const tooltip = e.target.nextElementSibling;
+      if (tooltip && tooltip.classList.contains('field-tooltip')) {
+        tooltip.classList.add('show');
+      }
+    }
+  });
+  editorContainer.addEventListener('focusout', (e) => {
+    if (e.target.classList.contains('field-info')) {
+      const tooltip = e.target.nextElementSibling;
+      if (tooltip && tooltip.classList.contains('field-tooltip')) {
+        tooltip.classList.remove('show');
+      }
+    }
+  });
 
   form.addEventListener('submit', (e) => handleSave(e, key, form, saveBtn));
   resetBtn.addEventListener('click', async () => {
@@ -380,13 +463,19 @@ function renderField(field, value, pathPrefix) {
   const label = field.label;
   const type = field.type;
   const hint = field.hint || '';
+  const description = field.description || '';
   const required = field.required ? ' required' : '';
 
   const prefix = pathPrefix || '';
 
+  let infoHtml = description ? `
+    <span class="field-info" tabindex="0" role="img" aria-label="${escapeHtml(description)}">i</span>
+    <span class="field-tooltip">${escapeHtml(description)}</span>
+  ` : '';
+
   let html = `
     <div class="section-editor__group" data-field="${escapeHtml(name)}">
-      <label class="section-editor__label">${escapeHtml(label)}</label>
+      <label class="section-editor__label">${escapeHtml(label)}${infoHtml}</label>
   `;
 
   switch (type) {
@@ -455,13 +544,13 @@ function renderField(field, value, pathPrefix) {
 
 function renderImageField(name, value, pathPrefix) {
   const prefix = pathPrefix || '';
-  const previewStyle = value ? `background-image: url('${escapeHtml(value)}')` : '';
+  const dataBg = value ? ` data-bg="${escapeHtml(value)}"` : '';
   const fileName = `${name}_file`;
   const urlInputName = prefix ? `${prefix}.${name}_url` : `${name}_url`;
   const fullFileName = prefix ? `${prefix}.${fileName}` : fileName;
   return `
     <div class="section-editor__image-row">
-      <div class="section-editor__image-preview" id="preview-${escapeHtml(urlInputName.replace(/[.]/g, '_').replace(/\[/g, '_').replace(/]/g, '_'))}" style="${previewStyle}"></div>
+      <div class="section-editor__image-preview" id="preview-${escapeHtml(urlInputName.replace(/[.]/g, '_').replace(/\[/g, '_').replace(/]/g, '_'))}"${dataBg}></div>
       <input type="hidden" name="${escapeHtml(urlInputName)}" value="${escapeHtml(value || '')}">
       <div class="section-editor__image-controls">
         <input type="file" name="${escapeHtml(fullFileName)}" class="section-editor__file-input" accept="image/*" data-preview="preview-${escapeHtml(urlInputName.replace(/[.]/g, '_').replace(/\[/g, '_').replace(/]/g, '_'))}" data-single-upload="true" data-field-name="${escapeHtml(name)}" data-url-input-name="${escapeHtml(urlInputName)}" data-path-prefix="${escapeHtml(prefix)}">
@@ -473,7 +562,7 @@ function renderImageField(name, value, pathPrefix) {
 function renderCropImageField(field, value, pathPrefix) {
   const name = field.name;
   const label = field.label || name;
-  const previewStyle = value ? `background-image: url('${escapeHtml(value)}')` : '';
+  const dataBg = value ? ` data-bg="${escapeHtml(value)}"` : '';
   const fileName = `${name}_file`;
 
   // Get crop config from field
@@ -500,7 +589,7 @@ function renderCropImageField(field, value, pathPrefix) {
 
   return `
     <div class="section-editor__image-row">
-      <div class="section-editor__image-preview" id="${previewId}" style="${previewStyle}"></div>
+      <div class="section-editor__image-preview" id="${previewId}"${dataBg}></div>
       <input type="hidden" name="${escapeHtml(urlInputName)}" value="${escapeHtml(value || '')}">
       <div class="section-editor__image-controls">
         <input type="file" name="${escapeHtml(fullInputName)}" class="section-editor__file-input" accept="image/*"
@@ -517,8 +606,9 @@ function renderVideoField(field, value, pathPrefix) {
   const name = field.name;
   const label = field.label || name;
   const previewStyle = value
-    ? `background-image: url('${escapeHtml(value)}')`
-    : 'background: var(--bg)';
+    ? 'background-size: contain; background-repeat: no-repeat;'
+    : 'background: var(--bg); background-size: contain; background-repeat: no-repeat;';
+  const dataBg = value ? ` data-bg="${escapeHtml(value)}"` : '';
   const videoName = `${name}_file`;
   const fullVideoName = pathPrefix ? `${pathPrefix}.${videoName}` : videoName;
   const urlInputName = pathPrefix ? `${pathPrefix}.${name}_url` : `${name}_url`;
@@ -526,7 +616,7 @@ function renderVideoField(field, value, pathPrefix) {
   const dataPath = pathPrefix ? escapeHtml(pathPrefix) : '';
   return `
     <div class="section-editor__image-row">
-      <div class="section-editor__image-preview" id="${previewId}" style="${previewStyle}; background-size: contain; background-repeat: no-repeat;"></div>
+      <div class="section-editor__image-preview" id="${previewId}" style="${previewStyle}"${dataBg}></div>
       <input type="hidden" name="${escapeHtml(urlInputName)}" value="${escapeHtml(value || '')}">
       <div class="section-editor__image-controls">
         <input type="file" name="${escapeHtml(fullVideoName)}" class="section-editor__file-input"
@@ -731,10 +821,7 @@ async function uploadField(file, { fieldName, pathPrefix, urlInputName, previewI
       const urlInput = document.querySelector(`input[name="${escapeHtml(urlInputName)}"]`);
       if (urlInput) urlInput.value = url;
 
-      const preview = document.getElementById(previewId);
-      if (preview) {
-        preview.style.backgroundImage = `url('${url}')`;
-      }
+      setPreviewBackground(document.getElementById(previewId), url);
 
       resolve(url);
     };

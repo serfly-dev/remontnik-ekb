@@ -1,4 +1,4 @@
-import { requireAuth } from '../middleware/auth.middleware.js';
+import { requireAuth, requireSameOrigin } from '../middleware/auth.middleware.js';
 import {
   uploadGallery,
   uploadVideo,
@@ -19,8 +19,7 @@ function logUploadError(req, err, reason) {
     endpoint: req.originalUrl || req.url,
     method: req.method,
     reason,
-    error: err.message,
-    stack: err.stack
+    error: err.message
   }));
 }
 
@@ -76,9 +75,9 @@ function uploadErrorHandler(err, req, res, next) {
 
 export function initUploadRoutes(app) {
   // Protected: admin only
-  app.post('/api/upload/gallery', requireAuth, ensureUploadDirectories, uploadGallery, logMultipartParsed, uploadGalleryHandler, uploadErrorHandler);
-  app.post('/api/upload/video', requireAuth, ensureUploadDirectories, uploadVideo, logMultipartParsed, uploadVideoHandler, uploadErrorHandler);
-  app.post('/api/upload/image', requireAuth, ensureUploadDirectories, uploadImage, logMultipartParsed, uploadImageHandler, uploadErrorHandler);
-  app.delete('/api/upload/:mediaType/:filename', requireAuth, deleteUploadedFile);
-app.delete('/api/upload/:filename', requireAuth, deleteUploadedFile);
+  app.post('/api/upload/gallery', requireAuth, requireSameOrigin, ensureUploadDirectories, uploadGallery, logMultipartParsed, uploadGalleryHandler, uploadErrorHandler);
+  app.post('/api/upload/video', requireAuth, requireSameOrigin, ensureUploadDirectories, uploadVideo, logMultipartParsed, uploadVideoHandler, uploadErrorHandler);
+  app.post('/api/upload/image', requireAuth, requireSameOrigin, ensureUploadDirectories, uploadImage, logMultipartParsed, uploadImageHandler, uploadErrorHandler);
+  app.delete('/api/upload/:mediaType/:filename', requireAuth, requireSameOrigin, deleteUploadedFile);
+app.delete('/api/upload/:filename', requireAuth, requireSameOrigin, deleteUploadedFile);
 }

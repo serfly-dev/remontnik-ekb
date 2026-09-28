@@ -1,4 +1,4 @@
-import { requireAuth } from '../middleware/auth.middleware.js';
+import { requireAuth, requireSameOrigin } from '../middleware/auth.middleware.js';
 import {
   listSections,
   getSection,
@@ -12,6 +12,6 @@ export function initSectionsRoutes(app) {
 
   // Protected: admin only
   app.get('/api/sections/:key', requireAuth, getSection);
-  app.patch('/api/sections/:key', requireAuth, upsertSection);
-  app.delete('/api/sections/:key', requireAuth, deleteSection);
+  app.patch('/api/sections/:key', requireAuth, requireSameOrigin, upsertSection);
+  app.delete('/api/sections/:key', requireAuth, requireSameOrigin, deleteSection);
 }

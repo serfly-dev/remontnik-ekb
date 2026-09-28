@@ -20,8 +20,15 @@ if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD) {
 const adminUsername = process.env.ADMIN_USERNAME;
 const adminPassword = process.env.ADMIN_PASSWORD;
 
-console.log('🔧 Initializing database...');
-console.log(`📁 Database path: ${dbPath}`);
+// Detect if the provided value is already a bcrypt hash
+const isBcryptHash = (str) => typeof str === 'string' && /^\$2[aby]?\$\d+\$/.test(str);
+
+// Use the value directly if it's already a bcrypt hash, otherwise hash it
+// (backward-compatible with plaintext ADMIN_PASSWORD for migration purposes)
+const passwordHash =
+  isBcryptHash(adminPassword)
+    ? adminPassword
+    : bcrypt.hashSync(adminPassword, 12);
 
 // Ensure directory exists
 const dbDir = dirname(dbPath);
@@ -81,6 +88,7 @@ async function init() {
       calculator_data TEXT,
       calculated_price INTEGER,
       status TEXT NOT NULL DEFAULT 'new',
+      admin_id INTEGER,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
@@ -102,18 +110,21 @@ async function init() {
   `);
   console.log('✅ users table created');
 
-  // Create admin user
-  const passwordHash = bcrypt.hashSync(adminPassword, 10);
-  const existing = await getRow('SELECT id FROM users WHERE username = ?', [adminUsername]);
+  // Create or update the admin user. The account is synced from .env so the
+  // hashes stored in the DB always match the configured credentials.
+  const existing = isBcryptHash(adminUsername)
+    ? await getRow('SELECT id FROM users ORDER BY id LIMIT 1')
+    : await getRow('SELECT id FROM users WHERE username = ?', [adminUsername]);
 
-  if (!existing) {
-    await runStatement('INSERT INTO users (username, password_hash) VALUES (?, ?)', [adminUsername, passwordHash]);
-    console.log(`\n👤 Admin user created:`);
-    console.log(`   Username: ${adminUsername}`);
-    console.log(`   Password: ${adminPassword}`);
-    console.log('\n⚠️  IMPORTANT: Change this password after first login!');
+  if (existing) {
+    await runStatement('UPDATE users SET password_hash = ? WHERE id = ?', [passwordHash, existing.id]);
+    console.log('\n📝 Admin user updated to match .env credentials');
   } else {
-    console.log('\n📝 Existing admin user preserved');
+    const storedUsername = isBcryptHash(adminUsername) ? 'admin' : adminUsername;
+    await runStatement('INSERT INTO users (username, password_hash) VALUES (?, ?)', [storedUsername, passwordHash]);
+    console.log(`\n👤 Admin user created:`);
+    console.log(`   Username: ${storedUsername}`);
+    console.log('\n⚠️  IMPORTANT: Change this password after first login!');
   }
 
   // Settings table for future use
@@ -134,14 +145,14 @@ async function init() {
       title TEXT,
       content JSON NOT NULL,
       order_index INTEGER DEFAULT 0,
-      updated_at DATETIME DEFAULT (datetime('now'))
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
   console.log('✅ sections table created');
 
   db.close();
   console.log('\n✨ Database initialization complete!');
-  console.log('\n📌 Next steps:');
+  console.log('\n💡 Next steps:');
   console.log('   1. Run: npm start');
   console.log('   2. Open: http://localhost:3000');
 }

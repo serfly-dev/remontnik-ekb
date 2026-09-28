@@ -671,10 +671,82 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // ACCORDION (FAQ) — native <details>/<summary>
+  // ACCORDION (FAQ) — GSAP motion for native <details>/<summary>
   // ============================================================
-  // Uses native <details> elements with CSS animation via
-  // .accordion__content max-height transition. No JS toggle needed.
+  // The <details> element stays native (a11y + keyboard). GSAP layers
+  // motion on top: scroll-reveal of the list, content slide/fade on
+  // open, and a spring "pop" of the +/× icon.
+  // FAQ is re-rendered from server data by sections-inject.js shortly
+  // after load, so bind motion on 'sectionsRendered' (same idiom as the
+  // portfolio). The fallback covers the case where no FAQ section exists
+  // in the DB and the static markup stays.
+  function initFaqMotion() {
+    const faqItems = gsap.utils.toArray('#accordion .accordion__item');
+    if (faqItems.length === 0) return;
+    const motion = !prefersReducedMotion.matches;
+
+    if (motion) {
+      gsap.registerPlugin(ScrollTrigger);
+      gsap.from(faqItems, {
+        autoAlpha: 0,
+        y: 28,
+        duration: 0.7,
+        ease: 'power3.out',
+        stagger: 0.08,
+        scrollTrigger: {
+          trigger: '#accordion',
+          start: 'top 82%',
+          once: true
+        }
+      });
+    }
+
+    faqItems.forEach((item) => {
+      if (item.dataset.faqMotion) return;
+      item.dataset.faqMotion = '1';
+
+      const content = item.querySelector('.accordion__content__inner');
+      const toggle = item.querySelector('.accordion__toggle');
+
+      item.addEventListener('toggle', () => {
+        if (!motion) return;
+        const open = item.open;
+
+        if (content) {
+          gsap.to(content, {
+            autoAlpha: open ? 1 : 0,
+            y: open ? 0 : -6,
+            duration: open ? 0.5 : 0.28,
+            delay: open ? 0.06 : 0,
+            ease: open ? 'power3.out' : 'power2.in',
+            overwrite: 'auto'
+          });
+        }
+
+        if (toggle) {
+          gsap.fromTo(toggle, { scale: 1 }, {
+            scale: 1.15,
+            duration: 0.13,
+            ease: 'power3.out',
+            overwrite: 'auto',
+            onComplete: () => {
+              gsap.to(toggle, {
+                scale: 1,
+                duration: 0.32,
+                ease: 'back.out(3)',
+                overwrite: 'auto'
+              });
+            }
+          });
+        }
+      });
+    });
+  }
+
+  document.addEventListener('sectionsRendered', initFaqMotion);
+  if (document.querySelector('#accordion .accordion__item')) {
+    initFaqMotion();
+  }
 
   // ============================================================
   // REVEAL ANIMATIONS (IntersectionObserver)
