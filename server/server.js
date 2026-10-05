@@ -26,9 +26,10 @@ const rootDir = path.join(__dirname, '..');
 // trusting X-Forwarded-For from direct public clients, closing the
 // rate-limit spoofing vector (Strix vuln-0003).
 function isTrustedProxy(ip) {
-  if (ip === '127.0.0.1' || ip === '::1') return true;
   if (typeof ip !== 'string') return false;
-  return /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(ip);
+  const normalizedIp = ip.toLowerCase().replace(/^::ffff:/, '');
+  if (normalizedIp === '127.0.0.1' || normalizedIp === '::1') return true;
+  return /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(normalizedIp);
 }
 app.set('trust proxy', isTrustedProxy);
 
