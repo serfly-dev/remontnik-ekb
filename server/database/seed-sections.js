@@ -6,9 +6,12 @@
  */
 
 import sqlite3 from 'sqlite3';
+import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { existsSync, readFileSync } from 'fs';
+
+dotenv.config();
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, '../..');
@@ -270,7 +273,7 @@ async function seed() {
     await new Promise((resolve, reject) => {
       const contentJson = JSON.stringify(section.content);
       db.run(
-        `INSERT OR REPLACE INTO sections (key, title, content, order_index, updated_at)
+        `INSERT OR IGNORE INTO sections (key, title, content, order_index, updated_at)
          VALUES (?, ?, ?, ?, datetime('now'))`,
         [section.key, section.title, contentJson, section.order_index],
         function (err) {
