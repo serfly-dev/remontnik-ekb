@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Заявки — Админ-панель</title>
+  <title>Панель управеления - CMS</title>
   <link rel="stylesheet" href="/css/fonts.css">
   <link rel="stylesheet" href="/admin/css/admin.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="32x32">
+  <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+
 </head>
+
 <body>
 
   <a class="skip-link visually-hidden" href="#main">Перейти к содержанию</a>
@@ -16,9 +21,8 @@
     <div class="container">
       <div class="admin-header__inner">
         <a href="/" class="logo" aria-label="На главную">
-          <span class="logo__mark" aria-hidden="true">NK</span>
           <span class="logo__type">
-            <span class="logo__name">Никита Начаткин</span>
+            <span class="logo__name">РемонтНик квартир</span>
             <span class="logo__role">Админ-панель</span>
           </span>
         </a>
@@ -76,12 +80,8 @@
         <section class="admin-toolbar" aria-label="Фильтры и поиск">
           <div class="admin-toolbar__search">
             <label for="searchInput" class="visually-hidden">Поиск по имени или телефону</label>
-            <input
-              type="search"
-              id="searchInput"
-              class="admin-toolbar__input"
-              placeholder="Поиск по имени или телефону…"
-            >
+            <input type="search" id="searchInput" class="admin-toolbar__input"
+              placeholder="Поиск по имени или телефону…">
           </div>
           <div class="admin-toolbar__filters">
             <label for="statusFilter" class="visually-hidden">Фильтр по статусу</label>
@@ -204,4 +204,5 @@
     </div>
   </div>
 </body>
+
 </html>

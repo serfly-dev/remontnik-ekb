@@ -13,7 +13,7 @@ const SECTION_KEYS = [
   { key: 'variants', label: 'Варианты', description: 'Форматы работы: "Замер" и "Замер + материалы" с ценами и этапами' },
   { key: 'calculator', label: 'Калькулятор', description: 'Настройки тарифов, коэффициентов и цены за замер' },
   { key: 'cta', label: 'Контакты', description: 'Финальный блок: призыв к действию, телефон, Telegram и WhatsApp' },
-  { key: 'faq', label: 'FAQ', description: 'Частые вопросы и ответы для посетителей' },
+  { key: 'faq', label: 'Вопросы', description: 'Частые вопросы и ответы для посетителей' },
   { key: 'process', label: 'Процесс', description: 'Пошаговый путь клиента от заявки до результата' },
   { key: 'applications', label: 'Заявки', description: 'Список заявок клиентов, их статусы и действия с ними' }
 ];

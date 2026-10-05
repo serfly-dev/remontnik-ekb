@@ -43,9 +43,11 @@ function logAdminEvent(event, req, extra = {}) {
 }
 /**
  * CSRF defense for state-changing requests (POST/PATCH/PUT/DELETE).
- * Browsers always send the Origin header on cross-site requests; reject
- * any request whose Origin (or, as fallback, Referer) does not match the
- * Host. SameSite=Lax on the session cookie is kept as a second layer.
+ * Browsers always send the Origin header on cross-site requests, and the
+ * header cannot be set cross-site (unlike Referer, which is forgeable and
+ * leakable). Origin is therefore required for every authenticated request;
+ * Referer is deliberately never used as a fallback (Strix vuln-0004).
+ * SameSite=Lax on the session cookie is kept as a second layer.
  */
 export function requireSameOrigin(req, res, next) {
   if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
@@ -54,37 +56,37 @@ export function requireSameOrigin(req, res, next) {
 
   const host = req.headers.host;
   const origin = req.headers.origin;
-  const referer = req.headers.referer;
 
-  let source = null;
+  function block(reason) {
+    logAdminEvent('ADMIN_CSRF_BLOCKED', req, {
+      reason,
+      host
+    });
+    return res.status(403).json({ success: false, message: 'Запрос отклонён: несовпадение Origin' });
+  }
+
+  // `Origin: null` is sent by sandboxed iframes and privacy tools and can be
+  // forged from any origin — never treat it as a valid same-origin signal.
+  if (origin === 'null') {
+    return block('null_origin');
+  }
+
   if (origin) {
+    let source;
     try {
       source = new URL(origin);
     } catch {
-      source = null;
+      return block('invalid_origin');
     }
-  } else if (referer) {
-    try {
-      source = new URL(referer);
-    } catch {
-      source = null;
-    }
+    return source.host === host ? next() : block('origin_mismatch');
   }
 
-  // No Origin/Referer (curl, same-host server-to-server) — allow, cookie-based
-  // browsers always attach one of them on cross-site requests.
-  if (source == null) {
-    return next();
+  // No Origin header. Non-browser clients (curl, scripts) are fine without
+  // it, but a request that carries a session cookie must prove same-origin:
+  // browsers always attach Origin on cross-site state-changing requests, so
+  // a missing header on an authenticated request is a CSRF red flag.
+  if (req.headers.cookie && req.session && req.session.userId) {
+    return block('missing_origin_with_session');
   }
-
-  if (source.host === host) {
-    return next();
-  }
-
-  logAdminEvent('ADMIN_CSRF_BLOCKED', req, {
-    reason: 'origin_mismatch',
-    sourceHost: source.host,
-    host
-  });
-  return res.status(403).json({ success: false, message: 'Запрос отклонён: несовпадение Origin' });
+  return next();
 }

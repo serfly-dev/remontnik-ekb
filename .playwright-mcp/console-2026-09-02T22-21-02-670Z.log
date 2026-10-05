@@ -1,7 +1,0 @@
-[   20197ms] [ERROR] Unsafe attempt to load URL file:///Users/serfly/Documents/NACHATKIN/index.html from frame with URL file:///Users/serfly/Documents/NACHATKIN/index.html. 'file:' URLs are treated as unique security origins.
- @ file:///Users/serfly/Documents/NACHATKIN/index.html:0
-[  378961ms] [ERROR] Unsafe attempt to load URL file:///Users/serfly/Documents/NACHATKIN/index.html from frame with URL file:///Users/serfly/Documents/NACHATKIN/index.html. 'file:' URLs are treated as unique security origins.
- @ file:///Users/serfly/Documents/NACHATKIN/index.html:0
-[  391090ms] [WARNING] Blocked aria-hidden on an element because its descendant retained focus. The focus must not be hidden from assistive technology users. Avoid using aria-hidden on a focused element or its ancestor. Consider using the inert attribute instead, which will also prevent focus. For more details, see the aria-hidden section of the WAI-ARIA specification at https://w3c.github.io/aria/#aria-hidden.
-Element with focus: <button.mobile-menu__close#mobileClose>
-Ancestor with aria-hidden: <div.mobile-menu#mobileMenu> @ file:///Users/serfly/Documents/NACHATKIN/index.html:0

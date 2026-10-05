@@ -19,6 +19,19 @@ const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.join(__dirname, '..');
 
+// The app runs behind a single reverse proxy (nginx on Timeweb) that sits on
+// a loopback or private network interface. Trusting a hop only when it comes
+// from such an interface lets req.secure honour X-Forwarded-Proto (Secure
+// session cookie) and the rate limiters see the real client IP — while never
+// trusting X-Forwarded-For from direct public clients, closing the
+// rate-limit spoofing vector (Strix vuln-0003).
+function isTrustedProxy(ip) {
+  if (ip === '127.0.0.1' || ip === '::1') return true;
+  if (typeof ip !== 'string') return false;
+  return /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(ip);
+}
+app.set('trust proxy', isTrustedProxy);
+
 // Security headers
 app.use(helmet({
   contentSecurityPolicy: false

@@ -1,7 +1,8 @@
-# robots.txt for nikitanachatkin.ru
+# robots.txt for remontnik-ekb.ru
+
 User-agent: *
 Allow: /
-Disallow: /data/
 
-# Sitemap
-Sitemap: https://nikitanachatkin.ru/sitemap.xml
+Disallow: /admin/
+
+Sitemap: https://remontnik-ekb.ru/sitemap.xml

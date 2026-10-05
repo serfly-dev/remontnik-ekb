@@ -4,50 +4,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ремонт квартиры — Никита Начаткин</title>
+  <title>РемонтНик квартир - Екатеринбург</title>
   <meta name="description"
     content="Ремонт квартиры с профессионалом с более чем 10-летним опытом в строительстве. Прозрачная смета, замер и понятный процесс.">
-  <link rel="canonical" href="https://nikitanachatkin.ru/">
+  <link rel="canonical" href="https://remontnik-ekb.ru/">
   <link rel="stylesheet" href="/css/fonts.css">
-  <link rel="stylesheet" href="css/style.css">
-  <meta property="og:title" content="Ремонт квартиры — Никита Начаткин">
+  <link rel="stylesheet" href="/css/style.css?v=2">
+  <meta property="og:title" content="РемонтНик квартир - Екатеринбург">
   <meta property="og:description"
     content="Ремонт квартиры с профессионалом с более чем 10-летним опытом в строительстве.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://nikitanachatkin.ru/">
-  <meta property="og:image" content="https://nikitanachatkin.ru/images/og-cover.jpg">
+  <meta property="og:url" content="https://remontnik-ekb.ru/">
+  <meta property="og:image" content="https://remontnik-ekb.ru/images/og-cover.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="theme-color" content="#f2f2f2">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="32x32">
+  <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "HomeAndConstructionBusiness",
-    "name": "Ремонт квартиры — Никита Начаткин",
-    "description": "Ремонт квартиры с профессионалом с более чем 10-летним опытом в строительстве.",
-    "url": "https://nikitanachatkin.ru/",
+    "name": "РемонтНик квартир Екатеринбург",
+    "description": "Ремонт квартиры в Екатеринбурге. Прозрачная смета, замер и понятный процесс.",
+    "url": "https://remontnik-ekb.ru/",
     "telephone": "+79502085138",
     "priceRange": "По замеру",
     "founder": {
-      "@type": "Person",
-      "name": "Никита Начаткин",
-      "jobTitle": "Специалист по ремонту квартир"
+      "@type": "Company",
+      "name": "РемонтНик квартир",
+      "jobTitle": "Ремонт квартир в Екатеринбурге",
+      "telephone": "+79502085138"
     }
   }
   </script>
 </head>
 
 <body>
-
   <a class="skip-link visually-hidden" href="#main">Перейти к содержанию</a>
-
   <div class="scroll__progress" id="scrollProgress"></div>
-
   <!-- HEADER -->
   <header class="header" id="header">
     <div class="container header__inner">
       <a class="logo" href="#hero" aria-label="На главную">
-        <img src="/images/logo_orange-green.png" alt="Никита Начаткин — ремонт квартир" class="logo__mark" width="70"
+        <img src="images/logo_orange-green.png" alt="Никита Начаткин — ремонт квартир" class="logo__mark" width="70"
           height="48" aria-hidden="true">
       </a>
       <nav class="nav" aria-label="Основная навигация">
@@ -56,7 +56,7 @@
           <li><a href="#services" class="nav__link">Услуги</a></li>
           <li><a href="#formats" class="nav__link">Форматы</a></li>
           <li><a href="#about" class="nav__link">Обо мне</a></li>
-          <li><a href="#faq" class="nav__link">FAQ</a></li>
+          <li><a href="#faq" class="nav__link">Вопросы</a></li>
           <li><a href="#calculator" class="nav__link">Калькулятор</a></li>
           <li><a href="#contacts" class="nav__link">Контакты</a></li>
         </ul>
@@ -77,18 +77,17 @@
       </div>
     </div>
   </header>
-
   <!-- MOBILE MENU -->
   <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
     <button class="mobile-menu__close" id="mobileClose" aria-label="Закрыть меню" aria-controls="mobileMenu">
       <span></span><span></span>
     </button>
     <nav class="mobile-menu__nav">
-      <a href="#experience" class="mobile-menu__link">Опыт</a>
+      <a href="#gallery" class="mobile-menu__link">Портфолио</a>
       <a href="#services" class="mobile-menu__link">Услуги</a>
       <a href="#formats" class="mobile-menu__link">Форматы</a>
       <a href="#about" class="mobile-menu__link">Обо мне</a>
-      <a href="#faq" class="mobile-menu__link">FAQ</a>
+      <a href="#faq" class="mobile-menu__link">Вопросы</a>
       <a href="#calculator" class="mobile-menu__link">Калькулятор</a>
       <a href="#contacts" class="mobile-menu__link">Контакты</a>
     </nav>
@@ -325,8 +324,14 @@
                   rows="3"></textarea>
               </label>
             </div>
+            <label class="form__consent">
+              <input type="checkbox" name="agreePolicy" id="agreePolicy" required aria-required="true">
+              <span class="form__consent__text">Я даю согласие на обработку моих персональных данных и принимаю <a
+                  href="/privacy.html" target="_blank" rel="noopener">Политику в отношении обработки персональных данных</a></span>
+            </label>
+            <span class="form__consent-error" id="formConsentError" aria-live="polite"></span>
             <div class="form__footer">
-              <button type="submit" class="btn btn--primary form__submit">Отправить заявку</button>
+              <button type="submit" class="btn btn--primary form__submit" disabled>Отправить заявку</button>
               <span class="form__status" id="formStatus" role="status" aria-live="polite"></span>
             </div>
           </form>
@@ -517,7 +522,7 @@
             <a href="#formats" class="footer__link">Варианты</a>
             <a href="#calculator" class="footer__link">Калькулятор</a>
             <a href="#faq" class="footer__link">FAQ</a>
-            <a href="privacy.html" class="footer__link">Политика конфиденциальности</a>
+            <a href="privacy.html" class="footer__link">Политика в отношении обработки персональных данных</a>
           </nav>
         </div>
         <div class="footer__contacts">
@@ -532,13 +537,10 @@
           <a href="/" aria-label="На главную"><img src="/images/logo_white_in_black_circle.png"
               alt="Логотип: Никита Начаткин" class="footer__logo"></a>
         </div>
-        <div class="footer__contacts">
-          <a class="footer__contact" href="https://t.me/sergei_developer_web" target="_blank" rel="noopener">Разработчик - @sergei_developer_web (Telegram)</a>
-        </div>
       </div>
       <div class="footer__bottom">
-        <span>© 2026 РемонтНик квартир — Никита Начаткин</span>
-        <a href="privacy.html" class="footer__link">Политика конфиденциальности</a>
+        <span>© 2026 РемонтНик квартир</span>
+        <a href="privacy.html" class="footer__link">Политика в отношении обработки персональных данных</a>
       </div>
     </div>
   </footer>
@@ -547,13 +549,13 @@
   <script src="js/vendor/gsap.min.js" defer></script>
   <script src="js/vendor/ScrollTrigger.min.js" defer></script>
   <script src="js/sections-inject.js" defer></script>
-  <script src="js/script.js" defer></script>
+  <script src="js/script.js?v=2" defer></script>
 
   <!-- Cookie banner -->
   <div class="cookie-banner" id="cookieBanner" hidden>
     <div class="container cookie-banner__inner">
       <p class="cookie-banner__text">Мы используем файлы cookie для улучшения работы сайта. Продолжая просмотр, вы
-        соглашаетесь с <a href="privacy.html">политикой конфиденциальности</a>.</p>
+        соглашаетесь с <a href="privacy.html">политикой в отношении обработки персональных данных</a>.</p>
       <button class="btn btn--primary btn--sm" id="cookieAcceptBtn">Принимаю</button>
     </div>
   </div>

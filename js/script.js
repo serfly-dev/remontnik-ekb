@@ -569,6 +569,20 @@ document.addEventListener('DOMContentLoaded', () => {
         phoneInput.classList.remove('invalid');
       }
 
+      // Consent to personal data processing
+      const agreeInput = applicationForm.elements['agreePolicy'];
+      const consentLabel = applicationForm.querySelector('.form__consent');
+      const consentError = document.getElementById('formConsentError');
+
+      if (agreeInput && !agreeInput.checked) {
+        consentLabel?.classList.add('invalid');
+        if (consentError) consentError.textContent = 'Пожалуйста, подтвердите согласие на обработку персональных данных';
+        isValid = false;
+      } else if (agreeInput) {
+        consentLabel?.classList.remove('invalid');
+        if (consentError) consentError.textContent = '';
+      }
+
       if (!isValid) {
         formStatus.textContent = 'Пожалуйста, заполните все обязательные поля';
         formStatus.classList.add('form__status--error', 'form__status--visible');
@@ -580,7 +594,8 @@ document.addEventListener('DOMContentLoaded', () => {
         name: nameInput.value.trim(),
         phone: phoneInput.value,
         preferred_time: applicationForm.elements['contactTime']?.value || '',
-        comment: applicationForm.elements['comment']?.value || ''
+        comment: applicationForm.elements['comment']?.value || '',
+        agree_policy: agreeInput?.checked ? 1 : 0
       };
 
       // Attach calculator data from hidden field or live state
@@ -630,7 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formStatus.classList.add('form__status--error', 'form__status--visible');
       } finally {
         if (submitBtn) {
-          submitBtn.disabled = false;
+          submitBtn.disabled = !agreeInput?.checked;
           submitBtn.textContent = originalText;
         }
       }
@@ -645,6 +660,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
+
+    // Consent checkbox: clear error on change and unlock submit button
+    const agreeCheckbox = applicationForm.elements['agreePolicy'];
+    const consentLabel = applicationForm.querySelector('.form__consent');
+    const consentError = document.getElementById('formConsentError');
+    const submitBtn = applicationForm.querySelector('.form__submit') ||
+                      applicationForm.querySelector('button[type="submit"]');
+
+    if (agreeCheckbox && submitBtn) {
+      agreeCheckbox.addEventListener('change', () => {
+        submitBtn.disabled = !agreeCheckbox.checked;
+        consentLabel?.classList.remove('invalid');
+        if (consentError) consentError.textContent = '';
+        if (agreeCheckbox.checked) formStatus.classList.remove('form__status--visible');
+      });
+    }
 
     // Phone input mask: +7 (___) ___-__-__
     const phoneInput = applicationForm.elements['phone'];
@@ -705,22 +736,66 @@ document.addEventListener('DOMContentLoaded', () => {
       if (item.dataset.faqMotion) return;
       item.dataset.faqMotion = '1';
 
+      const wrapper = item.querySelector('.accordion__content');
       const content = item.querySelector('.accordion__content__inner');
       const toggle = item.querySelector('.accordion__toggle');
 
+      // Native <details> reveals the answer instantly, so the wrapper height is
+      // animated here (CSS grid-template-rows cannot animate the first open and
+      // Safari does not interpolate it). Closed items get an explicit collapse.
+      if (wrapper && !item.open) {
+        gsap.set(wrapper, { height: 0 });
+      }
+
       item.addEventListener('toggle', () => {
-        if (!motion) return;
         const open = item.open;
 
+        if (wrapper) {
+          if (open) {
+            if (motion) {
+              gsap.fromTo(wrapper, { height: 0 }, {
+                height: wrapper.scrollHeight,
+                duration: 0.5,
+                ease: 'power3.out',
+                overwrite: 'auto',
+                onComplete: () => gsap.set(wrapper, { height: 'auto' })
+              });
+            } else {
+              gsap.set(wrapper, { height: 'auto' });
+            }
+          } else if (motion) {
+            gsap.set(wrapper, { height: wrapper.scrollHeight });
+            gsap.to(wrapper, {
+              height: 0,
+              duration: 0.3,
+              ease: 'power2.in',
+              overwrite: 'auto'
+            });
+          } else {
+            gsap.set(wrapper, { height: 0 });
+          }
+        }
+
+        if (!motion) return;
+
         if (content) {
-          gsap.to(content, {
-            autoAlpha: open ? 1 : 0,
-            y: open ? 0 : -6,
-            duration: open ? 0.5 : 0.28,
-            delay: open ? 0.06 : 0,
-            ease: open ? 'power3.out' : 'power2.in',
-            overwrite: 'auto'
-          });
+          if (open) {
+            gsap.fromTo(content, { autoAlpha: 0, y: 12 }, {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.5,
+              ease: 'power3.out',
+              overwrite: 'auto'
+            });
+          } else {
+            gsap.to(content, {
+              autoAlpha: 0,
+              y: -6,
+              duration: 0.28,
+              ease: 'power2.in',
+              overwrite: 'auto'
+            });
+          }
         }
 
         if (toggle) {

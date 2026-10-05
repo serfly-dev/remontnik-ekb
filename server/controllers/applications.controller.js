@@ -25,11 +25,6 @@ function maskPhone(phone) {
   return '***-***-' + digits.slice(-2);
 }
 
-function sanitizeStatus(status) {
-  if (!status || !VALID_STATUSES.includes(status)) return 'new';
-  return status;
-}
-
 function sanitizeSort(sort) {
   const validColumns = ['id', 'name', 'phone', 'status', 'created_at', 'updated_at', 'calculated_price'];
   const [field, order] = sort.split(':');
@@ -43,8 +38,8 @@ export async function listApplications(req, res) {
     logAdminEvent('ADMIN_APPLICATIONS_LIST_STARTED', req);
     const { status, search, page, limit, sort } = req.query;
 
-    const sortField = sort ? sort.split(':')[0] : 'created_at';
-    const sortOrder = sort?.includes(':') ? sort.split(':')[1] : 'DESC';
+    const safeSort = sanitizeSort(sort || 'created_at');
+    const [sortField, sortOrder] = safeSort.split(':');
 
     const options = {
       status: status || undefined,
@@ -124,9 +119,16 @@ export async function updateApplicationHandler(req, res) {
     const { status } = req.body;
     const id = req.params.id;
 
-    if (status) {
-      const safeStatus = sanitizeStatus(status);
-      await updateApplicationStatus(id, safeStatus, req.session.userId);
+    if (status !== undefined) {
+      if (!VALID_STATUSES.includes(status)) {
+        logAdminEvent('ADMIN_APPLICATION_UPDATE_FAILED', req, {
+          id,
+          reason: 'invalid_status',
+          status: 400
+        });
+        return res.status(400).json({ success: false, message: 'Недопустимый статус заявки' });
+      }
+      await updateApplicationStatus(id, status, req.session.userId);
     }
 
     const app = await getApplicationById(id, req.session.userId);

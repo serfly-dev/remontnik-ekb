@@ -24,6 +24,8 @@ node_modules/
 # SQLite runtime files
 *.sqlite-shm
 *.sqlite-wal
+# SQLite backup copies (contain real data — never commit)
+server/database/*.bak*
 
 # OS
 .DS_Store

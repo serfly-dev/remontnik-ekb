@@ -22,8 +22,8 @@
   function sanitizeUrl(url) {
     if (url == null) return '#';
     const value = String(url).trim();
-    if (/^(https?:|mailto:|tel:)/i.test(value)) return value;
-    if (value.startsWith('/') || value.startsWith('#') || value.startsWith('./') || value.startsWith('../')) return value;
+    if (/^(https?:|mailto:|tel:)/i.test(value)) return escapeHtml(value);
+    if (value.startsWith('/') || value.startsWith('#') || value.startsWith('./') || value.startsWith('../')) return escapeHtml(value);
     return '#';
   }
 

@@ -1,160 +1,743 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Политика конфиденциальности — Никита Начаткин</title>
-
-  <link rel="stylesheet" href="/css/fonts.css">
-
-  <meta name="theme-color" content="#f2f2f2">
+  <title>Политика конфиденциальности — Никита Начаткин — ремонт квартир</title>
+  <meta name="description"
+    content="Политика обработки персональных данных Никиты Начаткина — специалиста по ремонту квартир.">
+  <meta name="theme-color" content="#f8f8f5">
   <meta name="color-scheme" content="light">
+  <link rel="canonical" href="https://remontnik-ekb.ru/privacy.html">
+  <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="32x32">
+  <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
 
   <style>
-    /* ==================================================
-       Simple privacy page — Swiss Minimalist
-       ================================================== */
-
     :root {
-      --bg: #f2f2f2;
-      --bg-alt: #ffffff;
-      --text-primary: #111111;
-      --text-secondary: #b6b5b5;
-      --text-dark: #838282;
+      --bg: #f8f8f5;
+      --ink: #171717;
+      --ink-soft: #242424;
+      --muted: #6b6b6b;
+      --rule: #e8e8e8;
+      --depth: #d6d6d6;
+      --accent: #fd851c;
+      --green: #669933;
       --font-display: 'Golos Text', system-ui, -apple-system, sans-serif;
       --font-body: 'Manrope', system-ui, -apple-system, sans-serif;
-      --space-sm: 1rem;
-      --space-md: 1.5rem;
-      --space-lg: 2rem;
-      --radius-md: 8px;
+      --ease: cubic-bezier(0.77, 0, 0.175, 1);
+      --t: 160ms var(--ease);
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
       font-family: var(--font-body);
       font-size: 1rem;
       line-height: 1.6;
-      background: var(--bg);
-      color: var(--text-primary);
-      margin: 0;
-      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      z-index: 200;
+      background: var(--ink);
+      color: #fff;
+      padding: 0.75rem 1.25rem;
+    }
+
+    .skip-link:focus {
+      left: 0;
+      top: 0;
     }
 
     .container {
-      max-width: 800px;
+      max-width: 780px;
       margin: 0 auto;
-      padding: var(--space-lg);
+      padding: 0 1.25rem;
+    }
+
+    /* ============ HEADER ============ */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .header__inner {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1rem 0;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--ink);
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.125rem;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .logo__type sup,
+    .logo__name {
+      display: block;
+    }
+
+    .logo__sub {
+      margin-top: 0.25rem;
+      font-family: var(--font-body);
+      font-size: 0.625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+
+    .nav {
+      display: none;
+    }
+
+    @media (min-width: 1024px) {
+      .nav {
+        display: block;
+      }
+
+      .nav__list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1.5rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .nav__link {
+        font-family: var(--font-body);
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--ink-soft);
+        text-decoration: none;
+        transition: color var(--t);
+      }
+
+      .nav__link:hover {
+        color: var(--ink);
+      }
+    }
+
+    .header__actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header__phone {
+      display: none;
+    }
+
+    @media (min-width: 768px) {
+      .header__phone {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--ink);
+        text-decoration: none;
+        font-family: var(--font-body);
+        font-size: 0.875rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .header__phone svg {
+        width: 16px;
+        height: 16px;
+        stroke: var(--ink);
+      }
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 44px;
+      padding: 0 20px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .cta:hover {
+      filter: brightness(0.92);
+    }
+
+    .privacy__back {
+      display: flex;
+      justify-content: flex-start;
+      padding: 0.75rem 1.25rem;
+      margin: 0 0 0.75rem;
+    }
+
+    /* ============ READABILITY ============ */
+    main .container {
+      padding: 3rem 1.25rem 5rem;
+    }
+
+    .privacy__head {
+      max-width: 780px;
+      margin: 0 auto 0.5rem;
+      padding: 0 1.25rem;
+    }
+
+    .policy-note {
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      color: var(--ink-soft);
+      margin: 0 0 2.5rem;
     }
 
     h1 {
       font-family: var(--font-display);
-      font-size: 2rem;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
       font-weight: 700;
-      line-height: 1.2;
-      margin: var(--space-lg) 0 var(--space-md);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin: 0 0 1rem;
+    }
+
+    .policy-section {
+      border-top: 1px solid var(--rule);
+      padding-top: 1.75rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .policy-section:last-of-type {
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 1.75rem;
     }
 
     h2 {
-      font-size: 1.5rem;
+      font-family: var(--font-display);
+      font-size: 1.125rem;
       font-weight: 700;
-      line-height: 1.4;
-      margin: var(--space-lg) 0 var(--space-sm);
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+      color: var(--ink);
+      margin: 0 0 1rem;
     }
 
-    p {
-      margin: 0 0 var(--space-lg);
-      font-size: 1rem;
-      line-height: 1.8;
+    p,
+    .policy-item {
+      font-size: 0.9375rem;
+      line-height: 1.75;
+      color: var(--ink);
+      margin: 0 0 0.875rem;
     }
 
-    ul {
-      margin: 0 0 var(--space-lg);
-      padding-left: var(--space-md);
+    .policy-item strong {
+      font-weight: 700;
+      color: var(--ink-soft);
     }
 
-    li {
-      margin-bottom: var(--space-xxs);
+    .policy-list {
+      margin: 0 0 0.875rem;
+      padding-left: 1.25rem;
     }
 
-    a {
-      color: var(--text-primary);
+    .policy-list li {
+      font-size: 0.9375rem;
+      line-height: 1.7;
+      margin-bottom: 0.35rem;
+    }
+
+    .policy-dl {
+      margin: 0 0 1.25rem;
+    }
+
+    .policy-dl dt {
+      font-family: var(--font-display);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 1rem 0 0.25rem;
+    }
+
+    .policy-dl dd {
+      margin: 0 0 0.5rem;
+      font-size: 0.9375rem;
+      line-height: 1.7;
+    }
+
+    .policy-dl dd ul {
+      margin: 0.25rem 0 0.25rem;
+      padding-left: 1.25rem;
+    }
+
+    a[href^="http"],
+    a[href^="mailto"] {
+      color: var(--ink);
       text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color var(--t);
     }
 
-    a:hover { color: var(--text-dark); }
+    a[href^="http"]:hover,
+    a[href^="mailto"]:hover,
+    a[href^="http"]:focus,
+    a[href^="mailto"]:focus {
+      color: var(--green);
+    }
 
-    .footer { padding: var(--space-lg) 0; text-align: center; font-size: 0.75rem; color: var(--text-depth); }
+    :focus-visible {
+      outline: 2px solid var(--green);
+      outline-offset: 2px;
+    }
+
+    /* ============ FOOTER ============ */
+    .footer {
+      background: #000;
+      color: #fff;
+      padding: 4rem 0 2.5rem;
+    }
+
+    .footer .container {
+      max-width: 1080px;
+      padding: 0 1.25rem;
+    }
+
+    .footer__top {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2.5rem;
+      padding-bottom: 2.5rem;
+      border-bottom: 1px solid #303030;
+    }
+
+    .footer__heading {
+      font-family: var(--font-body);
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #b6b5b5;
+      margin: 0 0 1rem;
+    }
+
+    .footer__nav,
+    .footer__contacts {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .footer__link,
+    .footer__contact {
+      font-size: 0.9375rem;
+      color: #d6d6d6;
+      text-decoration: none;
+      transition: color var(--t);
+    }
+
+    .footer__link:hover,
+    .footer__contact:hover {
+      color: #fff;
+    }
+
+    .footer__wordmark {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: #fff;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .footer__wordmark span {
+      display: block;
+      margin-top: 0.35rem;
+      font-family: var(--font-body);
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #b6b5b5;
+    }
+
+    .footer__bottom {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+      font-size: 0.8125rem;
+      color: #d6d6d6;
+    }
+
+    @media (max-width: 767px) {
+      .footer__top {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .footer__top>div:first-child {
+        order: 2;
+      }
+
+      .footer__top>div:nth-child(2) {
+        order: 1;
+      }
+
+      .footer__top>div:nth-child(3) {
+        order: 3;
+      }
+
+      .footer__bottom {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      * {
+        transition: none !important;
+      }
+    }
   </style>
 </head>
 
 <body>
+  <a class="skip-link" href="#main">Перейти к содержанию</a>
 
-  <div class="container">
-    <h1>Политика конфиденциальности</h1>
-
-    <p>
-      Мы respect конфиденциальность наших посетителей. Эта политика объясняет, какие данные мы собираем, как мы их используем и какие у вас есть права.
-    </p>
-
-    <h2>1. Информация, которую мы собираем</h2>
-
-    <p>
-      При посещении сайта мы автоматически собираем следующую информацию:
-    </p>
-
-    <ul>
-      <li>IP-адрес (в анонимном виде)</li>
-      <li>Тип браузера и операционной системы</li>
-      <li>Страницы, которые вы посещаете</li>
-      <li>Время и дата вашего посещения</li>
-    </ul>
-
-    <h2>2. Использование cookie</h2>
-
-    <p>
-      На сайте используются cookie-файлы для улучшения пользовательского опыта. Вы можете настроить браузер на отказ от cookie, но некоторые функции сайта могут работать некорректно.
-    </p>
-
-    <h2>3. Google Analytics</h2>
-
-    <p>
-      На сайте может использоваться Google Analytics для сбора статистики о посещаемости и использовании сайта. Эти данные помогают нам понимать, как улучшать наш сервис. Вы можете отказаться от отслеживания Google Analytics, установив браузерное дополнение по ссылке: <a href="https://tools.google.com/dl/gaoptout" target="_blank" rel="noopener">https://tools.google.com/dl/gaoptout</a>
-    </p>
-
-    <h2>4. Контакты</h2>
-
-    <p>
-      Если вы отправляете нам форму заявки или пишете в Telegram/WhatsApp, мы сохраняем предоставленную вами информацию (имя, телефон, сообщение) для обратной связи. Мы не передаем ваши данные третьим лицам.
-    </p>
-
-    <h2>5. Права пользователя</h2>
-
-    <p>
-      Вы имеете право запросить удаление своих персональных данных, связавшись с нами по контактам ниже. Мы удовлетворяем такие запросы в течение 30 календарных дней.
-    </p>
-
-    <h2>6. Изменения политики</h2>
-
-    <p>
-      Мы оставляем за собой право обновлять эту политику в любое время. Рекомендуем периодически проверять эту страницу на предмет изменений.
-    </p>
-
-    <p>Последнее обновление: 02 сентября 2026 г.</p>
+  <div class="privacy__back">
+    <a class="cta" href="/" aria-label="Перейти на главную страницу">← На главную</a>
   </div>
 
-  <footer class="footer" style="margin-top: var(--space-xl); padding: var(--space-lg) 0; border-top: 1px solid var(--text-depth); background: rgb(0, 0, 0);">
-    <div class="container" style="max-width: none;">
-      <div style="text-align: center; margin-bottom: var(--space-lg);">
-        <img src="/images/logo_white_in_black_circle.png" alt="Логотип: Никита Начаткин" style="max-width: 200px; width: 100%; height: auto; display: block; margin-bottom: var(--space-md);">
-        <span style="font-size: 0.875rem; color: var(--text-primary); display: inline-flex; align-items: center; gap: 0.5rem;">
-      © 2026 Ремонт квартиры — Никита Начаткин
-    </span>
-      </div>
-      <div style="display: flex; justify-content: center; gap: var(--space-lg); flex-wrap: wrap;">
-        <a href="index.html" style="color: var(--text-primary); text-decoration: none;">Главная</a>
-        <a href="privacy.html" style="color: var(--text-primary); text-decoration: none;">Конфиденциальность</a>
-      </div>
-    </div>
-  </footer>
+  <main id="main">
+    <div class="container">
+      <h1>Политика в отношении обработки персональных данных</h1>
 
+      <section class="policy-section" aria-labelledby="s1">
+        <h2 id="s1">1. Общие положения</h2>
+
+        <p>Настоящая политика в отношении обработки персональных данных составлена в соответствии с требованиями
+          Федерального закона от 27.07.2006 № 152-ФЗ «О персональных данных» и определяет порядок обработки персональных
+          данных и меры по обеспечению безопасности персональных данных, предпринимаемые Начаткин Никита Юрьевич (далее
+          — Оператор).</p>
+
+        <p class="policy-item"><strong>1.1.</strong> Оператор ставит своей целью соблюдение прав и свобод человека и
+          гражданина при обработке его персональных данных, в том числе защиту прав на неприкосновенность частной жизни,
+          личную и семейную тайну.</p>
+
+        <p class="policy-item"><strong>1.2.</strong> Настоящая Политика применяется к информации, которую Оператор
+          получает от пользователей веб-сайта <a href="https://remontnik-ekb.ru" target="_blank"
+            rel="noopener">https://remontnik-ekb.ru</a>.</p>
+
+        <p class="policy-item"><strong>1.3.</strong> Оператор осуществляет обработку персональных данных исключительно в
+          целях, указанных в настоящей Политике, и в соответствии с требованиями законодательства Российской Федерации.
+        </p>
+      </section>
+
+      <section class="policy-section" aria-labelledby="s2">
+        <h2 id="s2">2. Основные понятия, используемые в Политике</h2>
+
+        <p class="policy-item"><strong>2.1.</strong> Автоматизированная обработка персональных данных — обработка
+          персональных данных с помощью средств вычислительной техники.</p>
+
+        <p class="policy-item"><strong>2.2.</strong> Блокирование персональных данных — временное прекращение обработки
+          персональных данных.</p>
+
+        <p class="policy-item"><strong>2.3.</strong> Веб-сайт — совокупность графических и информационных материалов, а
+          также программ для ЭВМ и баз данных, обеспечивающих их доступность в сети Интернет по адресу <a
+            href="https://remontnik-ekb.ru" target="_blank" rel="noopener">https://remontnik-ekb.ru</a>.</p>
+
+        <p class="policy-item"><strong>2.4.</strong> Информационная система персональных данных — совокупность
+          содержащихся в базах данных персональных данных и обеспечивающих их обработку информационных технологий и
+          технических средств.</p>
+
+        <p class="policy-item"><strong>2.5.</strong> Обезличивание персональных данных — действия, в результате которых
+          невозможно определить принадлежность персональных данных конкретному пользователю без использования
+          дополнительной информации.</p>
+
+        <p class="policy-item"><strong>2.6.</strong> Обработка персональных данных — любое действие или совокупность
+          действий, совершаемых с персональными данными, включая сбор, запись, систематизацию, накопление, хранение,
+          уточнение, извлечение, использование, блокирование, удаление и уничтожение персональных данных.</p>
+
+        <p class="policy-item"><strong>2.7.</strong> Оператор — физическое лицо, самостоятельно определяющее цели
+          обработки персональных данных, состав персональных данных и действия, совершаемые с персональными данными.</p>
+
+        <p class="policy-item"><strong>2.8.</strong> Персональные данные — любая информация, относящаяся прямо или
+          косвенно к определенному или определяемому пользователю.</p>
+
+        <p class="policy-item"><strong>2.9.</strong> Пользователь — посетитель веб-сайта <a
+            href="https://remontnik-ekb.ru" target="_blank" rel="noopener">https://remontnik-ekb.ru</a>, предоставляющий
+          персональные данные посредством формы заявки.</p>
+
+        <p class="policy-item"><strong>2.10.</strong> Предоставление персональных данных — действия, направленные на
+          раскрытие персональных данных определенному лицу или определенному кругу лиц.</p>
+
+        <p class="policy-item"><strong>2.11.</strong> Уничтожение персональных данных — действия, в результате которых
+          персональные данные уничтожаются без возможности восстановления их содержания в информационной системе.</p>
+      </section>
+
+      <section class="policy-section" aria-labelledby="s3">
+        <h2 id="s3">3. Основные права и обязанности Оператора</h2>
+
+        <p class="policy-item"><strong>3.1.</strong> Оператор имеет право:</p>
+
+        <ul class="policy-list">
+          <li>получать от субъекта персональных данных достоверную информацию и данные, необходимые для обработки
+            заявки;</li>
+          <li>продолжать обработку персональных данных без согласия субъекта в случаях, предусмотренных
+            законодательством Российской Федерации;</li>
+          <li>самостоятельно определять состав и перечень необходимых организационных и технических мер для защиты
+            персональных данных в соответствии с законодательством Российской Федерации.</li>
+        </ul>
+
+        <p class="policy-item"><strong>3.2.</strong> Оператор обязан:</p>
+
+        <ul class="policy-list">
+          <li>обрабатывать персональные данные в соответствии с законодательством Российской Федерации;</li>
+          <li>предоставлять субъекту персональных данных информацию, касающуюся обработки его персональных данных, по
+            соответствующему запросу;</li>
+          <li>принимать необходимые организационные и технические меры для защиты персональных данных;</li>
+          <li>рассматривать обращения пользователей по вопросам обработки их персональных данных;</li>
+          <li>прекратить обработку и удалить персональные данные в случаях, предусмотренных законодательством Российской
+            Федерации и настоящей Политикой.</li>
+        </ul>
+      </section>
+
+      <section class="policy-section" aria-labelledby="s4">
+        <h2 id="s4">4. Основные права субъектов персональных данных</h2>
+
+        <p class="policy-item"><strong>4.1.</strong> Субъект персональных данных имеет право:</p>
+
+        <ul class="policy-list">
+          <li>получать информацию об обработке своих персональных данных;</li>
+          <li>требовать уточнения, блокирования или удаления своих персональных данных в случаях, предусмотренных
+            законодательством Российской Федерации;</li>
+          <li>отозвать согласие на обработку персональных данных;</li>
+          <li>направить требование о прекращении обработки персональных данных;</li>
+          <li>обращаться с вопросами и требованиями по обработке персональных данных к Оператору по адресу электронной
+            почты <a href="mailto:vashkomfort_design@mail.ru">vashkomfort_design@mail.ru</a>;</li>
+          <li>обжаловать действия или бездействие Оператора в порядке, установленном законодательством Российской
+            Федерации.</li>
+        </ul>
+      </section>
+
+      <section class="policy-section" aria-labelledby="s5">
+        <h2 id="s5">5. Принципы обработки персональных данных</h2>
+
+        <p class="policy-item"><strong>5.1.</strong> Обработка персональных данных осуществляется на законной и
+          справедливой основе.</p>
+
+        <p class="policy-item"><strong>5.2.</strong> Обработка персональных данных ограничивается достижением
+          конкретных, заранее определенных и законных целей.</p>
+
+        <p class="policy-item"><strong>5.3.</strong> Обработке подлежат только те персональные данные, которые
+          необходимы для достижения заявленных целей обработки.</p>
+
+        <p class="policy-item"><strong>5.4.</strong> Содержание и объем обрабатываемых персональных данных соответствуют
+          заявленным целям обработки.</p>
+
+        <p class="policy-item"><strong>5.5.</strong> При обработке персональных данных обеспечивается их точность и
+          актуальность в необходимой степени.</p>
+
+        <p class="policy-item"><strong>5.6.</strong> Персональные данные хранятся в форме, позволяющей определить
+          субъекта персональных данных, не дольше, чем это необходимо для достижения целей их обработки, если иной срок
+          хранения не установлен федеральным законом, договором или иным законным основанием. По достижении целей
+          обработки либо при утрате необходимости в их достижении персональные данные подлежат удалению или уничтожению,
+          если иное не предусмотрено законодательством Российской Федерации.</p>
+      </section>
+
+      <section class="policy-section" aria-labelledby="s6">
+        <h2 id="s6">6. Цели и состав обрабатываемых персональных данных</h2>
+
+        <dl class="policy-dl">
+          <dt>Цель обработки</dt>
+          <dd>Обработка заявки пользователя на получение звонка для последующего взаимодействия по вопросам оказания
+            услуг, включая связь с пользователем по указанному номеру телефона и уточнение информации, необходимой для
+            обработки заявки.</dd>
+
+          <dt>Персональные данные</dt>
+          <dd>
+            <ul class="policy-list">
+              <li>имя;</li>
+              <li>номер телефона;</li>
+              <li>удобное время для связи;</li>
+              <li>содержание комментария, указанного пользователем в форме заявки.</li>
+            </ul>
+          </dd>
+
+          <dt>Правовое основание</dt>
+          <dd>согласие субъекта персональных данных на обработку его персональных данных, предоставляемое посредством
+            формы заявки на сайте.</dd>
+
+          <dt>Способ предоставления согласия</dt>
+          <dd>проставление пользователем отметки о согласии на обработку персональных данных перед отправкой формы
+            заявки. Без предоставления согласия отправка заявки невозможна.</dd>
+        </dl>
+      </section>
+
+      <section class="policy-section" aria-labelledby="s7">
+        <h2 id="s7">7. Условия обработки персональных данных</h2>
+
+        <p class="policy-item"><strong>7.1.</strong> Обработка персональных данных осуществляется на основании согласия
+          субъекта персональных данных.</p>
+
+        <p class="policy-item"><strong>7.2.</strong> Пользователь предоставляет персональные данные добровольно
+          посредством заполнения формы заявки на сайте.</p>
+
+        <p class="policy-item"><strong>7.3.</strong> Отправка заявки возможна только после подтверждения пользователем
+          согласия на обработку персональных данных.</p>
+
+        <p class="policy-item"><strong>7.4.</strong> Персональные данные используются исключительно для обработки заявки
+          и последующего взаимодействия с пользователем по вопросам оказания услуг.</p>
+
+        <p class="policy-item"><strong>7.5.</strong> Персональные данные не используются Оператором для рекламных
+          рассылок или иных целей, не связанных с обработкой заявки, без получения соответствующего законного основания.
+        </p>
+      </section>
+
+      <section class="policy-section" aria-labelledby="s8">
+        <h2 id="s8">8. Порядок сбора, хранения, передачи и других видов обработки персональных данных</h2>
+
+        <p>Персональные данные пользователей собираются посредством формы заявки, размещенной на веб-сайте <a
+            href="https://remontnik-ekb.ru" target="_blank" rel="noopener">https://remontnik-ekb.ru</a>.</p>
+
+        <p class="policy-item"><strong>8.1.</strong> После отправки заявки предоставленные пользователем персональные
+          данные сохраняются в базе данных SQLite, размещенной на сервере Оператора.</p>
+
+        <p class="policy-item"><strong>8.2.</strong> Доступ к сохраненным заявкам имеет только Оператор — Начаткин
+          Никита Юрьевич.</p>
+
+        <p class="policy-item"><strong>8.3.</strong> Персональные данные не передаются третьим лицам, за исключением
+          случаев, когда такая передача необходима в соответствии с законодательством Российской Федерации.</p>
+
+        <p class="policy-item"><strong>8.4.</strong> Персональные данные хранятся на сервере, расположенном на
+          территории Российской Федерации.</p>
+
+        <p class="policy-item"><strong>8.5.</strong> Оператор принимает необходимые правовые, организационные и
+          технические меры для защиты персональных данных от неправомерного или случайного доступа, изменения,
+          блокирования, копирования, предоставления, распространения, удаления, уничтожения и иных неправомерных
+          действий.</p>
+
+        <p class="policy-item"><strong>8.6.</strong> Оператор не осуществляет трансграничную передачу персональных
+          данных.</p>
+
+        <p class="policy-item"><strong>8.7.</strong> Пользователь вправе обратиться к Оператору с требованием об
+          уточнении или удалении своих персональных данных по адресу электронной почты <a
+            href="mailto:vashkomfort_design@mail.ru">vashkomfort_design@mail.ru</a>.</p>
+
+        <p class="policy-item"><strong>8.8.</strong> Персональные данные хранятся до достижения целей их обработки, а
+          также в течение периода, необходимого для последующего взаимодействия с пользователем по вопросам оказания
+          услуг. По достижении целей обработки или при утрате необходимости в дальнейшей обработке персональные данные
+          подлежат удалению или уничтожению, если иное не предусмотрено законодательством Российской Федерации.</p>
+
+        <p class="policy-item"><strong>8.9.</strong> При получении требования субъекта персональных данных об удалении
+          персональных данных или отзыве согласия на их обработку Оператор прекращает обработку персональных данных и
+          принимает необходимые меры для их удаления или уничтожения, если отсутствуют предусмотренные законодательством
+          Российской Федерации основания для дальнейшей обработки.</p>
+      </section>
+
+      <section class="policy-section" aria-labelledby="s9">
+        <h2 id="s9">9. Перечень действий, производимых Оператором с персональными данными</h2>
+
+        <p class="policy-item"><strong>9.1.</strong> Оператор осуществляет следующие действия с персональными данными:
+          сбор, запись, систематизацию, накопление, хранение, уточнение, извлечение, использование, блокирование,
+          удаление и уничтожение.</p>
+
+        <p class="policy-item"><strong>9.2.</strong> Обработка персональных данных осуществляется с использованием
+          средств автоматизации.</p>
+
+        <p class="policy-item"><strong>9.3.</strong> Персональные данные используются Оператором для обработки заявки и
+          последующей связи с пользователем по указанному им номеру телефона.</p>
+      </section>
+
+      <section class="policy-section" aria-labelledby="s10">
+        <h2 id="s10">10. Трансграничная передача персональных данных</h2>
+
+        <p class="policy-item"><strong>10.1.</strong> Оператор не осуществляет передачу персональных данных на
+          территорию иностранных государств.</p>
+
+        <p class="policy-item"><strong>10.2.</strong> Обработка и хранение персональных данных, полученных посредством
+          формы заявки, осуществляются на территории Российской Федерации.</p>
+      </section>
+
+      <section class="policy-section" aria-labelledby="s11">
+        <h2 id="s11">11. Использование файлов cookie и аналогичных технологий</h2>
+
+        <p class="policy-item"><strong>11.1.</strong> На публичной части веб-сайта не используются аналитические или
+          рекламные cookie, предназначенные для отслеживания действий пользователей.</p>
+
+        <p class="policy-item"><strong>11.2.</strong> Для работы административной части сайта используется техническая
+          cookie с идентификатором сессии администратора. Данная cookie необходима исключительно для авторизации и
+          поддержания сессии пользователя административной панели.</p>
+
+        <p class="policy-item"><strong>11.3.</strong> Срок действия сессионной cookie административной панели составляет
+          до 24 часов.</p>
+
+        <p class="policy-item"><strong>11.4.</strong> На публичной части сайта также может использоваться локальное
+          хранилище браузера (localStorage) для сохранения информации о закрытии информационного уведомления о cookie.
+          Данная информация не является cookie-файлом и не используется для отслеживания действий пользователя.</p>
+      </section>
+
+      <section class="policy-section" aria-labelledby="s12">
+        <h2 id="s12">12. Конфиденциальность персональных данных и заключительные положения</h2>
+
+        <p class="policy-item"><strong>12.1.</strong> Оператор обеспечивает конфиденциальность персональных данных и не
+          раскрывает их третьим лицам без соответствующего законного основания.</p>
+
+        <p class="policy-item"><strong>12.2.</strong> Все вопросы, связанные с обработкой персональных данных,
+          пользователь может направить Оператору по адресу электронной почты <a
+            href="mailto:vashkomfort_design@mail.ru">vashkomfort_design@mail.ru</a>.</p>
+
+        <p class="policy-item"><strong>12.3.</strong> Для запроса на удаление или уточнение персональных данных
+          пользователь может направить соответствующее обращение на указанный адрес электронной почты.</p>
+
+        <p class="policy-item"><strong>12.4.</strong> Оператор вправе вносить изменения в настоящую Политику. Новая
+          редакция Политики вступает в силу с момента её размещения на веб-сайте, если иное не предусмотрено новой
+          редакцией.</p>
+
+        <p class="policy-item"><strong>12.5.</strong> Актуальная версия Политики размещается в свободном доступе на
+          веб-сайте <a href="https://remontnik-ekb.ru" target="_blank" rel="noopener">https://remontnik-ekb.ru</a>.</p>
+
+        <p class="policy-item"><strong>12.6.</strong> Электронная почта Оператора для обращений по вопросам обработки
+          персональных данных: <a href="mailto:vashkomfort_design@mail.ru">vashkomfort_design@mail.ru</a>.</p>
+      </section>
+    </div>
+  </main>
 </body>
+
 </html>
