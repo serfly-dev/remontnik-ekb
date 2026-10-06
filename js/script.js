@@ -496,15 +496,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join(', ');
   }
 
-  // Show the result for whichever questions and tariffs are configured.
-  function showResult() {
-    const calculation = calculatePrice();
+  function syncCalculatorDataToForm(calculation) {
     const price = calculation?.total ?? null;
-    const callbackOnly = calculatorData.callbackOnly;
-    if (callbackOnly) calculatorData.area = null;
     calculatorData.responses = getCalculatorResponses();
     calculatorData.pricingBreakdown = calculation?.breakdown || [];
     calculatorData.calculatedPrice = price;
+
+    if (calculatorData.callbackOnly) calculatorData.area = null;
+    if (formCalculatorData) {
+      formCalculatorData.value = JSON.stringify({
+        ...calculatorData,
+        requestType: calculatorData.callbackOnly || price == null ? 'callback' : 'estimate'
+      });
+    }
+
+    return price;
+  }
+
+  // Show the result for whichever questions and tariffs are configured.
+  function showResult() {
+    const calculation = calculatePrice();
+    const callbackOnly = calculatorData.callbackOnly;
+    const price = syncCalculatorDataToForm(calculation);
 
     calcResultValue.textContent = callbackOnly
       ? 'Заявка на звонок'
@@ -692,18 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
   calcToApplicationLinks.forEach(link => {
     link.addEventListener('click', () => {
       if (calculatorResult && !calculatorResult.hidden) {
-        const calculation = calculatePrice();
-        const price = calculation?.total ?? null;
-        calculatorData.responses = getCalculatorResponses();
-        calculatorData.pricingBreakdown = calculation?.breakdown || [];
-        calculatorData.calculatedPrice = price;
-        const params = {
-          ...calculatorData,
-          requestType: calculatorData.callbackOnly || price == null ? 'callback' : 'estimate'
-        };
-      if (formCalculatorData) {
-          formCalculatorData.value = JSON.stringify(params);
-        }
+        syncCalculatorDataToForm(calculatePrice());
       }
     });
   });

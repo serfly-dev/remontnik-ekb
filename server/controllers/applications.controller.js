@@ -100,7 +100,7 @@ export async function createApplicationHandler(req, res) {
       preferred_time: preferred_time || null,
       comment: comment || null,
       calculator_data: calculator_data || null,
-      calculated_price: calculated_price || null,
+      calculated_price: calculated_price ?? null,
       status: 'new'
     });
 

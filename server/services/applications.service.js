@@ -118,7 +118,7 @@ export async function createApplication(data) {
     data.preferred_time || null,
     data.comment || null,
     data.calculator_data ? JSON.stringify(data.calculator_data) : null,
-    data.calculated_price || null,
+    data.calculated_price ?? null,
     data.status || 'new',
     data.admin_id || null
   ]);
