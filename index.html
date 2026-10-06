@@ -4,20 +4,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>РемонтНик квартир - Екатеринбург</title>
+  <title>Ремонт квартир в Екатеринбурге — Никита Начаткин</title>
   <meta name="description"
-    content="Ремонт квартиры с профессионалом с более чем 10-летним опытом в строительстве. Прозрачная смета, замер и понятный процесс.">
+    content="Ремонт квартир в Екатеринбурге по дизайн-проекту. Никита Начаткин — более 10 лет в строительстве, прозрачная смета и контроль расходов.">
+  <meta name="author" content="Никита Начаткин">
   <link rel="canonical" href="https://remontnik-ekb.ru/">
   <link rel="stylesheet" href="/css/fonts.css">
-  <link rel="stylesheet" href="/css/style.css?v=2">
-  <meta property="og:title" content="РемонтНик квартир - Екатеринбург">
+  <link rel="stylesheet" href="/css/style.css?v=3">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:site_name" content="РемонтНик квартир">
+  <meta property="og:title" content="Ремонт квартир в Екатеринбурге — Никита Начаткин">
   <meta property="og:description"
-    content="Ремонт квартиры с профессионалом с более чем 10-летним опытом в строительстве.">
+    content="Ремонт квартир в Екатеринбурге по дизайн-проекту. Более 10 лет в строительстве, прозрачная смета и контроль расходов.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://remontnik-ekb.ru/">
   <meta property="og:image" content="https://remontnik-ekb.ru/images/og-cover.jpg">
+  <meta property="og:image:alt" content="Ремонт квартир в Екатеринбурге — Никита Начаткин">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ремонт квартир в Екатеринбурге — Никита Начаткин">
+  <meta name="twitter:description"
+    content="Ремонт квартир по дизайн-проекту, прозрачная смета и контроль расходов.">
+  <meta name="twitter:image" content="https://remontnik-ekb.ru/images/og-cover.jpg">
+  <meta name="twitter:image:alt" content="Ремонт квартир в Екатеринбурге — Никита Начаткин">
   <meta name="theme-color" content="#f2f2f2">
   <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="32x32">
   <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
@@ -25,16 +35,21 @@
   {
     "@context": "https://schema.org",
     "@type": "HomeAndConstructionBusiness",
-    "name": "РемонтНик квартир Екатеринбург",
-    "description": "Ремонт квартиры в Екатеринбурге. Прозрачная смета, замер и понятный процесс.",
+    "@id": "https://remontnik-ekb.ru/#business",
+    "name": "РемонтНик квартир",
+    "description": "Ремонт квартир в Екатеринбурге по дизайн-проекту. Прозрачная смета и контроль расходов.",
     "url": "https://remontnik-ekb.ru/",
     "telephone": "+79502085138",
-    "priceRange": "По замеру",
+    "image": "https://remontnik-ekb.ru/images/og-cover.jpg",
+    "logo": "https://remontnik-ekb.ru/images/logo_orange-green.png",
+    "areaServed": {
+      "@type": "City",
+      "name": "Екатеринбург"
+    },
     "founder": {
-      "@type": "Company",
-      "name": "РемонтНик квартир",
-      "jobTitle": "Ремонт квартир в Екатеринбурге",
-      "telephone": "+79502085138"
+      "@type": "Person",
+      "name": "Никита Начаткин",
+      "jobTitle": "Специалист по ремонту квартир"
     }
   }
   </script>
@@ -42,7 +57,7 @@
 
 <body>
   <a class="skip-link visually-hidden" href="#main">Перейти к содержанию</a>
-  <div class="scroll__progress" id="scrollProgress"></div>
+  <div class="scroll__progress" id="scrollProgress" aria-hidden="true"></div>
   <!-- HEADER -->
   <header class="header" id="header">
     <div class="container header__inner">
@@ -82,7 +97,7 @@
     <button class="mobile-menu__close" id="mobileClose" aria-label="Закрыть меню" aria-controls="mobileMenu">
       <span></span><span></span>
     </button>
-    <nav class="mobile-menu__nav">
+    <nav class="mobile-menu__nav" aria-label="Мобильная навигация">
       <a href="#gallery" class="mobile-menu__link">Портфолио</a>
       <a href="#services" class="mobile-menu__link">Услуги</a>
       <a href="#formats" class="mobile-menu__link">Форматы</a>
@@ -139,6 +154,7 @@
      ================================================================ -->
     <section class="calculator" id="calculator" aria-labelledby="calculator-title">
       <div class="container">
+        <h2 class="section-title calculator__title" id="calculator-title">Ориентировочная стоимость ремонта</h2>
         <div class="calc">
           <div class="calc__meta" id="calcMeta">
             <div class="calc__progress">
@@ -151,88 +167,16 @@
             <p class="calc__hint" id="calcHint"></p>
           </div>
           <div class="calc__body" id="calcBody">
-            <div class="calc__field" data-step="1">
-              <p class="calc__question">Тип объекта</p>
-              <div class="calc__options">
-                <label class="calc__option">
-                  <input type="radio" name="propertyType" value="newBuilding">
-                  <span class="calc__option__mark" aria-hidden="true"></span>
-                  <span class="calc__option__label">Новостройка</span>
-                </label>
-                <label class="calc__option">
-                  <input type="radio" name="propertyType" value="secondary">
-                  <span class="calc__option__mark" aria-hidden="true"></span>
-                  <span class="calc__option__label">Вторичное жильё</span>
-                </label>
-              </div>
-            </div>
-            <div class="calc__field" data-step="2" hidden>
-              <p class="calc__question">Состояние квартиры</p>
-              <div class="calc__options">
-                <label class="calc__option">
-                  <input type="radio" name="condition" value="finished">
-                  <span class="calc__option__mark" aria-hidden="true"></span>
-                  <span class="calc__option__label">Есть ремонт</span>
-                </label>
-                <label class="calc__option">
-                  <input type="radio" name="condition" value="unfinished">
-                  <span class="calc__option__mark" aria-hidden="true"></span>
-                  <span class="calc__option__label">Без отделки</span>
-                </label>
-                <label class="calc__option">
-                  <input type="radio" name="condition" value="whiteBox">
-                  <span class="calc__option__mark" aria-hidden="true"></span>
-                  <span class="calc__option__label">White Box</span>
-                </label>
-              </div>
-            </div>
-            <div class="calc__field" data-step="3" hidden>
-              <p class="calc__question">Площадь квартиры</p>
-              <input type="number" class="calc__input" id="calcArea" name="area" placeholder="Введите м²" min="1"
-                max="1000" aria-label="Площадь квартиры в квадратных метрах">
-              <p class="calc__error" id="calcError" hidden></p>
-            </div>
-            <div class="calc__field" data-step="4" hidden>
-              <p class="calc__question">Когда хотите начать ремонт?</p>
-              <div class="calc__options">
-                <label class="calc__option"><input type="radio" name="startDate" value="asap"><span
-                    class="calc__option__mark" aria-hidden="true"></span><span class="calc__option__label">Как можно
-                    скорее</span></label>
-                <label class="calc__option"><input type="radio" name="startDate" value="month"><span
-                    class="calc__option__mark" aria-hidden="true"></span><span class="calc__option__label">В течение
-                    месяца</span></label>
-                <label class="calc__option"><input type="radio" name="startDate" value="3months"><span
-                    class="calc__option__mark" aria-hidden="true"></span><span class="calc__option__label">Через 1–3
-                    месяца</span></label>
-                <label class="calc__option"><input type="radio" name="startDate" value="later"><span
-                    class="calc__option__mark" aria-hidden="true"></span><span
-                    class="calc__option__label">Позже</span></label>
-              </div>
-            </div>
-            <div class="calc__field" data-step="5" hidden>
-              <p class="calc__question">Есть ли готовый проект?</p>
-              <div class="calc__options">
-                <label class="calc__option"><input type="radio" name="hasProject" value="hasProject"><span
-                    class="calc__option__mark" aria-hidden="true"></span><span class="calc__option__label">Да, есть
-                    дизайн-проект</span></label>
-                <label class="calc__option"><input type="radio" name="hasProject" value="needsChanges"><span
-                    class="calc__option__mark" aria-hidden="true"></span><span class="calc__option__label">Есть проект,
-                    но его нужно доработать</span></label>
-                <label class="calc__option"><input type="radio" name="hasProject" value="noProject"><span
-                    class="calc__option__mark" aria-hidden="true"></span><span class="calc__option__label">Нет
-                    проекта</span></label>
-              </div>
-            </div>
-            <div class="calc__field" data-step="6" hidden>
-              <p class="calc__question">Нужно выполнить замер квартиры / ванной и подготовить смету?</p>
-              <div class="calc__options">
-                <label class="calc__option"><input type="radio" name="measurement" value="yes"><span
-                    class="calc__option__mark" aria-hidden="true"></span><span
-                    class="calc__option__label">Да</span></label>
-                <label class="calc__option"><input type="radio" name="measurement" value="no"><span
-                    class="calc__option__mark" aria-hidden="true"></span><span
-                    class="calc__option__label">Нет</span></label>
-              </div>
+            <div id="calcQuestions"></div>
+            <label class="calc__short-request" id="calcCallbackToggle">
+              <input type="checkbox" name="callbackOnly" id="calcCallbackOnly">
+              <span>Хочу оставить только заявку на звонок — без расчёта</span>
+            </label>
+            <div class="calc__field" id="calcAreaField" data-step="1" hidden>
+              <p class="calc__question" id="calcAreaQuestion">Площадь квартиры по полу</p>
+              <input type="number" class="calc__input" id="calcArea" name="area" placeholder="Введите м²" min="10"
+                max="500" step="0.1" aria-label="Площадь квартиры в квадратных метрах">
+              <p class="calc__error" id="calcError" role="alert" hidden></p>
             </div>
           </div>
           <div class="calc__footer" id="calcFooter">
@@ -243,24 +187,7 @@
           <div class="calc__result" id="calcResult" hidden>
             <p class="calc__result__value" id="calcResultValue"></p>
             <p class="calc__result__approx"></p>
-            <dl class="calc__result__params" id="calcResultParams">
-              <div class="calc__result__params__row">
-                <dt>Тип объекта</dt>
-                <dd id="param-property"></dd>
-              </div>
-              <div class="calc__result__params__row">
-                <dt>Состояние</dt>
-                <dd id="param-condition"></dd>
-              </div>
-              <div class="calc__result__params__row">
-                <dt>Площадь</dt>
-                <dd id="param-area"></dd>
-              </div>
-              <div class="calc__result__params__row">
-                <dt>Проект</dt>
-                <dd id="param-project"></dd>
-              </div>
-            </dl>
+            <dl class="calc__result__params" id="calcResultParams"></dl>
             <p class="calc__result__note"></p>
             <div class="calc__result__cta">
               <a href="#application" class="btn btn--primary">Оставить заявку</a>
@@ -517,8 +444,8 @@
     <div class="container">
       <div class="footer__top">
         <div>
-          <p class="footer__heading">Навигация</p>
-          <nav class="footer__nav">
+          <h2 class="footer__heading">Навигация</h2>
+          <nav class="footer__nav" aria-label="Навигация в подвале">
             <a href="#formats" class="footer__link">Варианты</a>
             <a href="#calculator" class="footer__link">Калькулятор</a>
             <a href="#faq" class="footer__link">FAQ</a>
@@ -526,12 +453,14 @@
           </nav>
         </div>
         <div class="footer__contacts">
-          <p class="footer__heading">Контакты</p>
-          <a class="footer__contact" href="https://t.me/nikitanachatkin" target="_blank" rel="noopener">Telegram:
-            @nikitanachatkin</a>
-          <a class="footer__contact" href="https://wa.me/79502085138" target="_blank" rel="noopener">WhatsApp: +7 950
-            208 5138</a>
-          <a class="footer__contact" href="tel:+79502085138">Телефон: +7 950 208 5138</a>
+          <h2 class="footer__heading">Контакты</h2>
+          <address class="footer__address">
+            <a class="footer__contact" href="https://t.me/nikitanachatkin" target="_blank" rel="noopener">Telegram:
+              @nikitanachatkin</a>
+            <a class="footer__contact" href="https://wa.me/79502085138" target="_blank" rel="noopener">WhatsApp: +7 950
+              208 5138</a>
+            <a class="footer__contact" href="tel:+79502085138">Телефон: +7 950 208 5138</a>
+          </address>
         </div>
         <div class="footer__brand">
           <a href="/" aria-label="На главную"><img src="/images/logo_white_in_black_circle.png"
@@ -548,8 +477,9 @@
 
   <script src="js/vendor/gsap.min.js" defer></script>
   <script src="js/vendor/ScrollTrigger.min.js" defer></script>
+  <script src="js/calculator-pricing.js" defer></script>
   <script src="js/sections-inject.js" defer></script>
-  <script src="js/script.js?v=2" defer></script>
+  <script src="js/script.js?v=4" defer></script>
 
   <!-- Cookie banner -->
   <div class="cookie-banner" id="cookieBanner" hidden>

@@ -142,6 +142,7 @@
         <ul class="services__index">
           ${itemsHtml}
         </ul>
+        ${content.footer_note ? `<p class="services__note">${escapeHtml(content.footer_note)}</p>` : ''}
       </div>
     `;
   }
@@ -641,14 +642,21 @@
   }
 
   // ---- CALCULATOR (id="calculator") ----
-  // The calculator DOM is static HTML in index.html — script.js owns it.
-  // We only expose the rates from API to window globals. Do NOT replace
-  // innerHTML here, or we'd destroy script.js's initialization (race
-  // condition: fetch is async, script.js already ran on DOMContentLoaded).
+  // script.js owns the calculator DOM and renders its fields from this config.
+  // Do not replace the calculator section's innerHTML here.
   function renderCalculator(content) {
-    if (content.rates) window.SECTION_RATES = content.rates;
-    if (content.coefficients) window.SECTION_COEFFICIENTS = content.coefficients;
-    if (content.measurement_fee != null) window.SECTION_MEASUREMENT_FEE = content.measurement_fee;
+    const title = content.title || 'Ориентировочная стоимость ремонта';
+    const titleElement = document.getElementById('calculator-title');
+    if (titleElement) titleElement.textContent = title;
+    window.SECTION_CALCULATOR = {
+      title,
+      areaQuestion: content.area_question || 'Площадь квартиры по полу',
+      callbackLabel: content.callback_label || 'Хочу оставить только заявку на звонок — без расчёта',
+      questions: Array.isArray(content.questions) ? content.questions : window.CalculatorPricing.fromLegacyConfig(content)
+    };
+    document.dispatchEvent(new CustomEvent('calculatorConfigLoaded', {
+      detail: window.SECTION_CALCULATOR
+    }));
   }
 
   // ---- CTA FINAL / CONTACTS (id="contacts") ----
@@ -689,18 +697,24 @@
     if (!root) return;
 
     const questions = Array.isArray(content.questions) ? content.questions : [];
-    const itemsHtml = questions.map((item, i) => `
-      <details class="accordion__item" ${i === 0 ? 'open' : ''}>
-        <summary class="accordion__question">
-          <span class="accordion__question-num">${String(i + 1).padStart(2, '0')}</span>
-          <span class="accordion__question-text">${escapeHtml(item.question || '')}</span>
-          <span class="accordion__toggle" aria-hidden="true"></span>
-        </summary>
-        <div class="accordion__content">
-          <div class="accordion__content__inner">${escapeHtml(item.answer || '')}</div>
-        </div>
-      </details>
-    `).join('');
+    const itemsHtml = questions.map((item, i) => {
+      const answers = [item.answer, item.answer2, item.answer3, item.answer4]
+        .flatMap(answer => Array.isArray(answer) ? answer : [answer])
+        .map(answer => answer == null ? '' : String(answer).trim())
+        .filter(Boolean);
+      return `
+        <details class="accordion__item" ${i === 0 ? 'open' : ''}>
+          <summary class="accordion__question">
+            <span class="accordion__question-num">${String(i + 1).padStart(2, '0')}</span>
+            <span class="accordion__question-text">${escapeHtml(item.question || '')}</span>
+            <span class="accordion__toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="accordion__content">
+            <div class="accordion__content__inner">${answers.map(answer => `<p>${escapeHtml(answer)}</p>`).join('')}</div>
+          </div>
+        </details>
+      `;
+    }).join('');
 
     root.innerHTML = `
       <div class="container">

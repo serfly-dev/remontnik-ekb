@@ -58,6 +58,7 @@ const SECTIONS = [
       eyebrow: 'Услуги',
       eyebrow_num: '2',
       title: 'Чем могу помочь',
+      footer_note: '',
       items: [
         {
           num: '01',
@@ -138,16 +139,65 @@ const SECTIONS = [
       eyebrow: 'Калькулятор',
       eyebrow_num: '5',
       title: 'Ориентировочная стоимость ремонта',
-      rates: {
-        newBuilding: { finished: 4500, unfinished: 5500, whiteBox: 5000 },
-        secondary: { finished: 5000, unfinished: 6000, whiteBox: 5500 }
-      },
-      coefficients: {
-        hasProject: 1.0,
-        needsChanges: 1.3,
-        noProject: 1.5
-      },
-      measurement_fee: 3000
+      area_question: 'Площадь квартиры по полу',
+      callback_label: 'Хочу оставить только заявку на звонок — без расчёта',
+      questions: [
+        {
+          question: 'Тип объекта',
+          type: 'single',
+          answers: [
+            { label: 'Новостройка', pricing_type: 'none', price: null },
+            { label: 'Вторичное жильё', pricing_type: 'none', price: null }
+          ]
+        },
+        {
+          question: 'Состояние квартиры',
+          type: 'single',
+          answers: [
+            { label: 'Есть ремонт', pricing_type: 'none', price: null },
+            { label: 'Без отделки', pricing_type: 'none', price: null },
+            { label: 'White Box', pricing_type: 'none', price: null }
+          ]
+        },
+        {
+          question: 'Отделка стен',
+          type: 'single',
+          answers: [
+            { label: 'Обои / обои под покраску', pricing_type: 'per_m2', price: null },
+            { label: 'Покраска стен', pricing_type: 'per_m2', price: null },
+            { label: 'Декоративная штукатурка', pricing_type: 'per_m2', price: null }
+          ]
+        },
+        { question: 'Отделка потолка', type: 'single', answers: [] },
+        { question: 'Отделка пола', type: 'single', answers: [] },
+        {
+          question: 'Когда хотите начать ремонт?',
+          type: 'single',
+          answers: [
+            { label: 'Как можно скорее', pricing_type: 'none', price: null },
+            { label: 'В течение месяца', pricing_type: 'none', price: null },
+            { label: 'Через 1–3 месяца', pricing_type: 'none', price: null },
+            { label: 'Позже', pricing_type: 'none', price: null }
+          ]
+        },
+        {
+          question: 'Есть ли готовый проект?',
+          type: 'single',
+          answers: [
+            { label: 'Да, есть дизайн-проект', pricing_type: 'none', price: null },
+            { label: 'Есть проект, но его нужно доработать', pricing_type: 'none', price: null },
+            { label: 'Нет проекта', pricing_type: 'none', price: null }
+          ]
+        },
+        {
+          question: 'Нужно выполнить замер квартиры / ванной и подготовить смету?',
+          type: 'single',
+          answers: [
+            { label: 'Да', pricing_type: 'none', price: null },
+            { label: 'Нет', pricing_type: 'none', price: null }
+          ]
+        }
+      ],
     },
     order_index: 5
   },

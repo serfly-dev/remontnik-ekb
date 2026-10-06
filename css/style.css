@@ -953,6 +953,11 @@ p {
 
 .accordion__content__inner p {
   margin: 0;
+  white-space: pre-line;
+}
+
+.accordion__content__inner p + p {
+  margin-top: 0.75rem;
 }
 
 
@@ -1417,6 +1422,15 @@ section+section {
   position: absolute;
   left: 0;
   color: var(--color-brand-green);
+}
+
+.services__note {
+  margin: var(--space-7) 0 0;
+  max-width: 70ch;
+  color: var(--color-gray-700);
+  font-size: var(--font-body-small);
+  line-height: 1.6;
+  white-space: pre-line;
 }
 
 /* =========================================================================
@@ -2270,10 +2284,42 @@ section+section {
   max-width: 22ch;
 }
 
+.calc__short-request {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: var(--space-6);
+  color: var(--color-gray-700);
+  font-size: var(--font-body-small);
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.calc__short-request[hidden] {
+  display: none;
+}
+
+.calc__short-request input {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0.125rem 0 0;
+  flex: 0 0 auto;
+  accent-color: var(--color-brand-green);
+}
+
 .calc__options {
   display: grid;
   gap: 0;
   border-top: 1px solid var(--color-gray-200);
+}
+
+.calc__unconfigured {
+  margin: 0;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--color-gray-200);
+  color: var(--color-gray-700);
+  font-size: var(--font-body-small);
+  line-height: 1.5;
 }
 
 .calc__option {
@@ -2323,6 +2369,29 @@ section+section {
 
 .calc__option input:checked+.calc__option__mark::after {
   transform: scale(1);
+}
+
+.calc__field[data-question-type="multiple"] .calc__option__mark {
+  border-radius: 0.25rem;
+}
+
+.calc__field[data-question-type="multiple"] .calc__option__mark::after {
+  border-radius: 0.125rem;
+}
+
+.calc__field[data-question-type="multiple"] .calc__option input:checked+.calc__option__mark {
+  background: var(--color-brand-green);
+  border-color: var(--color-brand-green);
+}
+
+.calc__field[data-question-type="multiple"] .calc__option input:checked+.calc__option__mark::after {
+  content: '';
+  inset: 2px 6px 4px 6px;
+  border: solid var(--color-white);
+  border-width: 0 2px 2px 0;
+  border-radius: 0;
+  background: transparent;
+  transform: rotate(45deg) scale(1);
 }
 
 .calc__option input:focus-visible+.calc__option__mark {
@@ -3357,6 +3426,13 @@ section+section {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+}
+
+.footer__address {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  font-style: normal;
 }
 
 .footer__contact {

@@ -25,51 +25,12 @@ const STATUS_CLASS = {
   cancelled: 'status-badge--cancelled'
 };
 
-const TARIFF_LABELS = {
-  measurement: 'Замер + смета работ (3 000 ₽)',
-  full: 'Замер + смета работ и материалов (10 000 ₽)',
-  '3 000': '3 000 ₽',
-  '10 000': '10 000 ₽',
-  unknown: 'Не указан'
-};
-
-// Локализация данных калькулятора
-const CALC_LABELS = {
-  propertyType: 'Тип объекта',
-  newBuilding: 'Новостройка',
-  secondary: 'Вторичное жильё',
-  condition: 'Состояние квартиры',
-  finished: 'Есть ремонт',
-  unfinished: 'Без отделки',
-  whiteBox: 'White Box',
-  area: 'Площадь',
-  hasProject: 'Наличие проекта',
-  hasProject_label: 'Есть проект',
-  needsChanges: 'Есть проект, нужны правки',
-  noProject: 'Нет проекта',
-  measurement: 'Нужен замер',
-  yes: 'Да',
-  no: 'Нет'
-};
-
 const PREFERRED_TIME_LABELS = {
   morning: 'Утро (9:00 – 12:00)',
   day: 'День (12:00 – 17:00)',
   evening: 'Вечер (17:00 – 21:00)',
   anytime: 'В любое время'
 };
-
-function localizeCalcKey(key) {
-  return CALC_LABELS[key] || key;
-}
-
-function localizeCalcValue(key, value) {
-  const labelKey = key + '_label';
-  if (CALC_LABELS[labelKey]) return CALC_LABELS[labelKey];
-  if (CALC_LABELS[value]) return CALC_LABELS[value];
-  if (key === 'area') return `${value} м²`;
-  return value;
-}
 
 function localizePreferredTime(value) {
   return PREFERRED_TIME_LABELS[value] || value || '—';
@@ -105,16 +66,56 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
-function detectTariff(app) {
-  if (app.tariff) return TARIFF_LABELS[app.tariff] || app.tariff;
-  if (app.calculated_price != null) {
-    if (app.calculated_price <= 3500) return TARIFF_LABELS.measurement;
-    if (app.calculated_price <= 12000) return TARIFF_LABELS.full;
+function renderCalculatorDetails(app) {
+  const data = app.calculator_data;
+  if (!data || typeof data !== 'object') return '';
+
+  const rows = [];
+  const addRow = (label, value) => {
+    if (value == null || value === '') return;
+    rows.push(`<div class="detail-row"><span class="detail-label">${escapeHtml(label)}</span><span class="detail-value">${escapeHtml(value)}</span></div>`);
+  };
+
+  addRow('Площадь', data.area ? `${data.area} м²` : '');
+
+  if (Array.isArray(data.responses) && data.responses.length) {
+    data.responses.forEach(response => {
+      const value = Array.isArray(response.answers)
+        ? response.answers.map(answer => answer.label).join(', ')
+        : response.answer;
+      addRow(response.question, value);
+    });
+  } else {
+    addRow('Тип объекта', data.propertyType === 'newBuilding' ? 'Новостройка' : data.propertyType === 'secondary' ? 'Вторичное жильё' : '');
+    addRow('Состояние', data.condition === 'finished' ? 'Есть ремонт' : data.condition === 'unfinished' ? 'Без отделки' : data.condition === 'whiteBox' ? 'White Box' : '');
+    const finishLabels = { walls: 'Отделка стен', ceiling: 'Отделка потолка', floor: 'Отделка пола' };
+    Object.entries(finishLabels).forEach(([key, label]) => {
+      const finish = data.finishes?.[key];
+      if (!finish?.name) return;
+      const rate = finish.pricePerFloorM2 == null ? '' : ` — ${formatPrice(finish.pricePerFloorM2)} / м² пола`;
+      addRow(label, `${finish.name}${rate}`);
+    });
+    addRow('Начало ремонта', data.startDate);
+    addRow('Проект', data.hasProject === 'hasProject' ? 'Есть' : data.hasProject === 'needsChanges' ? 'Нужны правки' : data.hasProject === 'noProject' ? 'Нет' : '');
+    addRow('Замер', data.measurement === 'yes' ? 'Нужен' : data.measurement === 'no' ? 'Не нужен' : '');
   }
-  if (app.calculator_data && app.calculator_data.tariff) {
-    return TARIFF_LABELS[app.calculator_data.tariff] || TARIFF_LABELS.unknown;
+
+  (Array.isArray(data.pricingBreakdown) ? data.pricingBreakdown : []).forEach(item => {
+    const rate = item.pricingType === 'per_m2'
+      ? `${formatPrice(item.unitPrice)} / м² пола × ${formatPrice(data.area)} м² = ${formatPrice(item.amount)}`
+      : `${formatPrice(item.amount)} фиксированно`;
+    addRow(`Тариф — ${item.question}: ${item.answer}`, rate);
+  });
+
+  const calculatedPrice = app.calculated_price ?? data.calculatedPrice;
+  addRow('Предварительный расчёт', calculatedPrice == null ? '' : formatPrice(calculatedPrice));
+  if (data.callbackOnly || data.requestType === 'callback') {
+    addRow('Режим заявки', data.callbackOnly ? 'Нужен звонок, без расчёта' : 'Нужна консультация по стоимости');
   }
-  return TARIFF_LABELS.unknown;
+  addRow('Данные старого расчёта', data.raw);
+
+  if (!rows.length) return '';
+  return `<h3 class="detail-section__title">Данные калькулятора</h3><div class="detail-grid">${rows.join('')}</div>`;
 }
 
 // ── DOM refs ──
@@ -333,6 +334,7 @@ async function openApplication(id) {
         <div class="detail-row"><span class="detail-label">Создана</span><span class="detail-value">${formatDate(app.created_at)}</span></div>
         <div class="detail-row"><span class="detail-label">Обновлена</span><span class="detail-value">${formatDate(app.updated_at)}</span></div>
       </div>
+      ${renderCalculatorDetails(app)}
     `;
   } catch (err) {
     $modalBody.innerHTML = `<p class="admin-table-section__error-text">Не удалось загрузить заявку: ${err.message}</p>`;

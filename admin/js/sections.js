@@ -11,7 +11,7 @@ const SECTION_KEYS = [
   { key: 'gallery', label: 'Галерея', description: 'Фото работ клиентов: пары изображений до/после' },
   { key: 'clientVideo', label: 'Видео клиента', description: 'Видеоотзывы, которые выводятся на главной странице' },
   { key: 'variants', label: 'Варианты', description: 'Форматы работы: "Замер" и "Замер + материалы" с ценами и этапами' },
-  { key: 'calculator', label: 'Калькулятор', description: 'Настройки тарифов, коэффициентов и цены за замер' },
+  { key: 'calculator', label: 'Калькулятор', description: 'Вопросы, варианты ответов и расценки за м² или фиксированно' },
   { key: 'cta', label: 'Контакты', description: 'Финальный блок: призыв к действию, телефон, Telegram и WhatsApp' },
   { key: 'faq', label: 'Вопросы', description: 'Частые вопросы и ответы для посетителей' },
   { key: 'process', label: 'Процесс', description: 'Пошаговый путь клиента от заявки до результата' },
@@ -130,7 +130,8 @@ const SECTION_FIELDS = {
         { name: 'items', type: 'repeater', label: 'Пункты', itemFields: [
           { name: '', type: 'text', label: 'Пункт' }
         ]}
-      ]}
+      ]},
+      { name: 'footer_note', type: 'textarea', label: 'Подпись под блоком услуг' }
     ]
   },
   gallery: {
@@ -193,7 +194,10 @@ const SECTION_FIELDS = {
       { name: 'title', type: 'text', label: 'Заголовок' },
       { name: 'questions', type: 'repeater', label: 'Вопросы', itemFields: [
         { name: 'question', type: 'text', label: 'Вопрос' },
-        { name: 'answer', type: 'textarea', label: 'Ответ' }
+        { name: 'answer', type: 'textarea', label: 'Ответ 1' },
+        { name: 'answer2', type: 'textarea', label: 'Ответ 2 (необязательно)' },
+        { name: 'answer3', type: 'textarea', label: 'Ответ 3 (необязательно)' },
+        { name: 'answer4', type: 'textarea', label: 'Ответ 4 (необязательно)' }
       ]}
     ]
   },
@@ -212,24 +216,30 @@ const SECTION_FIELDS = {
   calculator: {
     fields: [
       { name: 'title', type: 'text', label: 'Заголовок' },
-      { name: 'rates', type: 'object', label: 'Тарифы (₽/м²)', description: 'Стоимость за квадратный метр для разных типов жилья и состояния', itemFields: [
-        { name: 'newBuilding', type: 'object', label: 'Новостройка', itemFields: [
-          { name: 'finished', type: 'number', label: 'Есть ремонт' },
-          { name: 'unfinished', type: 'number', label: 'Без отделки' },
-          { name: 'whiteBox', type: 'number', label: 'White Box' }
+      { name: 'area_question', type: 'text', label: 'Вопрос о площади' },
+      { name: 'callback_label', type: 'text', label: 'Текст заявки без расчёта' },
+      { name: 'questions', type: 'repeater', label: 'Вопросы калькулятора', description: 'Вопросы выводятся по порядку. Для вариантов можно выбрать доплату за м² площади пола, фиксированную доплату или вариант без цены. Чтобы цена считалась, задайте тариф хотя бы одному выбранному варианту.', itemFields: [
+        { name: 'question', type: 'text', label: 'Текст вопроса' },
+        { name: 'type', type: 'select', label: 'Тип ответа', options: [
+          { value: 'single', label: 'Один вариант' },
+          { value: 'multiple', label: 'Несколько вариантов' },
+          { value: 'text', label: 'Текстовый ответ' },
+          { value: 'number', label: 'Числовой ответ' }
         ]},
-        { name: 'secondary', type: 'object', label: 'Вторичка', itemFields: [
-          { name: 'finished', type: 'number', label: 'Есть ремонт' },
-          { name: 'unfinished', type: 'number', label: 'Без отделки' },
-          { name: 'whiteBox', type: 'number', label: 'White Box' }
+        { name: 'required', type: 'select', label: 'Обязательный вопрос', options: [
+          { value: 'yes', label: 'Да' },
+          { value: 'no', label: 'Нет' }
+        ]},
+        { name: 'answers', type: 'repeater', label: 'Варианты ответа', itemFields: [
+          { name: 'label', type: 'text', label: 'Текст варианта' },
+          { name: 'pricing_type', type: 'select', label: 'Расценка', options: [
+            { value: 'none', label: 'Без доплаты' },
+            { value: 'per_m2', label: 'Цена за м² площади пола' },
+            { value: 'fixed', label: 'Фиксированная цена' }
+          ]},
+          { name: 'price', type: 'number', label: 'Цена, ₽', min: 0, step: 'any' }
         ]}
-      ]},
-      { name: 'coefficients', type: 'object', label: 'Коэффициенты проекта', description: 'Множители для корректировки цены в зависимости от ситуации', itemFields: [
-        { name: 'hasProject', type: 'number', label: 'Есть проект', description: 'Множитель, если у клиента уже есть дизайн-проект' },
-        { name: 'needsChanges', type: 'number', label: 'Нужны правки', description: 'Множитель, если требуется доработка проекта' },
-        { name: 'noProject', type: 'number', label: 'Нет проекта', description: 'Множитель, если проекта нет' }
-      ]},
-      { name: 'measurement_fee', type: 'number', label: 'Плата за замер (₽)', description: 'Фиксированная стоимость выезда и замера' }
+      ]}
     ]
   },
   cta: {
@@ -370,7 +380,14 @@ function renderEditor(key, section) {
     return;
   }
 
-  const content = section.content || {};
+  const content = { ...(section.content || {}) };
+  if (key === 'calculator') {
+    content.area_question ||= 'Площадь квартиры по полу';
+    content.callback_label ||= 'Хочу оставить только заявку на звонок — без расчёта';
+    if (!Array.isArray(content.questions)) {
+      content.questions = window.CalculatorPricing.fromLegacyConfig(content);
+    }
+  }
   const title = section.title || key;
 
   let html = `
@@ -383,6 +400,9 @@ function renderEditor(key, section) {
 
   for (const field of config.fields) {
     html += renderField(field, content[field.name]);
+    if (key === 'calculator' && field.name === 'callback_label') {
+      html += renderCalculatorSummaryField(content);
+    }
   }
 
   html += `
@@ -408,6 +428,12 @@ function renderEditor(key, section) {
   const form = editorContainer.querySelector('form');
   const saveBtn = document.getElementById('saveBtn');
   const resetBtn = document.getElementById('resetBtn');
+
+  if (key === 'calculator') {
+    form.addEventListener('input', () => refreshCalculatorSummary(form));
+    form.addEventListener('change', () => refreshCalculatorSummary(form));
+    refreshCalculatorSummary(form);
+  }
 
   // Add event listeners for field-level info circles
   editorContainer.addEventListener('mouseenter', (e) => {
@@ -540,6 +566,107 @@ function renderField(field, value, pathPrefix) {
 
   html += `</div>`;
   return html;
+}
+
+function renderCalculatorSummaryField(content) {
+  return `
+    <div class="calculator-summary">
+      <label class="calculator-summary__label" for="calculatorPricingSummary">Сводка расчёта и расценок</label>
+      <textarea id="calculatorPricingSummary" class="calculator-summary__textarea" readonly aria-live="polite">${escapeHtml(buildCalculatorSummary(content))}</textarea>
+      <span class="calculator-summary__hint">Только для просмотра: сводка обновляется при изменении вопросов и цен и не сохраняется отдельно.</span>
+    </div>
+  `;
+}
+
+function refreshCalculatorSummary(form) {
+  const summary = form?.querySelector('#calculatorPricingSummary');
+  if (!summary) return;
+
+  const content = parseFormData(new FormData(form));
+  content.questions = Array.isArray(content.questions) ? content.questions : [];
+  content.area_question ||= 'Площадь квартиры по полу';
+  content.callback_label ||= 'Хочу оставить только заявку на звонок — без расчёта';
+  summary.value = buildCalculatorSummary(content);
+}
+
+function describeCalculatorRate(answer) {
+  const pricingType = answer?.pricing_type || answer?.pricingType || 'none';
+  const rawPrice = answer?.price;
+  const hasPrice = rawPrice != null && String(rawPrice).trim() !== '';
+  const price = hasPrice ? Number(rawPrice) : null;
+
+  if (pricingType === 'none') return 'без доплаты';
+  if (!['per_m2', 'fixed'].includes(pricingType)) return `неизвестный тип расценки «${pricingType}»`;
+  if (price == null) return pricingType === 'per_m2' ? 'цена за м² не задана' : 'фиксированная цена не задана';
+  if (!Number.isFinite(price) || price < 0) return 'некорректная цена (укажите число не меньше 0)';
+
+  const formattedPrice = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(price);
+  return pricingType === 'per_m2'
+    ? `${formattedPrice} ₽ / м² пола`
+    : `${formattedPrice} ₽ фиксированно`;
+}
+
+function buildCalculatorSummary(content = {}) {
+  const questions = Array.isArray(content.questions) ? content.questions : [];
+  const lines = [
+    'ПРАВИЛА РАСЧЁТА',
+    'Итог = площадь пола × сумма выбранных тарифов за м² + сумма выбранных фиксированных доплат.',
+    'После сложения итог округляется до целого рубля. Обязательные вопросы нужно заполнить; необязательные можно пропустить.',
+    `Площадь вводится на шаге «${String(content.area_question || 'Площадь квартиры по полу').trim()}». Она нужна для тарифа за м²; если выбраны только фиксированные цены, её можно пропустить. Допустимый диапазон — 10–500 м².`,
+    'Цена за м² умножается на площадь пола; фиксированная цена добавляется один раз; варианты «Без доплаты» в сумму не входят.',
+    'В вопросе с несколькими вариантами цены всех выбранных ответов складываются. Текстовые и числовые ответы сумму не меняют.',
+    'Для расчёта нужна хотя бы одна выбранная расценка. Если у выбранного платного варианта цена не задана или некорректна, числовой итог не формируется.',
+    `Переключатель первого вопроса «${String(content.callback_label || 'Хочу оставить только заявку на звонок — без расчёта').trim()}» отправляет заявку на звонок без расчёта цены.`,
+    '',
+    'ВОПРОСЫ И РАСЦЕНКИ'
+  ];
+
+  if (!questions.length) {
+    lines.push('Вопросы пока не добавлены.');
+    return lines.join('\n');
+  }
+
+  questions.forEach((question, questionIndex) => {
+    const questionText = String(question?.question ?? '').trim();
+    const questionType = question?.type || 'single';
+    const typeLabels = {
+      single: 'один вариант',
+      multiple: 'несколько вариантов',
+      text: 'текстовый ответ',
+      number: 'числовой ответ'
+    };
+    const isRequired = question?.required !== 'no' && question?.required !== false;
+    lines.push('', `${questionIndex + 1}. ${questionText || 'Вопрос без названия'} — ${typeLabels[questionType] || 'один вариант'}, ${isRequired ? 'обязательный' : 'необязательный'}.`);
+
+    if (!questionText) {
+      lines.push('   Не отображается на сайте: заполните текст вопроса.');
+    }
+
+    const answers = Array.isArray(question?.answers) ? question.answers : [];
+    if (questionType === 'text' || questionType === 'number') {
+      lines.push('   Свободный ответ; расценки к нему не применяются.');
+      if (answers.length) {
+        lines.push('   Сохранённые варианты и цены не используются при таком типе ответа:');
+        answers.forEach((answer, answerIndex) => {
+          const label = String(answer?.label ?? '').trim() || `Вариант ${answerIndex + 1} (без названия)`;
+          lines.push(`   • ${label} — ${describeCalculatorRate(answer)} (не участвует в расчёте).`);
+        });
+      }
+      return;
+    }
+
+    const visibleAnswers = answers.filter(answer => String(answer?.label ?? '').trim());
+    if (!visibleAnswers.length) {
+      lines.push('   Нет вариантов с заполненным названием — вопрос не отображается на сайте.');
+    }
+
+    answers.forEach((answer, answerIndex) => {
+      const label = String(answer?.label ?? '').trim() || `Вариант ${answerIndex + 1} (без названия, не отображается)`;
+      lines.push(`   • ${label} — ${describeCalculatorRate(answer)}.`);
+    });
+  });
+
+  return lines.join('\n');
 }
 
 function renderImageField(name, value, pathPrefix) {
@@ -1091,7 +1218,7 @@ function renderRepeaterItem(parentName, itemFields, item, index) {
       const subType = subField.type || 'text';
 
       html += `
-        <div class="section-editor__repeater-row">
+        <div class="section-editor__repeater-row${subType === 'textarea' ? ' section-editor__repeater-row--full' : ''}">
       `;
 
       if (subType === 'repeater') {
@@ -1112,13 +1239,22 @@ function renderRepeaterItem(parentName, itemFields, item, index) {
         html += renderCropImageField({ ...subField, name: subName }, subValue, `${parentName}[${index}]`);
       } else if (subType === 'video') {
         html += renderVideoField({ name: subName, type: 'video', label: subLabel }, subValue, `${parentName}[${index}]`);
+      } else if (subType === 'textarea') {
+        html += `
+          <div class="section-editor__group">
+            <label class="section-editor__label">${escapeHtml(subLabel)}</label>
+            <textarea name="${escapeHtml(`${parentName}[${index}].${subName}`)}" class="section-editor__textarea">${escapeHtml(subValue)}</textarea>
+          </div>
+        `;
       } else {
         const inputType = subType === 'number' ? 'number' : 'text';
+        const min = subField.min != null ? ` min="${escapeHtml(subField.min)}"` : '';
+        const step = subField.step != null ? ` step="${escapeHtml(subField.step)}"` : '';
         html += `
           <div class="section-editor__group">
             <label class="section-editor__label">${escapeHtml(subLabel)}</label>
             <input type="${inputType}" name="${escapeHtml(`${parentName}[${index}].${subName}`)}" class="section-editor__input"
-                   value="${escapeHtml(subValue)}">
+                   value="${escapeHtml(subValue)}"${min}${step}>
           </div>
         `;
       }
@@ -1344,6 +1480,14 @@ async function handleSave(e, key, form, saveBtn) {
 
     const formData = new FormData(form);
     const content = parseFormData(formData);
+    if (key === 'calculator') {
+      content.questions = (Array.isArray(content.questions) ? content.questions : []).map(question => ({
+        ...question,
+        answers: Array.isArray(question.answers) ? question.answers : []
+      }));
+      content.area_question ||= 'Площадь квартиры по полу';
+      content.callback_label ||= 'Хочу оставить только заявку на звонок — без расчёта';
+    }
 
     saveStatusEl.textContent = 'Сохраняю данные...';
 
@@ -1642,6 +1786,7 @@ editorContainer.addEventListener('click', (e) => {
         const html = renderRepeaterItem(repeaterName, field.itemFields, {}, newIndex);
         e.target.insertAdjacentHTML('beforebegin', html);
         reindexRepeater(repeaterName);
+        refreshCalculatorSummary(editorContainer.querySelector('form'));
       }
     }
   }
@@ -1655,6 +1800,7 @@ editorContainer.addEventListener('click', (e) => {
       const item = repeater.querySelector(`[data-index="${index}"]`);
       if (item) item.remove();
       reindexRepeater(repeaterName);
+      refreshCalculatorSummary(editorContainer.querySelector('form'));
     }
   }
 });
@@ -1719,7 +1865,8 @@ function reindexRepeater(repeaterName) {
   items.forEach((item, index) => {
     item.dataset.index = index;
     item.querySelector('.section-editor__repeater-num').textContent = index + 1;
-    item.querySelectorAll('[data-index]').forEach(el => el.dataset.index = index);
+    const removeButton = item.querySelector(':scope > .section-editor__repeater-header [data-remove-from]');
+    if (removeButton) removeButton.dataset.index = index;
     // Update input names — only replace the outermost bracket index (the one
     // matching this repeater), preserving inner indices for nested repeaters.
     item.querySelectorAll('[name]').forEach(input => {
@@ -1731,6 +1878,17 @@ function reindexRepeater(repeaterName) {
         if (bracketEnd !== -1) {
           const newName = `${repeaterName}[${index}]${rest.slice(bracketEnd + 1)}`;
           input.setAttribute('name', newName);
+        }
+      }
+    });
+    item.querySelectorAll('[data-repeater], [data-add-to], [data-remove-from]').forEach(element => {
+      for (const attribute of ['data-repeater', 'data-add-to', 'data-remove-from']) {
+        const value = element.getAttribute(attribute);
+        const prefix = `${repeaterName}[`;
+        if (!value?.startsWith(prefix)) continue;
+        const bracketEnd = value.indexOf(']', prefix.length);
+        if (bracketEnd !== -1) {
+          element.setAttribute(attribute, `${repeaterName}[${index}]${value.slice(bracketEnd + 1)}`);
         }
       }
     });

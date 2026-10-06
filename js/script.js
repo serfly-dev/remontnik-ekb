@@ -117,19 +117,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // CALCULATOR — 6-step state machine
+  // CALCULATOR — questions, answers and rates are configured in the CMS
   // ============================================================
   const calculatorData = {
-    propertyType: null,
-    condition: null,
-    address: '',
-    startDate: null,
-    hasProject: null,
-    measurement: null,
-    area: null
+    selections: {},
+    responses: [],
+    area: null,
+    callbackOnly: false,
+    calculatedPrice: null
   };
 
-  const calcSteps = document.querySelectorAll('.calc__field');
+  const calcQuestionsContainer = document.getElementById('calcQuestions');
+  const calcAreaField = document.getElementById('calcAreaField');
+  const calcCallbackToggle = document.getElementById('calcCallbackToggle');
   const calcNextBtn = document.getElementById('calcNext');
   const calcBackBtn = document.getElementById('calcBack');
   const calcProgressBar = document.querySelector('.calc__progress__bar');
@@ -137,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const calcStepLabel = document.getElementById('calcStepLabel');
   const calcHint = document.querySelector('.calc__hint');
   const calcArea = document.getElementById('calcArea');
+  const calcCallbackOnly = document.getElementById('calcCallbackOnly');
   const calcError = document.getElementById('calcError');
   const calcResultValue = document.getElementById('calcResultValue');
   const calcResultApprox = document.querySelector('.calc__result__approx');
@@ -144,46 +145,189 @@ document.addEventListener('DOMContentLoaded', () => {
   const calcMeta = document.getElementById('calcMeta');
   const calcBody = document.getElementById('calcBody');
   const calcFooter = document.getElementById('calcFooter');
-  const calcParams = {
-    property: document.getElementById('param-property'),
-    condition: document.getElementById('param-condition'),
-    area: document.getElementById('param-area'),
-    project: document.getElementById('param-project')
-  };
+  const calcResultParams = document.getElementById('calcResultParams');
+  const calcAreaQuestion = document.getElementById('calcAreaQuestion');
 
   let currentStep = 1;
-  const totalSteps = 6;
+  let activeQuestions = [];
+  let areaStep = 1;
+
+  function getCalcSteps() {
+    return [...calcQuestionsContainer.querySelectorAll('.calc__field'), calcAreaField];
+  }
 
   // Clear calculator error when the user edits the area field
   if (calcArea) {
     calcArea.addEventListener('input', () => {
-      if (calcError && !calcError.classList.contains('hidden')) {
-        calcError.classList.add('hidden');
-        calcArea.classList.remove('invalid');
+      if (calcError) {
+        calcError.hidden = true;
+        calcError.textContent = '';
       }
+      calcArea.classList.remove('invalid');
     });
   }
 
-  // Step labels and hints
-  const stepLabels = {
-    1: { label: 'Тип объекта', hint: '' },
-    2: { label: 'Состояние квартиры', hint: 'Квартира подготовлена, но без чистовой отделки.' },
-    3: { label: 'Площадь квартиры', hint: 'Введите площадь в м²' },
-    4: { label: 'Когда хотите начать ремонт?', hint: '' },
-    5: { label: 'Есть ли готовый проект?', hint: '' },
-    6: { label: 'Нужен ли замер', hint: '' }
-  };
+  calcCallbackOnly?.addEventListener('change', () => {
+    calculatorData.callbackOnly = calcCallbackOnly.checked;
+    updateStepUI({ focus: false });
+  });
+
+  function getAnswerPriceLabel(answer) {
+    const pricingType = answer.pricing_type || answer.pricingType || 'none';
+    if (pricingType === 'none') return '';
+    const price = answer.price == null || String(answer.price).trim() === '' ? null : Number(answer.price);
+    if (price == null || !Number.isFinite(price) || price < 0) {
+      return pricingType === 'per_m2' ? 'Цена за м² площади пола не настроена' : 'Фиксированная цена не настроена';
+    }
+    return pricingType === 'per_m2'
+      ? `${formatNumber(price)} ₽ / м² пола`
+      : `${formatNumber(price)} ₽ фиксированно`;
+  }
+
+  function renderQuestions(config = {}) {
+    const questions = Array.isArray(config.questions) ? config.questions : [];
+    activeQuestions = questions.map((question, index) => ({
+      ...question,
+      id: `question-${index}`,
+      question: String(question?.question ?? '').trim(),
+      type: ['single', 'multiple', 'text', 'number'].includes(question?.type) ? question.type : 'single',
+      answers: Array.isArray(question?.answers)
+        ? question.answers.map(answer => ({
+            ...(answer || {}),
+            label: String(answer?.label ?? '').trim()
+          }))
+        : []
+    })).filter(question => question.question && (
+      question.type === 'text' || question.type === 'number' ||
+      question.answers.some(answer => typeof answer?.label === 'string' && answer.label.trim())
+    ));
+
+    calcQuestionsContainer.replaceChildren();
+    activeQuestions.forEach((question, questionIndex) => {
+      const field = document.createElement('div');
+      field.className = 'calc__field';
+      field.dataset.step = String(questionIndex + 1);
+      field.dataset.questionId = question.id;
+      field.dataset.questionType = question.type;
+
+      const title = document.createElement('p');
+      title.className = 'calc__question';
+      title.textContent = question.question;
+      field.appendChild(title);
+
+      if (question.type === 'single' || question.type === 'multiple') {
+        const options = document.createElement('div');
+        options.className = 'calc__options';
+        const inputType = question.type === 'multiple' ? 'checkbox' : 'radio';
+        question.answers.forEach((answer, answerIndex) => {
+          if (typeof answer?.label !== 'string' || !answer.label.trim()) return;
+          const label = document.createElement('label');
+          label.className = 'calc__option';
+
+          const input = document.createElement('input');
+          input.type = inputType;
+          input.name = `answer-${question.id}`;
+          input.value = String(answerIndex);
+          input.setAttribute('aria-label', answer.label.trim());
+
+          const mark = document.createElement('span');
+          mark.className = 'calc__option__mark';
+          mark.setAttribute('aria-hidden', 'true');
+
+          const answerLabel = document.createElement('span');
+          answerLabel.className = 'calc__option__label';
+          answerLabel.textContent = answer.label.trim();
+          label.append(input, mark, answerLabel);
+
+          const priceLabel = getAnswerPriceLabel(answer);
+          if (priceLabel) {
+            const price = document.createElement('span');
+            price.className = 'calc__option__sub';
+            price.textContent = priceLabel;
+            label.appendChild(price);
+          }
+          options.appendChild(label);
+        });
+        field.appendChild(options);
+      } else {
+        const input = document.createElement('input');
+        input.type = question.type;
+        input.name = `answer-${question.id}`;
+        input.className = 'calc__input';
+        input.placeholder = question.type === 'number' ? 'Введите число' : 'Введите ответ';
+        if (question.type === 'number') input.step = 'any';
+        input.setAttribute('aria-label', question.question);
+        field.appendChild(input);
+      }
+
+      const error = document.createElement('p');
+      error.className = 'calc__error';
+      error.setAttribute('role', 'alert');
+      error.hidden = true;
+      field.appendChild(error);
+      calcQuestionsContainer.appendChild(field);
+    });
+
+    areaStep = activeQuestions.length + 1;
+    calcAreaField.dataset.step = String(areaStep);
+    calcAreaQuestion.textContent = config.areaQuestion || 'Площадь квартиры по полу';
+    calcArea.setAttribute('aria-label', calcAreaQuestion.textContent);
+    calcCallbackToggle.querySelector('span').textContent = config.callbackLabel || 'Хочу оставить только заявку на звонок — без расчёта';
+    calculatorData.selections = {};
+    calculatorData.responses = [];
+    currentStep = 1;
+    updateStepUI({ focus: false });
+  }
+
+  document.addEventListener('calculatorConfigLoaded', event => {
+    window.SECTION_CALCULATOR = event.detail || {};
+    renderQuestions(window.SECTION_CALCULATOR);
+  });
+  renderQuestions(window.SECTION_CALCULATOR || {});
+
+  function isCallbackOnlyFlow() {
+    return Boolean(calcCallbackOnly?.checked);
+  }
+
+  function getFlowSteps() {
+    if (isCallbackOnlyFlow() && areaStep > 1) return [1, areaStep];
+    return Array.from({ length: areaStep }, (_, index) => index + 1);
+  }
+
+  function getCurrentField() {
+    return getCalcSteps().find(step => Number(step.dataset.step) === currentStep);
+  }
+
+  function hasSelectedPerM2Rate() {
+    return activeQuestions.some(question => {
+      if (!['single', 'multiple'].includes(question.type)) return false;
+      const selected = calculatorData.selections[question.id];
+      const indexes = question.type === 'multiple'
+        ? Array.isArray(selected) ? selected : []
+        : selected == null || selected === '' ? [] : [selected];
+      return indexes.some(index => {
+        const answer = question.answers[Number(index)];
+        return (answer?.pricing_type || answer?.pricingType) === 'per_m2';
+      });
+    });
+  }
 
   // Update UI for current step
   function updateStepUI(options = {}) {
     const { focus = true, preventScroll = true } = options;
-    const step = stepLabels[currentStep];
-    calcStepCurrent.textContent = `${currentStep} / ${totalSteps}`;
-    calcStepLabel.textContent = step.label;
-    calcHint.textContent = step.hint;
+    const flowSteps = getFlowSteps();
+    const flowPosition = Math.max(0, flowSteps.indexOf(currentStep)) + 1;
+    const currentField = getCurrentField();
+    calcStepCurrent.textContent = `${flowPosition} / ${flowSteps.length}`;
+    calcStepLabel.textContent = currentField?.querySelector('.calc__question')?.textContent || '';
+    calcHint.textContent = currentStep === areaStep
+      ? isCallbackOnlyFlow()
+        ? 'Стоимость обсудим по телефону — расчёт не выполняется.'
+        : 'Площадь нужна для тарифов за м²; если выбраны только фиксированные цены, поле можно пропустить.'
+      : '';
 
     // Show/hide fields
-    calcSteps.forEach((stepEl) => {
+    getCalcSteps().forEach((stepEl) => {
       const stepNum = parseInt(stepEl.dataset.step);
       if (stepNum === currentStep) {
         stepEl.hidden = false;
@@ -198,183 +342,217 @@ document.addEventListener('DOMContentLoaded', () => {
         stepEl.hidden = true;
       }
     });
+    calcCallbackToggle.hidden = currentStep !== 1;
 
     // Update progress bar width
-    const progressPercent = ((currentStep - 1) / (totalSteps - 1)) * 100;
+    const progressPercent = flowSteps.length > 1 ? ((flowPosition - 1) / (flowSteps.length - 1)) * 100 : 100;
     calcProgressBar.style.width = progressPercent + '%';
 
     // Update back button visibility
     calcBackBtn.hidden = currentStep === 1;
 
-    // Update next button text (preserve icon span)
-    const nextText = calcNextBtn.querySelector('.calc__next-text');
-    if (nextText) {
-      nextText.textContent = currentStep === totalSteps ? 'Получить результат' : 'Далее';
-    }
-
-    // Hide "Next" button on radio steps (auto-advance on select);
-    // keep it only on the area input step (step 3) and on result.
-    const currentField = document.querySelector(`.calc__field[data-step="${currentStep}"]`);
-    const hasRadios = currentField && currentField.querySelector('input[type="radio"]');
-    if (hasRadios && currentStep !== 3) {
+    // Hide "Next" on radio steps; step 1 stays manual to expose the short path.
+    const isSingleChoice = currentField?.dataset.questionType === 'single';
+    const currentQuestion = activeQuestions.find(question => question.id === currentField?.dataset.questionId);
+    const questionRequired = currentQuestion?.required !== false && currentQuestion?.required !== 'no';
+    if (isSingleChoice && questionRequired && currentStep !== 1 && !isCallbackOnlyFlow() && !currentField.querySelector('input[type="radio"]:checked')) {
       calcNextBtn.hidden = true;
     } else {
       calcNextBtn.hidden = false;
+    }
+
+    const nextText = calcNextBtn.querySelector('.calc__next-text');
+    if (nextText) {
+      nextText.textContent = currentStep === areaStep
+        ? isCallbackOnlyFlow() ? 'Попросить перезвонить' : 'Получить результат'
+        : isCallbackOnlyFlow() && currentStep === 1 ? 'Указать площадь' : 'Далее';
     }
   }
 
   // Validate current step
   function validateStep() {
-    // Clear previous calculator error
-    if (calcError) {
-      calcError.textContent = '';
-      calcError.classList.add('hidden');
-      calcArea.classList.remove('invalid');
-    }
-
-    const currentField = document.querySelector(`.calc__field[data-step="${currentStep}"]`);
+    const currentField = getCurrentField();
     if (!currentField) return true;
+    const currentError = currentField.querySelector('.calc__error');
+    if (currentError) {
+      currentError.textContent = '';
+      currentError.hidden = true;
+    }
+    if (currentField === calcAreaField) calcArea.classList.remove('invalid');
 
-    // Check required radio buttons
-    const radioGroups = currentField.querySelectorAll('input[type="radio"]');
-    let allRadiosChecked = true;
-    radioGroups.forEach(radioGroup => {
-      // Group by name
-      const groupName = radioGroup.name;
-      const checked = currentField.querySelector(`input[name="${groupName}"]:checked`);
-      if (!checked) allRadiosChecked = false;
-    });
-    if (!allRadiosChecked) return false;
+    if (isCallbackOnlyFlow()) return true;
 
-    // Additional validation
-    if (currentStep === 3) { // Area step
-      const areaVal = parseFloat(calcArea.value);
-      if (isNaN(areaVal)) {
-        // Empty or non-numeric input
-        if (calcArea.value.trim() === '') {
-          showCalcError('Пожалуйста, введите площадь квартиры');
-        } else {
-          showCalcError('Площадь должна быть числом');
-        }
+    if (currentField === calcAreaField) {
+      if (!calcArea.value.trim() && !hasSelectedPerM2Rate()) return true;
+      const area = Number(calcArea.value);
+      if (!calcArea.value.trim() || !Number.isFinite(area)) {
+        showCalcError(calcArea.value.trim() ? 'Площадь должна быть числом' : 'Пожалуйста, введите площадь квартиры');
         calcArea.classList.add('invalid');
         return false;
       }
-      if (areaVal < 10) {
-        showCalcError('Площадь не может быть меньше 10 м²');
+      if (area < 10 || area > 500) {
+        showCalcError(area < 10 ? 'Площадь не может быть меньше 10 м²' : 'Площадь не может быть больше 500 м²');
         calcArea.classList.add('invalid');
         return false;
       }
-      if (areaVal > 500) {
-        showCalcError('Площадь не может быть больше 500 м²');
-        calcArea.classList.add('invalid');
-        return false;
-      }
-      // Clear error if valid
-      if (calcArea.classList.contains('invalid')) {
-        calcError.classList.add('hidden');
-        calcArea.classList.remove('invalid');
-      }
+      return true;
     }
 
-    if (currentStep === 6) { // Measurement step
-      const checked = currentField.querySelector('input[name="measurement"]:checked');
-      if (!checked) return false;
-    }
+    const question = activeQuestions.find(item => item.id === currentField.dataset.questionId);
+    if (!question) return true;
+    const inputs = [...currentField.querySelectorAll(`input[name="answer-${question.id}"]`)];
+    const hasAnswer = question.type === 'multiple'
+      ? inputs.some(input => input.checked)
+      : question.type === 'single'
+          ? inputs.some(input => input.checked)
+          : question.type === 'number'
+            ? inputs[0]?.value.trim() !== '' && Number.isFinite(Number(inputs[0].value))
+            : inputs[0]?.value.trim() !== '';
+    if (!hasAnswer && (question.required === false || question.required === 'no')) return true;
+    if (hasAnswer) return true;
 
-    return true;
+    const message = question.type === 'multiple' || question.type === 'single'
+      ? 'Выберите ответ'
+      : question.type === 'number' ? 'Введите число' : 'Введите ответ';
+    showCalcError(message);
+    return false;
   }
 
   // Show calculator error message
   function showCalcError(message) {
-    if (!calcError) return;
-    calcError.textContent = message;
-    calcError.classList.remove('hidden');
+    const error = getCurrentField()?.querySelector('.calc__error');
+    if (!error) return;
+    error.textContent = message;
+    error.hidden = false;
   }
 
   // Collect data from current step into calculatorData
   function collectStepData() {
-    const currentField = document.querySelector(`.calc__field[data-step="${currentStep}"]`);
+    const currentField = getCurrentField();
     if (!currentField) return;
+    if (currentField === calcAreaField) {
+      calculatorData.area = calcArea.value;
+      return;
+    }
 
-    const inputs = currentField.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-      if (input.type === 'radio' && input.checked) {
-        calculatorData[input.name] = input.value;
-      } else if (input.type !== 'checkbox' && input.type !== 'submit' && input.type !== 'radio') {
-        calculatorData[input.name] = input.value.trim();
-      } else if (input.type === 'checkbox') {
-        calculatorData[input.name] = input.checked;
+    const question = activeQuestions.find(item => item.id === currentField.dataset.questionId);
+    if (!question) return;
+    const inputs = [...currentField.querySelectorAll(`input[name="answer-${question.id}"]`)];
+    if (question.type === 'single') {
+      calculatorData.selections[question.id] = inputs.find(input => input.checked)?.value ?? null;
+    } else if (question.type === 'multiple') {
+      calculatorData.selections[question.id] = inputs.filter(input => input.checked).map(input => input.value);
+    } else if (question.type === 'number') {
+      calculatorData.selections[question.id] = inputs[0]?.value.trim() ? Number(inputs[0].value) : '';
+    } else {
+      calculatorData.selections[question.id] = inputs[0]?.value.trim() || '';
+    }
+  }
+
+  function getCalculatorResponses() {
+    return activeQuestions.map(question => {
+      const selected = calculatorData.selections[question.id];
+      if (question.type === 'text' || question.type === 'number') {
+        return selected === '' || selected == null
+          ? null
+          : { question: question.question, type: question.type, answer: selected };
       }
-    });
+      const indexes = question.type === 'multiple'
+        ? Array.isArray(selected) ? selected : []
+        : selected == null || selected === '' ? [] : [selected];
+      const answers = indexes.map(value => question.answers[Number(value)]).filter(Boolean).map(answer => ({
+        label: answer.label,
+        pricingType: answer.pricing_type || answer.pricingType || 'none',
+        price: answer.price ?? null
+      }));
+      return answers.length ? { question: question.question, type: question.type, answers } : null;
+    }).filter(Boolean);
   }
 
   // Calculate price
   function calculatePrice() {
-    if (!calculatorData.propertyType || !calculatorData.condition || !calculatorData.area) return null;
-
-    // Rates loaded from /api/sections (calculator section) or fallback to /api/prices
-    const rates = window.SECTION_RATES || {
-      newBuilding: { finished: 4500, unfinished: 5500, whiteBox: 5000 },
-      secondary: { finished: 5000, unfinished: 6000, whiteBox: 5500 }
-    };
-
-    const baseRate = rates[calculatorData.propertyType]?.[calculatorData.condition];
-    if (!baseRate) return null;
-
-    const basePrice = baseRate * parseFloat(calculatorData.area);
-
-    // Project coefficient
-    const projectCoeffs = window.SECTION_COEFFICIENTS || {
-      hasProject: 1.0,
-      needsChanges: 1.3,
-      noProject: 1.5
-    };
-    let totalPrice = basePrice * projectCoeffs[calculatorData.hasProject];
-
-    // Add measurement fee if needed
-    const measurementFee = window.SECTION_MEASUREMENT_FEE ?? 3000;
-    if (calculatorData.measurement === 'yes') {
-      totalPrice += measurementFee;
-    }
-
-    return Math.round(totalPrice);
+    if (calculatorData.callbackOnly) return null;
+    return window.CalculatorPricing?.calculate(activeQuestions, calculatorData.selections, calculatorData.area) || null;
   }
 
   // Format number with spaces
   function formatNumber(num) {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(Number(num));
   }
 
-  // Show result step — replace questions with result
+  function formatResponseValue(response, pricingByAnswer, calculation) {
+    if (!response.answers) return response.answer;
+
+    return response.answers.map(answer => {
+      const key = JSON.stringify([response.question, answer.label]);
+      const pricingItems = pricingByAnswer.get(key);
+      const item = pricingItems?.shift();
+      if (!item) return answer.label;
+
+      const amount = item.pricingType === 'per_m2'
+        ? `${formatNumber(item.unitPrice)} ₽ / м² × ${formatNumber(calculation.area)} м² = ${formatNumber(item.amount)} ₽`
+        : `${formatNumber(item.amount)} ₽ фиксированно`;
+      return `${answer.label} — ${amount}`;
+    }).join(', ');
+  }
+
+  // Show the result for whichever questions and tariffs are configured.
   function showResult() {
-    const price = calculatePrice();
-    if (price) {
-      // Действующие расценки носят ориентировочный характер — показываем
-      // диапазон ±10 %, а не ложную точную цифру. Точная сумма — после
-      // замера и подготовки сметы.
-      const lo = Math.round(price * 0.9);
-      const hi = Math.round(price * 1.1);
-      calcResultValue.textContent = `${formatNumber(lo)} – ${formatNumber(hi)} ₽`;
-      if (calcResultApprox) {
-        calcResultApprox.textContent = 'Ориентировочный диапазон на основе действующих расценок. Точная стоимость — после замера и подготовки сметы.';
-      }
-    } else {
-      calcResultValue.textContent = '— ₽';
+    const calculation = calculatePrice();
+    const price = calculation?.total ?? null;
+    const callbackOnly = calculatorData.callbackOnly;
+    if (callbackOnly) calculatorData.area = null;
+    calculatorData.responses = getCalculatorResponses();
+    calculatorData.pricingBreakdown = calculation?.breakdown || [];
+    calculatorData.calculatedPrice = price;
+
+    calcResultValue.textContent = callbackOnly
+      ? 'Заявка на звонок'
+      : price == null
+        ? 'Нужна консультация'
+        : `${formatNumber(price)} ₽`;
+    if (calcResultApprox) {
+      calcResultApprox.textContent = callbackOnly
+        ? 'Оставьте контакты — мастер перезвонит и обсудит ремонт. Расчёт не выполнялся.'
+        : price == null
+          ? 'Для выбранных вариантов не настроена цена. Оставьте заявку — мастер уточнит стоимость по телефону.'
+          : 'Предварительная смета рассчитана по выбранным вариантам. Итог уточняется после замера.';
     }
 
-    // Update params display
-    calcParams.property.textContent =
-      calculatorData.propertyType === 'newBuilding' ? 'Новостройка' : 'Вторичное жильё';
-    calcParams.condition.textContent =
-      calculatorData.condition === 'finished' ? 'Есть ремонт' :
-      calculatorData.condition === 'unfinished' ? 'Без отделки' : 'White Box';
-    calcParams.area.textContent = `${calculatorData.area} м²`;
-    calcParams.project.textContent =
-      calculatorData.hasProject === 'hasProject' ? 'Есть проект' :
-      calculatorData.hasProject === 'needsChanges' ? 'Есть проект, нужны правки' : 'Нет проекта';
+    calcResultParams.replaceChildren();
+    const addResultRow = (label, value) => {
+      if (value == null || value === '') return;
+      const row = document.createElement('div');
+      row.className = 'calc__result__params__row';
+      const term = document.createElement('dt');
+      term.textContent = label;
+      const description = document.createElement('dd');
+      description.textContent = String(value);
+      row.append(term, description);
+      calcResultParams.appendChild(row);
+    };
+    if (calculatorData.area != null && calculatorData.area !== '') {
+      addResultRow('Площадь', `${formatNumber(calculatorData.area)} м²`);
+    }
+    const pricingByAnswer = new Map();
+    calculatorData.pricingBreakdown.forEach(item => {
+      const key = JSON.stringify([item.question, item.answer]);
+      if (!pricingByAnswer.has(key)) pricingByAnswer.set(key, []);
+      pricingByAnswer.get(key).push(item);
+    });
+    calculatorData.responses.forEach(response => {
+      addResultRow(response.question, formatResponseValue(response, pricingByAnswer, calculation));
+    });
+
+    const applicationLink = calcResult.querySelector('.calc__result__cta a[href="#application"]');
+    if (applicationLink) {
+      applicationLink.textContent = callbackOnly || price == null
+        ? 'Оставить заявку на звонок'
+        : 'Оставить заявку';
+    }
 
     // Replace questions area with result — only the result stays visible
-    calcSteps.forEach(step => {
+    getCalcSteps().forEach(step => {
       step.hidden = true;
       step.classList.remove('step-out', 'step-in');
     });
@@ -390,28 +568,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Reset calculator
   function resetCalculator() {
-    // Reset data
-    Object.keys(calculatorData).forEach(key => calculatorData[key] = null);
-    calculatorData.address = '';
+    Object.assign(calculatorData, {
+      selections: {},
+      responses: [],
+      pricingBreakdown: [],
+      area: null,
+      callbackOnly: false,
+      calculatedPrice: null
+    });
 
     // Reset UI
     currentStep = 1;
-    calcSteps.forEach(step => {
+    getCalcSteps().forEach(step => {
       step.hidden = false;
       step.classList.remove('step-out', 'step-in');
     });
+    calcCallbackOnly.checked = false;
+    calcResultParams.replaceChildren();
     calcMeta.hidden = false;
     calcBody.hidden = false;
     calcFooter.hidden = false;
     calcResult.classList.remove('step-in');
     calcResult.hidden = true;
     calcNextBtn.hidden = false;
-    calcNextBtn.textContent = 'Далее';
     calcBackBtn.hidden = true;
     calcBackBtn.textContent = 'Назад';
 
     // Clear inputs
-    calcSteps.forEach(step => {
+    getCalcSteps().forEach(step => {
       const inputs = step.querySelectorAll('input, select, textarea');
       inputs.forEach(input => {
         if (input.type === 'radio' || input.type === 'checkbox') {
@@ -425,43 +609,44 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reset progress
     calcProgressBar.style.width = '0%';
     updateStepUI({ focus: false });
+    const formCalculatorData = document.getElementById('formCalculatorData');
+    if (formCalculatorData) formCalculatorData.value = '';
 
     // Focus first input
     setTimeout(() => {
-      const firstInput = calcSteps[0].querySelector('input[type="radio"]');
+      const firstInput = getCurrentField()?.querySelector('input, select, textarea');
       if (firstInput) firstInput.focus({ preventScroll: true });
     }, 100);
   }
 
   // Event listeners
   calcNextBtn.addEventListener('click', () => {
-    if (currentStep === totalSteps) {
-      // On final step, show result if valid
-      if (validateStep()) {
-        collectStepData();
+    if (!validateStep()) return;
+    collectStepData();
+
+    if (currentStep === 1) {
+      if (isCallbackOnlyFlow()) {
         showResult();
-      }
-    } else {
-      // Normal navigation
-      if (validateStep()) {
-        collectStepData();
-        currentStep++;
-        if (currentStep > totalSteps) {
-          showResult();
-        } else {
-          updateStepUI();
-        }
+        return;
       }
     }
+
+    if (currentStep >= areaStep) {
+      showResult();
+      return;
+    }
+
+    currentStep++;
+    updateStepUI();
   });
 
   calcBackBtn.addEventListener('click', () => {
-    if (currentStep === totalSteps || calcBackBtn.textContent === 'Начать заново') {
+    if (calcBackBtn.textContent === 'Начать заново') {
       // Reset from result screen
       resetCalculator();
     } else if (currentStep > 1) {
       // Normal back
-      currentStep--;
+      currentStep = currentStep === areaStep && isCallbackOnlyFlow() ? 1 : currentStep - 1;
       updateStepUI();
     }
   });
@@ -473,42 +658,32 @@ document.addEventListener('DOMContentLoaded', () => {
   // AUTO-ADVANCE on radio select
   // ============================================================
   // When user picks a radio option, automatically advance to next step.
-  // No auto-advance for text/number inputs — user must click "Далее".
+  // Multiple-choice and free-text answers require the explicit next button.
   // Each question fades out and the next fades in — no page scroll.
-  const allRadios = document.querySelectorAll('.calc__field input[type="radio"]');
-  allRadios.forEach(radio => {
-    radio.addEventListener('change', () => {
-      setTimeout(() => {
-        collectStepData();
-        // Fade out current question
-        const currentField = document.querySelector(`.calc__field[data-step="${currentStep}"]`);
-        if (currentField) currentField.classList.add('step-out');
+  calcBody.addEventListener('change', event => {
+    const radio = event.target;
+    if (!radio.matches('.calc__field input[type="radio"]') || currentStep === 1 || isCallbackOnlyFlow()) return;
+    const selectedStep = currentStep;
+    const currentField = getCurrentField();
+    if (!currentField?.contains(radio)) return;
 
-        setTimeout(() => {
-          currentStep++;
-          if (currentStep <= totalSteps) {
-            updateStepUI();
-            // Fade in next question
-            const nextField = document.querySelector(`.calc__field[data-step="${currentStep}"]`);
-            if (nextField) {
-              nextField.classList.remove('step-out');
-              nextField.classList.add('step-in');
-            }
-          } else {
-            // All steps done — show result with fade
-            const result = document.getElementById('calcResult');
-            if (result) {
-              result.classList.add('step-in');
-              showResult();
-            }
-          }
-        }, 300);
-      }, 200);
-    });
+    setTimeout(() => {
+      if (currentStep !== selectedStep || !currentField.contains(radio)) return;
+      collectStepData();
+      currentField.classList.add('step-out');
+
+      setTimeout(() => {
+        if (currentStep !== selectedStep) return;
+        currentStep++;
+        updateStepUI();
+        const nextField = getCurrentField();
+        nextField?.classList.remove('step-out');
+        nextField?.classList.add('step-in');
+      }, 300);
+    }, 200);
   });
 
   // Transfer calculator data to form hidden field when navigating from calculator
-  const calculatorNextBtn = document.getElementById('calcNext');
   const calculatorResult = document.getElementById('calcResult');
   const formCalculatorData = document.getElementById('formCalculatorData');
 
@@ -517,22 +692,27 @@ document.addEventListener('DOMContentLoaded', () => {
   calcToApplicationLinks.forEach(link => {
     link.addEventListener('click', () => {
       if (calculatorResult && !calculatorResult.hidden) {
-        const price = calculatePrice();
-        const area = calculatorData.area || '—';
-        const property = calculatorData.propertyType === 'newBuilding' ? 'Новостройка' : 'Вторичное жильё';
-        const condition = calculatorData.condition === 'finished' ? 'Есть ремонт' :
-                          calculatorData.condition === 'unfinished' ? 'Без отделки' : 'White Box';
-        const project = calculatorData.hasProject === 'hasProject' ? 'Есть проект' :
-                          calculatorData.hasProject === 'needsChanges' ? 'Есть проект, нужны правки' : 'Нет проекта';
-        let params = '';
-        if (price) {
-          params = `Тип объекта: ${property}\nСостояние: ${condition}\nПлощадь: ${area} м²\nПроект: ${project}\nПредварительный расчёт: ${formatNumber(price)} ₽\nОриентировочный расчёт. Цены не final.`;
-        }
-        if (formCalculatorData) {
-          formCalculatorData.value = params || '';
+        const calculation = calculatePrice();
+        const price = calculation?.total ?? null;
+        calculatorData.responses = getCalculatorResponses();
+        calculatorData.pricingBreakdown = calculation?.breakdown || [];
+        calculatorData.calculatedPrice = price;
+        const params = {
+          ...calculatorData,
+          requestType: calculatorData.callbackOnly || price == null ? 'callback' : 'estimate'
+        };
+      if (formCalculatorData) {
+          formCalculatorData.value = JSON.stringify(params);
         }
       }
     });
+  });
+
+  calcBody.addEventListener('input', event => {
+    const field = event.target.closest('.calc__field');
+    const error = field?.querySelector('.calc__error');
+    if (error) error.hidden = true;
+    if (event.target === calcArea) calcArea.classList.remove('invalid');
   });
 
   // ============================================================
@@ -603,6 +783,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (hiddenData) {
         try {
           payload.calculator_data = JSON.parse(hiddenData);
+          const calculatedPrice = payload.calculator_data.calculatedPrice;
+          payload.calculated_price = Number.isFinite(calculatedPrice) ? calculatedPrice : null;
         } catch (err) {
           payload.calculator_data = { raw: hiddenData };
         }
