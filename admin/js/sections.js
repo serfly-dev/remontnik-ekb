@@ -10,8 +10,9 @@ const SECTION_KEYS = [
   { key: 'services', label: 'Услуги', description: 'Карточки услуг мастера с описанием и списком работ' },
   { key: 'gallery', label: 'Галерея', description: 'Фото работ клиентов: пары изображений до/после' },
   { key: 'clientVideo', label: 'Видео клиента', description: 'Видеоотзывы, которые выводятся на главной странице' },
-  { key: 'variants', label: 'Варианты', description: 'Форматы работы: "Замер" и "Замер + материалы" с ценами и этапами' },
-  { key: 'calculator', label: 'Калькулятор', description: 'Вопросы, варианты ответов и расценки за м² или фиксированно' },
+  { key: 'variants', label: 'Варианты', description: 'Неограниченное число форматов работы и один рекомендуемый вариант' },
+  { key: 'calculator', label: 'Калькулятор', description: 'Сценарии, вопросы, единицы измерения и правила расчёта' },
+  { key: 'navigation', label: 'Навигация', description: 'Пункты меню для настольной и мобильной версии сайта' },
   { key: 'cta', label: 'Контакты', description: 'Финальный блок: призыв к действию, телефон, Telegram и WhatsApp' },
   { key: 'faq', label: 'Вопросы', description: 'Частые вопросы и ответы для посетителей' },
   { key: 'process', label: 'Процесс', description: 'Пошаговый путь клиента от заявки до результата' },
@@ -158,27 +159,20 @@ const SECTION_FIELDS = {
   variants: {
     fields: [
       { name: 'title', type: 'text', label: 'Заголовок' },
-      { name: 'option1', type: 'object', label: 'Вариант 1', itemFields: [
+      { name: 'items', type: 'repeater', label: 'Форматы работы', itemFields: [
         { name: 'num', type: 'text', label: 'Номер' },
         { name: 'title', type: 'text', label: 'Название' },
         { name: 'price', type: 'number', label: 'Цена (₽)' },
         { name: 'desc', type: 'textarea', label: 'Описание' },
-        { name: 'steps', type: 'repeater', label: 'Этапы', itemFields: [
-          { name: '', type: 'text', label: 'Этап' }
+        { name: 'include', type: 'repeater', label: 'Что входит', itemFields: [
+          { name: '', type: 'text', label: 'Пункт' }
         ]},
-        { name: 'cta', type: 'text', label: 'Текст кнопки' },
-        { name: 'cta_href', type: 'text', label: 'Ссылка кнопки' }
-      ]},
-      { name: 'option2', type: 'object', label: 'Вариант 2', itemFields: [
-        { name: 'num', type: 'text', label: 'Номер' },
-        { name: 'title', type: 'text', label: 'Название' },
-        { name: 'price', type: 'number', label: 'Цена (₽)' },
-        { name: 'desc', type: 'textarea', label: 'Описание' },
         { name: 'steps', type: 'repeater', label: 'Этапы', itemFields: [
           { name: '', type: 'text', label: 'Этап' }
         ]},
         { name: 'cta', type: 'text', label: 'Текст кнопки' },
         { name: 'cta_href', type: 'text', label: 'Ссылка кнопки' },
+        { name: 'badge', type: 'text', label: 'Подпись-бейдж (необязательно)' },
         { name: 'is_featured', type: 'checkbox', label: 'Рекомендуемый' }
       ]},
       { name: 'compare', type: 'object', label: 'Сравнение', itemFields: [
@@ -216,28 +210,89 @@ const SECTION_FIELDS = {
   calculator: {
     fields: [
       { name: 'title', type: 'text', label: 'Заголовок' },
-      { name: 'area_question', type: 'text', label: 'Вопрос о площади' },
+      { name: 'scenario_question', type: 'text', label: 'Вопрос выбора сценария' },
       { name: 'callback_label', type: 'text', label: 'Текст заявки без расчёта' },
-      { name: 'questions', type: 'repeater', label: 'Вопросы калькулятора', description: 'Вопросы выводятся по порядку. Для вариантов можно выбрать доплату за м² площади пола, фиксированную доплату или вариант без цены. Чтобы цена считалась, задайте тариф хотя бы одному выбранному варианту.', itemFields: [
-        { name: 'question', type: 'text', label: 'Текст вопроса' },
-        { name: 'type', type: 'select', label: 'Тип ответа', options: [
-          { value: 'single', label: 'Один вариант' },
-          { value: 'multiple', label: 'Несколько вариантов' },
-          { value: 'text', label: 'Текстовый ответ' },
-          { value: 'number', label: 'Числовой ответ' }
+      { name: 'sidebar_content_type', type: 'select', label: 'Содержимое левой колонки', options: [
+        { value: 'none', label: 'Не показывать' },
+        { value: 'text', label: 'Текст' },
+        { value: 'image', label: 'Фотография' }
+      ]},
+      { name: 'sidebar_text', type: 'textarea', label: 'Текст левой колонки' },
+      { name: 'sidebar_image', type: 'image', label: 'Фотография левой колонки' },
+      { name: 'scenarios', type: 'repeater', label: 'Сценарии расчёта', description: 'Добавляйте «Вся квартира», комнаты, зоны и другие расчёты. У каждого сценария свои вопросы и варианты.', itemFields: [
+        { name: 'key', type: 'text', label: 'Ключ сценария (необязательно)' },
+        { name: 'name', type: 'text', label: 'Название сценария' },
+        { name: 'area_question', type: 'text', label: 'Подпись количества площади' },
+        { name: 'area_position', type: 'select', label: 'Когда спрашивать площадь', options: [
+          { value: 'start', label: 'До остальных вопросов' },
+          { value: 'end', label: 'После остальных вопросов' }
         ]},
-        { name: 'required', type: 'select', label: 'Обязательный вопрос', options: [
+        { name: 'area_required', type: 'select', label: 'Площадь обязательна', options: [
           { value: 'yes', label: 'Да' },
           { value: 'no', label: 'Нет' }
         ]},
-        { name: 'answers', type: 'repeater', label: 'Варианты ответа', itemFields: [
-          { name: 'label', type: 'text', label: 'Текст варианта' },
-          { name: 'pricing_type', type: 'select', label: 'Расценка', options: [
-            { value: 'none', label: 'Без доплаты' },
-            { value: 'per_m2', label: 'Цена за м² площади пола' },
-            { value: 'fixed', label: 'Фиксированная цена' }
+        { name: 'area_min', type: 'number', label: 'Минимальная площадь', min: 0, step: 'any' },
+        { name: 'area_max', type: 'number', label: 'Максимальная площадь', min: 0, step: 'any' },
+        { name: 'questions', type: 'repeater', label: 'Вопросы и параметры', itemFields: [
+          { name: 'key', type: 'text', label: 'Ключ вопроса (для источника количества)' },
+          { name: 'question', type: 'text', label: 'Текст вопроса' },
+          { name: 'type', type: 'select', label: 'Тип ответа', options: [
+            { value: 'single', label: 'Один вариант' },
+            { value: 'multiple', label: 'Несколько вариантов' },
+            { value: 'text', label: 'Текстовый ответ' },
+            { value: 'number', label: 'Количество (число)' }
           ]},
-          { name: 'price', type: 'number', label: 'Цена, ₽', min: 0, step: 'any' }
+          { name: 'required', type: 'select', label: 'Обязательный вопрос', options: [
+            { value: 'yes', label: 'Да' },
+            { value: 'no', label: 'Нет' }
+          ]},
+          { name: 'unit', type: 'select', label: 'Единица числового вопроса', options: [
+            { value: 'м²', label: 'м²' },
+            { value: 'п.м.', label: 'погонный метр' },
+            { value: 'шт.', label: 'штука' },
+            { value: 'компл.', label: 'комплект' }
+          ]},
+          { name: 'min', type: 'number', label: 'Минимальное значение', min: 0, step: 'any' },
+          { name: 'max', type: 'number', label: 'Максимальное значение', min: 0, step: 'any' },
+          { name: 'answers', type: 'repeater', label: 'Варианты ответа', itemFields: [
+            { name: 'label', type: 'text', label: 'Текст варианта' },
+            { name: 'enabled', type: 'select', label: 'Включён', options: [
+              { value: 'yes', label: 'Да' },
+              { value: 'no', label: 'Нет' }
+            ]},
+            { name: 'pricing_type', type: 'select', label: 'Расценка / единица', options: [
+              { value: 'none', label: 'Без доплаты' },
+              { value: 'per_m2', label: 'Цена за м²' },
+              { value: 'per_linear_m', label: 'Цена за погонный метр' },
+              { value: 'per_piece', label: 'Цена за штуку' },
+              { value: 'per_set', label: 'Цена за комплект' },
+              { value: 'fixed', label: 'Фиксированная цена' }
+            ]},
+            { name: 'quantity_source', type: 'select', label: 'Источник количества', options: [
+              { value: 'area', label: 'Площадь сценария (м²)' }
+            ]},
+            { name: 'price', type: 'number', label: 'Цена, ₽', min: 0, step: 'any' }
+          ]}
+        ]}
+      ]}
+    ]
+  },
+  navigation: {
+    fields: [
+      { name: 'links', type: 'repeater', label: 'Ссылки в меню', itemFields: [
+        { name: 'label', type: 'text', label: 'Название пункта меню' },
+        { name: 'target', type: 'select', label: 'Раздел сайта', options: [
+          { value: '#hero', label: 'Главная' },
+          { value: '#services', label: 'Услуги' },
+          { value: '#formats', label: 'Форматы работы' },
+          { value: '#gallery', label: 'Портфолио' },
+          { value: '#clientVideo', label: 'Видео клиента' },
+          { value: '#about', label: 'Обо мне' },
+          { value: '#faq', label: 'Вопросы' },
+          { value: '#calculator', label: 'Калькулятор' },
+          { value: '#application', label: 'Заявка' },
+          { value: '#contacts', label: 'Контакты' },
+          { value: '#process', label: 'Процесс' }
         ]}
       ]}
     ]
@@ -258,6 +313,18 @@ const SECTION_FIELDS = {
     ]
   }
 };
+
+function defaultNavigationLinks() {
+  return [
+    { label: 'Портфолио', target: '#gallery' },
+    { label: 'Услуги', target: '#services' },
+    { label: 'Форматы', target: '#formats' },
+    { label: 'Обо мне', target: '#about' },
+    { label: 'Вопросы', target: '#faq' },
+    { label: 'Калькулятор', target: '#calculator' },
+    { label: 'Контакты', target: '#contacts' }
+  ];
+}
 
 // DOM elements
 const tabsNav = document.getElementById('sectionsTabs');
@@ -367,7 +434,15 @@ window.selectTab = selectTab;
 
 async function fetchSection(key) {
   if (sectionCache.has(key)) return sectionCache.get(key);
-  const res = await api.get(`/api/sections/${key}`);
+  let res;
+  try {
+    res = await api.get(`/api/sections/${key}`);
+  } catch (err) {
+    if (key !== 'navigation' || err.status !== 404) throw err;
+    const section = { key, title: 'Навигация', content: { links: defaultNavigationLinks() } };
+    sectionCache.set(key, section);
+    return section;
+  }
   if (!res.success) throw new Error(res.message);
   sectionCache.set(key, res.data);
   return res.data;
@@ -382,11 +457,49 @@ function renderEditor(key, section) {
 
   const content = { ...(section.content || {}) };
   if (key === 'calculator') {
-    content.area_question ||= 'Площадь квартиры по полу';
     content.callback_label ||= 'Хочу оставить только заявку на звонок — без расчёта';
-    if (!Array.isArray(content.questions)) {
-      content.questions = window.CalculatorPricing.fromLegacyConfig(content);
+    content.scenario_question ||= 'Что будем рассчитывать?';
+    content.scenarios = window.CalculatorPricing.normalizeScenarios(content).map((scenario, scenarioIndex) => ({
+      ...scenario,
+      key: scenario.key || `scenario-${scenarioIndex + 1}`,
+      area_required: scenario.area_required === false || scenario.area_required === 'no' ? 'no' : 'yes',
+      area_position: scenario.area_position === 'start' ? 'start' : 'end',
+      questions: (scenario.questions || []).map((question, questionIndex) => ({
+        ...question,
+        key: question.key || question.id || `question-${questionIndex + 1}`,
+        required: question.required === false || question.required === 'no' ? 'no' : 'yes',
+        answers: (question.answers || []).map(answer => ({ ...answer, enabled: answer.enabled === false || answer.enabled === 'no' ? 'no' : 'yes' }))
+      }))
+    }));
+    content.sidebar_content_type ||= content.sidebar_image ? 'image' : content.sidebar_text ? 'text' : 'none';
+    content.sidebar_text ||= '';
+    content.sidebar_image ||= '';
+  }
+  if (key === 'variants') {
+    if (!Array.isArray(content.items)) {
+      content.items = [content.option1, content.option2]
+        .filter(item => item && (item.title || item.desc || item.price != null))
+        .map((item, index) => ({
+          ...item,
+          num: item.num || String(index + 1).padStart(2, '0'),
+          badge: item.badge || item.num_badge || '',
+          is_featured: item.is_featured === true || item.is_featured === 'true' || item.is_featured === 'on'
+        }));
     }
+    let featuredAssigned = false;
+    content.items = content.items.map((item, index) => {
+      const featured = !featuredAssigned && (item.is_featured === true || item.is_featured === 'true' || item.is_featured === 'on');
+      featuredAssigned ||= featured;
+      return {
+        ...item,
+        num: item.num || String(index + 1).padStart(2, '0'),
+        badge: item.badge || item.num_badge || '',
+        is_featured: featured
+      };
+    });
+  }
+  if (key === 'navigation' && !Array.isArray(content.links)) {
+    content.links = defaultNavigationLinks();
   }
   const title = section.title || key;
 
@@ -397,6 +510,10 @@ function renderEditor(key, section) {
     </div>
     <form class="section-editor__form" data-section="${escapeHtml(key)}">
   `;
+
+  if (key === 'calculator') {
+    html += renderCalculatorInstructions();
+  }
 
   for (const field of config.fields) {
     html += renderField(field, content[field.name]);
@@ -430,9 +547,24 @@ function renderEditor(key, section) {
   const resetBtn = document.getElementById('resetBtn');
 
   if (key === 'calculator') {
-    form.addEventListener('input', () => refreshCalculatorSummary(form));
-    form.addEventListener('change', () => refreshCalculatorSummary(form));
+    form.addEventListener('input', () => {
+      populateCalculatorQuantitySources(form);
+      refreshCalculatorSummary(form);
+    });
+    form.addEventListener('change', () => {
+      populateCalculatorQuantitySources(form);
+      refreshCalculatorSummary(form);
+    });
+    populateCalculatorQuantitySources(form);
     refreshCalculatorSummary(form);
+  }
+  if (key === 'variants') {
+    form.addEventListener('change', event => {
+      if (!event.target.matches('input[type="checkbox"][name$=".is_featured"]') || !event.target.checked) return;
+      form.querySelectorAll('input[type="checkbox"][name$=".is_featured"]').forEach(input => {
+        if (input !== event.target) input.checked = false;
+      });
+    });
   }
 
   // Add event listeners for field-level info circles
@@ -568,6 +700,48 @@ function renderField(field, value, pathPrefix) {
   return html;
 }
 
+function renderCalculatorInstructions() {
+  return `
+    <details class="calculator-guide" open>
+      <summary class="calculator-guide__title">Инструкция по настройке калькулятора</summary>
+      <div class="calculator-guide__content">
+        <ol>
+          <li>
+            <strong>Создайте сценарии расчёта.</strong>
+            Каждый сценарий — отдельный расчёт, например «Вся квартира», «Ванная» или «Балкон».
+            Укажите название и подпись площади, выберите, когда спрашивать площадь, задайте обязательность и допустимый диапазон.
+          </li>
+          <li>
+            <strong>Добавьте вопросы в нужном порядке.</strong>
+            «Один вариант» разрешает выбрать один ответ, «Несколько вариантов» — несколько ответов с суммированием их цен,
+            «Количество (число)» запрашивает число, а «Текстовый ответ» собирает комментарий и не влияет на стоимость.
+            Для числового вопроса задайте единицу, границы и уникальный ключ: он появится в списке источников количества для тарифов.
+          </li>
+          <li>
+            <strong>Настройте варианты и цены.</strong>
+            Заполните название каждого варианта и включите его. «Без доплаты» не меняет сумму;
+            для платного ответа укажите цену и тип расценки:
+            цена за м² умножается на площадь сценария, цена за погонный метр / штуку / комплект — на число из выбранного числового вопроса,
+            а фиксированная цена добавляется один раз без умножения.
+            Например: 1&nbsp;200 ₽/м² × 40 м² = 48&nbsp;000 ₽; 2&nbsp;500 ₽/шт. × 3 шт. = 7&nbsp;500 ₽.
+          </li>
+          <li>
+            <strong>Свяжите тариф с количеством.</strong>
+            Для переменной расценки выберите источник количества: площадь сценария или числовой вопрос.
+            Для оплаты за штуку выбирайте поле с количеством штук, для погонного метра — поле длины и т. п.; единица вопроса должна соответствовать тарифу.
+            Если выбранный платный вариант зависит от площади или числового ответа, это значение должно быть заполнено, иначе калькулятор не рассчитает итог.
+          </li>
+          <li>
+            <strong>Проверьте сводку и сам расчёт.</strong>
+            Сводка ниже обновляется при изменении настроек: проверьте названия, включённые варианты, цены и источники количества.
+            Сохраните секцию, затем пройдите калькулятор на сайте для каждого сценария и проверьте итоговую разбивку.
+          </li>
+        </ol>
+      </div>
+    </details>
+  `;
+}
+
 function renderCalculatorSummaryField(content) {
   return `
     <div class="calculator-summary">
@@ -583,86 +757,142 @@ function refreshCalculatorSummary(form) {
   if (!summary) return;
 
   const content = parseFormData(new FormData(form));
-  content.questions = Array.isArray(content.questions) ? content.questions : [];
+  content.scenarios = Array.isArray(content.scenarios) ? content.scenarios : [];
+  content.scenarios.forEach(scenario => {
+    scenario.questions = Array.isArray(scenario.questions) ? scenario.questions : [];
+    scenario.questions.forEach(question => {
+      question.answers = Array.isArray(question.answers) ? question.answers : [];
+    });
+  });
   content.area_question ||= 'Площадь квартиры по полу';
   content.callback_label ||= 'Хочу оставить только заявку на звонок — без расчёта';
   summary.value = buildCalculatorSummary(content);
 }
 
-function describeCalculatorRate(answer) {
+function populateCalculatorQuantitySources(form) {
+  if (!form) return;
+  const scenarioRepeater = form.querySelector('[data-repeater="scenarios"]');
+  if (!scenarioRepeater) return;
+
+  const scenarios = [...scenarioRepeater.querySelectorAll(':scope > .section-editor__repeater-item')];
+  const quantitySelectors = form.querySelectorAll('select[name$=".quantity_source"]');
+
+  quantitySelectors.forEach(selector => {
+    const scenarioMatch = selector.name.match(/^scenarios\[(\d+)\]/);
+    const scenario = scenarioMatch ? scenarios[Number(scenarioMatch[1])] : null;
+    if (!scenario) return;
+
+    const questionRepeater = [...scenario.querySelectorAll('[data-repeater]')]
+      .find(repeater => /\.questions$/.test(repeater.dataset.repeater));
+    const questionItems = questionRepeater
+      ? [...questionRepeater.querySelectorAll(':scope > .section-editor__repeater-item')]
+      : [];
+    const sources = [{ value: 'area', label: 'Площадь сценария (м²)' }];
+    const usedKeys = new Set(['area']);
+
+    questionItems.forEach((item, index) => {
+      const type = item.querySelector('select[name$=".type"]')?.value;
+      if (type !== 'number') return;
+      const key = String(item.querySelector('input[name$=".key"]')?.value || `question-${index + 1}`).trim();
+      if (!key || usedKeys.has(key)) return;
+      usedKeys.add(key);
+      const title = String(item.querySelector('input[name$=".question"]')?.value || `Вопрос ${index + 1}`).trim();
+      const unit = item.querySelector('select[name$=".unit"]')?.value || '';
+      sources.push({ value: key, label: `${title}${unit ? ` (${unit})` : ''}` });
+    });
+
+    const selected = selector.value;
+    const answerItem = selector.closest('.section-editor__repeater-item');
+    const pricingType = answerItem?.querySelector('select[name$=".pricing_type"]')?.value;
+    selector.replaceChildren(new Option('Выберите источник количества', ''));
+    sources.forEach(source => selector.add(new Option(source.label, source.value)));
+    selector.value = sources.some(source => source.value === selected)
+      ? selected
+      : pricingType === 'per_m2' ? 'area' : '';
+  });
+}
+
+function describeCalculatorRate(answer, quantityLabels = {}) {
   const pricingType = answer?.pricing_type || answer?.pricingType || 'none';
   const rawPrice = answer?.price;
   const hasPrice = rawPrice != null && String(rawPrice).trim() !== '';
   const price = hasPrice ? Number(rawPrice) : null;
 
   if (pricingType === 'none') return 'без доплаты';
-  if (!['per_m2', 'fixed'].includes(pricingType)) return `неизвестный тип расценки «${pricingType}»`;
-  if (price == null) return pricingType === 'per_m2' ? 'цена за м² не задана' : 'фиксированная цена не задана';
+  const rateUnits = { per_m2: 'м²', per_linear_m: 'пог. м', per_piece: 'шт.', per_set: 'компл.' };
+  if (!['per_m2', 'per_linear_m', 'per_piece', 'per_set', 'fixed'].includes(pricingType)) {
+    return `неизвестный тип расценки «${pricingType}»`;
+  }
+  if (price == null) return pricingType === 'fixed' ? 'фиксированная цена не задана' : 'цена за единицу не задана';
   if (!Number.isFinite(price) || price < 0) return 'некорректная цена (укажите число не меньше 0)';
 
   const formattedPrice = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(price);
-  return pricingType === 'per_m2'
-    ? `${formattedPrice} ₽ / м² пола`
-    : `${formattedPrice} ₽ фиксированно`;
+  if (pricingType === 'fixed') return `${formattedPrice} ₽ фиксированно`;
+  const source = answer?.quantity_source || answer?.quantitySource || (pricingType === 'per_m2' ? 'area' : '');
+  const sourceLabel = source === 'area' ? 'площадь сценария' : quantityLabels[source] || source || 'источник количества не выбран';
+  return `${formattedPrice} ₽ / ${rateUnits[pricingType]}; количество из «${sourceLabel}»`;
 }
 
 function buildCalculatorSummary(content = {}) {
-  const questions = Array.isArray(content.questions) ? content.questions : [];
+  const scenarios = Array.isArray(content.scenarios) ? content.scenarios : [];
   const lines = [
     'ПРАВИЛА РАСЧЁТА',
-    'Итог = площадь пола × сумма выбранных тарифов за м² + сумма выбранных фиксированных доплат.',
+    'Итог = сумма стоимости выбранных вариантов: цена за единицу × количество из указанного числового поля; фиксированная цена добавляется один раз.',
     'После сложения итог округляется до целого рубля. Обязательные вопросы нужно заполнить; необязательные можно пропустить.',
-    `Площадь вводится на шаге «${String(content.area_question || 'Площадь квартиры по полу').trim()}». Она нужна для тарифа за м²; если выбраны только фиксированные цены, её можно пропустить. Допустимый диапазон — 10–500 м².`,
-    'Цена за м² умножается на площадь пола; фиксированная цена добавляется один раз; варианты «Без доплаты» в сумму не входят.',
-    'В вопросе с несколькими вариантами цены всех выбранных ответов складываются. Текстовые и числовые ответы сумму не меняют.',
-    'Для расчёта нужна хотя бы одна выбранная расценка. Если у выбранного платного варианта цена не задана или некорректна, числовой итог не формируется.',
+    'Поддерживаются ставки за м², погонный метр, штуку, комплект и фиксированную сумму; варианты «Без доплаты» не входят в сумму.',
+    'В вопросе с несколькими вариантами цены всех выбранных ответов складываются. Числовые ответы становятся источниками количества, если к ним привязан тариф.',
+    'Для расчёта нужна хотя бы одна выбранная расценка с корректной ценой и заполненным источником количества.',
     `Переключатель первого вопроса «${String(content.callback_label || 'Хочу оставить только заявку на звонок — без расчёта').trim()}» отправляет заявку на звонок без расчёта цены.`,
     '',
-    'ВОПРОСЫ И РАСЦЕНКИ'
+    'СЦЕНАРИИ, ВОПРОСЫ И РАСЦЕНКИ'
   ];
 
-  if (!questions.length) {
-    lines.push('Вопросы пока не добавлены.');
+  if (!scenarios.length) {
+    lines.push('Сценарии пока не добавлены.');
     return lines.join('\n');
   }
 
-  questions.forEach((question, questionIndex) => {
-    const questionText = String(question?.question ?? '').trim();
-    const questionType = question?.type || 'single';
-    const typeLabels = {
-      single: 'один вариант',
-      multiple: 'несколько вариантов',
-      text: 'текстовый ответ',
-      number: 'числовой ответ'
-    };
-    const isRequired = question?.required !== 'no' && question?.required !== false;
-    lines.push('', `${questionIndex + 1}. ${questionText || 'Вопрос без названия'} — ${typeLabels[questionType] || 'один вариант'}, ${isRequired ? 'обязательный' : 'необязательный'}.`);
+  scenarios.forEach((scenario, scenarioIndex) => {
+    const scenarioName = String(scenario?.name || '').trim() || `Сценарий ${scenarioIndex + 1} (без названия)`;
+    const questions = Array.isArray(scenario?.questions) ? scenario.questions : [];
+    const minimum = scenario?.area_min == null || scenario.area_min === '' ? 1 : scenario.area_min;
+    const maximum = scenario?.area_max == null || scenario.area_max === '' ? 500 : scenario.area_max;
+    const quantityLabels = Object.fromEntries(questions.filter(question => question.type === 'number').map((question, index) => [
+      question.key || `question-${index + 1}`,
+      `${question.question || `Числовой вопрос ${index + 1}`}${question.unit ? ` (${question.unit})` : ''}`
+    ]));
+    lines.push('', `${scenarioIndex + 1}. ${scenarioName} — площадь: ${scenario.area_question || 'Площадь помещения'}, диапазон ${minimum}–${maximum} м²${scenario.area_required === 'no' || scenario.area_required === false ? ', необязательно' : ', обязательно'}.`);
 
-    if (!questionText) {
-      lines.push('   Не отображается на сайте: заполните текст вопроса.');
-    }
-
-    const answers = Array.isArray(question?.answers) ? question.answers : [];
-    if (questionType === 'text' || questionType === 'number') {
-      lines.push('   Свободный ответ; расценки к нему не применяются.');
-      if (answers.length) {
-        lines.push('   Сохранённые варианты и цены не используются при таком типе ответа:');
-        answers.forEach((answer, answerIndex) => {
-          const label = String(answer?.label ?? '').trim() || `Вариант ${answerIndex + 1} (без названия)`;
-          lines.push(`   • ${label} — ${describeCalculatorRate(answer)} (не участвует в расчёте).`);
-        });
-      }
+    if (!questions.length) {
+      lines.push('   Вопросы пока не добавлены.');
       return;
     }
 
-    const visibleAnswers = answers.filter(answer => String(answer?.label ?? '').trim());
-    if (!visibleAnswers.length) {
-      lines.push('   Нет вариантов с заполненным названием — вопрос не отображается на сайте.');
-    }
+    questions.forEach((question, questionIndex) => {
+      const questionText = String(question?.question ?? '').trim();
+      const questionType = question?.type || 'single';
+      const typeLabels = { single: 'один вариант', multiple: 'несколько вариантов', text: 'текстовый ответ', number: 'числовой ответ' };
+      const isRequired = question?.required !== 'no' && question?.required !== false;
+      lines.push(`   ${scenarioIndex + 1}.${questionIndex + 1} ${questionText || 'Вопрос без названия'} — ${typeLabels[questionType] || 'один вариант'}, ${isRequired ? 'обязательный' : 'необязательный'}.`);
+      if (!questionText) lines.push('      Не отображается на сайте: заполните текст вопроса.');
+      if (questionType === 'number') {
+        lines.push(`      Числовое поле; единица: ${question.unit || 'не выбрана'}.`);
+        return;
+      }
+      if (questionType === 'text') {
+        lines.push('      Свободный текстовый ответ, не участвует в расчёте.');
+        return;
+      }
 
-    answers.forEach((answer, answerIndex) => {
-      const label = String(answer?.label ?? '').trim() || `Вариант ${answerIndex + 1} (без названия, не отображается)`;
-      lines.push(`   • ${label} — ${describeCalculatorRate(answer)}.`);
+      const answers = Array.isArray(question?.answers) ? question.answers : [];
+      if (!answers.some(answer => String(answer?.label ?? '').trim() && answer?.enabled !== 'no' && answer?.enabled !== false)) {
+        lines.push('      Нет включённых вариантов с заполненным названием.');
+      }
+      answers.forEach((answer, answerIndex) => {
+        const label = String(answer?.label ?? '').trim() || `Вариант ${answerIndex + 1} (без названия, не отображается)`;
+        const disabled = answer?.enabled === 'no' || answer?.enabled === false ? ' [выключен]' : '';
+        lines.push(`      • ${label}${disabled} — ${describeCalculatorRate(answer, quantityLabels)}.`);
+      });
     });
   });
 
@@ -1181,7 +1411,7 @@ function renderRepeaterField(field, value) {
   `;
 
   items.forEach((item, index) => {
-    html += renderRepeaterItem(fieldName, itemFields, item, index);
+    html += renderRepeaterItem(fieldName, itemFields, item, index, items.length);
   });
 
   html += `
@@ -1193,7 +1423,7 @@ function renderRepeaterField(field, value) {
   return html;
 }
 
-function renderRepeaterItem(parentName, itemFields, item, index) {
+function renderRepeaterItem(parentName, itemFields, item, index, itemCount = index + 1) {
   const isSimpleArray = itemFields.length === 1 && itemFields[0].name === '';
   const itemData = isSimpleArray ? item : (item || {});
 
@@ -1201,7 +1431,11 @@ function renderRepeaterItem(parentName, itemFields, item, index) {
     <div class="section-editor__repeater-item" data-index="${index}">
       <div class="section-editor__repeater-header">
         <span class="section-editor__repeater-num">${index + 1}</span>
-        <button type="button" class="section-editor__repeater-remove" data-remove-from="${escapeHtml(parentName)}" data-index="${index}">Удалить</button>
+        <div class="section-editor__repeater-actions">
+          <button type="button" class="section-editor__repeater-move" data-move-item="up" aria-label="Переместить выше" ${index === 0 ? 'disabled' : ''}>↑</button>
+          <button type="button" class="section-editor__repeater-move" data-move-item="down" aria-label="Переместить ниже" ${index === itemCount - 1 ? 'disabled' : ''}>↓</button>
+          <button type="button" class="section-editor__repeater-remove" data-remove-from="${escapeHtml(parentName)}" data-index="${index}">Удалить</button>
+        </div>
       </div>
   `;
 
@@ -1244,6 +1478,16 @@ function renderRepeaterItem(parentName, itemFields, item, index) {
           <div class="section-editor__group">
             <label class="section-editor__label">${escapeHtml(subLabel)}</label>
             <textarea name="${escapeHtml(`${parentName}[${index}].${subName}`)}" class="section-editor__textarea">${escapeHtml(subValue)}</textarea>
+          </div>
+        `;
+      } else if (subType === 'checkbox') {
+        const checked = subValue === true || subValue === 'true' || subValue === 'on' || subValue === 'yes';
+        html += `
+          <div class="section-editor__group">
+            <label class="section-editor__label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" name="${escapeHtml(`${parentName}[${index}].${subName}`)}" value="true" ${checked ? 'checked' : ''}>
+              <span>${escapeHtml(subLabel)}</span>
+            </label>
           </div>
         `;
       } else {
@@ -1481,12 +1725,27 @@ async function handleSave(e, key, form, saveBtn) {
     const formData = new FormData(form);
     const content = parseFormData(formData);
     if (key === 'calculator') {
-      content.questions = (Array.isArray(content.questions) ? content.questions : []).map(question => ({
-        ...question,
-        answers: Array.isArray(question.answers) ? question.answers : []
-      }));
+      content.scenarios = Array.isArray(content.scenarios) ? content.scenarios : [];
+      if (!content.scenarios.length) {
+        saveStatusEl.textContent = 'Добавьте хотя бы один сценарий расчёта.';
+        saveStatusEl.classList.add('error');
+        return;
+      }
+      content.scenarios.forEach(scenario => {
+        scenario.questions = Array.isArray(scenario.questions) ? scenario.questions : [];
+        scenario.questions.forEach(question => {
+          question.answers = Array.isArray(question.answers) ? question.answers : [];
+        });
+      });
+      content.questions = [];
       content.area_question ||= 'Площадь квартиры по полу';
       content.callback_label ||= 'Хочу оставить только заявку на звонок — без расчёта';
+    }
+    if (key === 'variants') {
+      content.items = Array.isArray(content.items) ? content.items : [];
+    }
+    if (key === 'navigation') {
+      content.links = Array.isArray(content.links) ? content.links : [];
     }
 
     saveStatusEl.textContent = 'Сохраняю данные...';
@@ -1772,9 +2031,26 @@ function findFieldRecursive(fields, targetName) {
 
 // Handle dynamic events (add/remove repeater items, image preview)
 editorContainer.addEventListener('click', (e) => {
+  const moveButton = e.target.closest('[data-move-item]');
+  if (moveButton) {
+    const item = moveButton.closest('.section-editor__repeater-item');
+    const repeater = item?.parentElement;
+    if (!item || !repeater?.matches('[data-repeater]')) return;
+    const sibling = moveButton.dataset.moveItem === 'up' ? item.previousElementSibling : item.nextElementSibling;
+    if (!sibling?.matches('.section-editor__repeater-item')) return;
+    if (moveButton.dataset.moveItem === 'up') repeater.insertBefore(item, sibling);
+    else repeater.insertBefore(sibling, item);
+    reindexRepeater(repeater.dataset.repeater);
+    const form = editorContainer.querySelector('form');
+  if (currentKey === 'calculator') populateCalculatorQuantitySources(form);
+    refreshCalculatorSummary(form);
+    return;
+  }
+
   // Add repeater item
-  if (e.target.matches('[data-add-to]')) {
-    const repeaterName = e.target.dataset.addTo;
+  const addButton = e.target.closest('[data-add-to]');
+  if (addButton) {
+    const repeaterName = addButton.dataset.addTo;
     const repeater = editorContainer.querySelector(`[data-repeater="${repeaterName}"]`);
     if (repeater) {
       const items = repeater.querySelectorAll(':scope > .section-editor__repeater-item');
@@ -1783,24 +2059,29 @@ editorContainer.addEventListener('click', (e) => {
       const config = SECTION_FIELDS[currentKey];
       const field = findFieldRecursive(config?.fields, repeaterName);
       if (field && field.itemFields) {
-        const html = renderRepeaterItem(repeaterName, field.itemFields, {}, newIndex);
-        e.target.insertAdjacentHTML('beforebegin', html);
+        const html = renderRepeaterItem(repeaterName, field.itemFields, {}, newIndex, newIndex + 1);
+        addButton.insertAdjacentHTML('beforebegin', html);
         reindexRepeater(repeaterName);
-        refreshCalculatorSummary(editorContainer.querySelector('form'));
+        const form = editorContainer.querySelector('form');
+        if (currentKey === 'calculator') populateCalculatorQuantitySources(form);
+        refreshCalculatorSummary(form);
       }
     }
   }
 
   // Remove repeater item
-  if (e.target.matches('[data-remove-from]')) {
-    const repeaterName = e.target.dataset.removeFrom;
-    const index = parseInt(e.target.dataset.index, 10);
+  const removeButton = e.target.closest('[data-remove-from]');
+  if (removeButton) {
+    const repeaterName = removeButton.dataset.removeFrom;
+    const index = parseInt(removeButton.dataset.index, 10);
     const repeater = editorContainer.querySelector(`[data-repeater="${repeaterName}"]`);
     if (repeater) {
       const item = repeater.querySelector(`[data-index="${index}"]`);
       if (item) item.remove();
       reindexRepeater(repeaterName);
-      refreshCalculatorSummary(editorContainer.querySelector('form'));
+      const form = editorContainer.querySelector('form');
+      if (currentKey === 'calculator') populateCalculatorQuantitySources(form);
+      refreshCalculatorSummary(form);
     }
   }
 });
@@ -1867,6 +2148,10 @@ function reindexRepeater(repeaterName) {
     item.querySelector('.section-editor__repeater-num').textContent = index + 1;
     const removeButton = item.querySelector(':scope > .section-editor__repeater-header [data-remove-from]');
     if (removeButton) removeButton.dataset.index = index;
+    const moveUpButton = item.querySelector(':scope > .section-editor__repeater-header [data-move-item="up"]');
+    const moveDownButton = item.querySelector(':scope > .section-editor__repeater-header [data-move-item="down"]');
+    if (moveUpButton) moveUpButton.disabled = index === 0;
+    if (moveDownButton) moveDownButton.disabled = index === items.length - 1;
     // Update input names — only replace the outermost bracket index (the one
     // matching this repeater), preserving inner indices for nested repeaters.
     item.querySelectorAll('[name]').forEach(input => {

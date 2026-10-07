@@ -313,6 +313,50 @@ const SECTIONS = [
   }
 ];
 
+const calculatorSection = SECTIONS.find(section => section.key === 'calculator');
+if (calculatorSection) {
+  const legacyQuestions = calculatorSection.content.questions || [];
+  calculatorSection.content.scenarios = [
+    {
+      key: 'whole-apartment',
+      name: 'Вся квартира',
+      area_question: 'Площадь квартиры по полу',
+      area_position: 'end',
+      area_min: 10,
+      area_max: 500,
+      area_required: 'no',
+      questions: legacyQuestions
+    },
+    {
+      key: 'separate-space',
+      name: 'Отдельное помещение / зона',
+      area_question: 'Площадь помещения',
+      area_position: 'start',
+      area_min: 1,
+      area_max: 500,
+      area_required: 'yes',
+      questions: []
+    }
+  ];
+}
+
+SECTIONS.push({
+  key: 'navigation',
+  title: 'Навигация',
+  content: {
+    links: [
+      { label: 'Портфолио', target: '#gallery' },
+      { label: 'Услуги', target: '#services' },
+      { label: 'Форматы', target: '#formats' },
+      { label: 'Обо мне', target: '#about' },
+      { label: 'Вопросы', target: '#faq' },
+      { label: 'Калькулятор', target: '#calculator' },
+      { label: 'Контакты', target: '#contacts' }
+    ]
+  },
+  order_index: 11
+});
+
 async function seed() {
   console.log('🔧 Seeding sections...\n');
 

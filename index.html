@@ -10,7 +10,7 @@
   <meta name="author" content="Никита Начаткин">
   <link rel="canonical" href="https://remontnik-ekb.ru/">
   <link rel="stylesheet" href="/css/fonts.css">
-  <link rel="stylesheet" href="/css/style.css?v=3">
+  <link rel="stylesheet" href="/css/style.css?v=4">
   <meta property="og:locale" content="ru_RU">
   <meta property="og:site_name" content="РемонтНик квартир">
   <meta property="og:title" content="Ремонт квартир в Екатеринбурге — Никита Начаткин">
@@ -66,14 +66,7 @@
           height="48" aria-hidden="true">
       </a>
       <nav class="nav" aria-label="Основная навигация">
-        <ul class="nav__list">
-          <li><a href="#gallery" class="nav__link">Портфолио</a></li>
-          <li><a href="#services" class="nav__link">Услуги</a></li>
-          <li><a href="#formats" class="nav__link">Форматы</a></li>
-          <li><a href="#about" class="nav__link">Обо мне</a></li>
-          <li><a href="#faq" class="nav__link">Вопросы</a></li>
-          <li><a href="#calculator" class="nav__link">Калькулятор</a></li>
-          <li><a href="#contacts" class="nav__link">Контакты</a></li>
+        <ul class="nav__list" id="headerNavLinks">
         </ul>
       </nav>
       <div class="header__actions">
@@ -97,15 +90,7 @@
     <button class="mobile-menu__close" id="mobileClose" aria-label="Закрыть меню" aria-controls="mobileMenu">
       <span></span><span></span>
     </button>
-    <nav class="mobile-menu__nav" aria-label="Мобильная навигация">
-      <a href="#gallery" class="mobile-menu__link">Портфолио</a>
-      <a href="#services" class="mobile-menu__link">Услуги</a>
-      <a href="#formats" class="mobile-menu__link">Форматы</a>
-      <a href="#about" class="mobile-menu__link">Обо мне</a>
-      <a href="#faq" class="mobile-menu__link">Вопросы</a>
-      <a href="#calculator" class="mobile-menu__link">Калькулятор</a>
-      <a href="#contacts" class="mobile-menu__link">Контакты</a>
-    </nav>
+    <nav class="mobile-menu__nav" id="mobileNavLinks" aria-label="Мобильная навигация"></nav>
     <div class="mobile-menu__cta">
       <a href="#formats" class="btn btn--primary">Забронировать замер</a>
       <a href="tel:+79502085138" class="btn btn--ghost">Позвонить</a>
@@ -165,6 +150,7 @@
               <span class="calc__steps__label" id="calcStepLabel"></span>
             </div>
             <p class="calc__hint" id="calcHint"></p>
+            <div class="calc__sidebar-content" id="calcSidebarContent" hidden></div>
           </div>
           <div class="calc__body" id="calcBody">
             <div id="calcQuestions"></div>
@@ -478,8 +464,8 @@
   <script src="js/vendor/gsap.min.js" defer></script>
   <script src="js/vendor/ScrollTrigger.min.js" defer></script>
   <script src="js/calculator-pricing.js" defer></script>
-  <script src="js/sections-inject.js" defer></script>
-  <script src="js/script.js?v=5" defer></script>
+  <script src="js/sections-inject.js?v=2" defer></script>
+  <script src="js/script.js?v=6" defer></script>
 
   <!-- Cookie banner -->
   <div class="cookie-banner" id="cookieBanner" hidden>

@@ -670,6 +670,33 @@ main { padding: var(--space-7) 0 var(--section-y); }
   border: 1px solid var(--rule);
   border-radius: var(--radius-sm);
 }
+.calculator-guide {
+  padding: 16px;
+  background: var(--bg-deep);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+}
+.calculator-guide__title {
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.calculator-guide__title::marker { color: var(--muted); }
+.calculator-guide__content {
+  margin-top: 14px;
+  color: var(--ink);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+.calculator-guide__content ol {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding-left: 22px;
+}
+.calculator-guide__content li { padding-left: 3px; }
+.calculator-guide__content strong { font-weight: 700; }
 .calculator-summary__label {
   font-size: 0.75rem; font-weight: 700;
   color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;

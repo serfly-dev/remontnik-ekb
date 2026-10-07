@@ -1,4 +1,6 @@
 (function (root) {
+  const VARIABLE_PRICING_TYPES = ['per_m2', 'per_linear_m', 'per_piece', 'per_set'];
+
   function fromLegacyConfig(config = {}) {
     const rates = config.rates || {
       newBuilding: { finished: 4500, unfinished: 5500, whiteBox: 5000 },
@@ -14,7 +16,7 @@
       { value: 'secondary', label: 'Вторичное жильё' }
     ];
     const conditions = [
-      { value: 'finished', label: 'Есть ремонт' },
+      { value: 'finished', label: 'С отделкой' },
       { value: 'unfinished', label: 'Без отделки' },
       { value: 'whiteBox', label: 'White Box' }
     ];
@@ -35,6 +37,7 @@
           answers.push({
             label: `${property.label} · ${condition.label} · ${project.label}`,
             pricing_type: 'per_m2',
+            quantity_source: 'area',
             price: hasRate && hasCoefficient && Number.isFinite(rate) && Number.isFinite(coefficient) && rate >= 0 && coefficient >= 0
               ? rate * coefficient
               : null
@@ -43,14 +46,7 @@
       }
     }
 
-    const questions = [
-      {
-        question: 'Тип объекта, состояние квартиры и проект',
-        type: 'single',
-        answers
-      }
-    ];
-
+    const questions = [{ key: 'legacy-base-rate', question: 'Тип объекта, состояние квартиры и проект', type: 'single', answers }];
     const finishQuestions = [
       ['Отделка стен', 'walls'],
       ['Отделка потолка', 'ceiling'],
@@ -59,11 +55,13 @@
     for (const [question, key] of finishQuestions) {
       if (!Array.isArray(config.finishes?.[key]) || !config.finishes[key].length) continue;
       questions.push({
+        key: `legacy-${key}`,
         question,
         type: 'single',
         answers: config.finishes[key].map(option => ({
           label: option?.name || '',
           pricing_type: 'per_m2',
+          quantity_source: 'area',
           price: option?.price_per_floor_m2 ?? null
         }))
       });
@@ -71,12 +69,14 @@
 
     questions.push(
       {
+        key: 'legacy-start-date',
         question: 'Когда хотите начать ремонт?',
         type: 'single',
         answers: ['Как можно скорее', 'В течение месяца', 'Через 1–3 месяца', 'Позже']
           .map(label => ({ label, pricing_type: 'none', price: null }))
       },
       {
+        key: 'legacy-measurement',
         question: 'Нужен ли замер и подготовка сметы?',
         type: 'single',
         answers: [
@@ -89,67 +89,129 @@
     return questions;
   }
 
-  function calculate(questions, selections, rawArea) {
+  function normalizeScenarios(config = {}) {
+    if (Array.isArray(config.scenarios) && config.scenarios.length) {
+      return config.scenarios.filter(scenario => scenario && String(scenario.name || '').trim()).map((scenario, index) => ({
+        ...scenario,
+        key: String(scenario.key || `scenario-${index + 1}`),
+        name: String(scenario.name).trim(),
+        area_question: scenario.area_question || config.area_question || 'Площадь помещения',
+        area_position: scenario.area_position === 'start' ? 'start' : 'end',
+        area_min: scenario.area_min == null ? 1 : Number(scenario.area_min),
+        area_max: scenario.area_max == null ? 500 : Number(scenario.area_max),
+        area_required: scenario.area_required === false || scenario.area_required === 'no' ? false : true,
+        questions: Array.isArray(scenario.questions) ? scenario.questions : []
+      }));
+    }
+
+    const legacyQuestions = Array.isArray(config.questions) ? config.questions : fromLegacyConfig(config);
+    return [{
+      key: 'whole-apartment',
+      name: 'Вся квартира',
+      area_question: config.area_question || 'Площадь квартиры по полу',
+      area_position: 'end',
+      area_min: 10,
+      area_max: 500,
+      area_required: false,
+      questions: legacyQuestions
+    }];
+  }
+
+  function calculate(questions, selections, rawArea, options = {}) {
     const areaProvided = rawArea != null && String(rawArea).trim() !== '';
     const area = areaProvided ? Number(rawArea) : null;
-    if (!Array.isArray(questions) || !questions.length || (areaProvided && (!Number.isFinite(area) || area < 10 || area > 500))) return null;
+    const areaMin = Number.isFinite(Number(options.areaMin)) ? Number(options.areaMin) : 10;
+    const areaMax = Number.isFinite(Number(options.areaMax)) ? Number(options.areaMax) : 500;
+    if (!Array.isArray(questions) || !questions.length) return null;
+    if (areaProvided && (!Number.isFinite(area) || area < areaMin || area > areaMax)) return null;
 
     let perM2 = 0;
     let fixedTotal = 0;
+    let total = 0;
     let hasPricedSelection = false;
     const breakdown = [];
 
-    for (const question of questions) {
-      if (!['single', 'multiple'].includes(question.type)) continue;
+    for (const [questionIndex, question] of questions.entries()) {
+      if (!['single', 'multiple', 'text', 'number'].includes(question.type)) continue;
+      const questionId = String(question.key || question.id || `question-${questionIndex}`);
+      const selected = selections?.[questionId];
 
-      const selected = selections?.[question.id];
+      if (question.type === 'number' || question.type === 'text') {
+        if (selected == null || selected === '') {
+          if (question.required !== false && question.required !== 'no') return null;
+          continue;
+        }
+        if (question.type === 'number') {
+          const quantity = Number(selected);
+          if (!Number.isFinite(quantity) || quantity < 0) return null;
+          if (question.min != null && quantity < Number(question.min)) return null;
+          if (question.max != null && quantity > Number(question.max)) return null;
+        }
+        continue;
+      }
+
+      const enabledAnswers = (question.answers || []).filter(answer => answer?.enabled !== false && answer?.enabled !== 'no' && answer?.enabled !== 'off');
+      if (!enabledAnswers.length) continue;
       const selectedIndexes = question.type === 'multiple'
         ? Array.isArray(selected) ? selected : []
         : selected == null || selected === '' ? [] : [selected];
-
       if (question.required !== false && question.required !== 'no' && selectedIndexes.length === 0) return null;
+      if (question.type === 'single' && selectedIndexes.length > 1) return null;
 
       for (const rawIndex of selectedIndexes) {
         const index = Number(rawIndex);
         if (!Number.isInteger(index) || index < 0 || !question.answers?.[index]) return null;
 
         const answer = question.answers[index];
+        if (answer.enabled === false || answer.enabled === 'no' || answer.enabled === 'off') return null;
         const pricingType = answer.pricing_type || answer.pricingType || 'none';
         if (pricingType === 'none') continue;
-        if (!['per_m2', 'fixed'].includes(pricingType)) return null;
+        if (!VARIABLE_PRICING_TYPES.includes(pricingType) && pricingType !== 'fixed') return null;
 
         const rawPrice = answer.price;
         if (rawPrice == null || String(rawPrice).trim() === '') return null;
-        const price = Number(rawPrice);
-        if (!Number.isFinite(price) || price < 0) return null;
+        const unitPrice = Number(rawPrice);
+        if (!Number.isFinite(unitPrice) || unitPrice < 0) return null;
 
-        if (pricingType === 'per_m2' && area == null) return null;
-        const amount = pricingType === 'per_m2' ? price * area : price;
+        let quantity = 1;
+        let quantitySource = null;
+        let quantityUnit = null;
+        if (VARIABLE_PRICING_TYPES.includes(pricingType)) {
+          quantitySource = String(answer.quantity_source || answer.quantitySource || (pricingType === 'per_m2' ? 'area' : '')).trim();
+          if (!quantitySource) return null;
+          const rawQuantity = quantitySource === 'area' ? area : selections?.[quantitySource];
+          if (rawQuantity == null || String(rawQuantity).trim() === '') return null;
+          quantity = Number(rawQuantity);
+          if (!Number.isFinite(quantity) || quantity < 0) return null;
+          const quantityQuestion = questions.find((item, sourceIndex) => String(item.key || item.id || `question-${sourceIndex}`) === quantitySource);
+          quantityUnit = quantitySource === 'area' ? 'м²' : String(quantityQuestion?.unit || 'ед.');
+        }
+
+        const amount = pricingType === 'fixed' ? unitPrice : unitPrice * quantity;
         if (!Number.isFinite(amount)) return null;
         hasPricedSelection = true;
-        if (pricingType === 'per_m2') perM2 += price;
-        else fixedTotal += price;
+        total += amount;
+        if (!Number.isFinite(total) || total > Number.MAX_SAFE_INTEGER) return null;
+        if (pricingType === 'per_m2') perM2 += unitPrice;
+        if (pricingType === 'fixed') fixedTotal += unitPrice;
         breakdown.push({
+          questionId,
           question: question.question,
           answer: answer.label,
+          answerIndex: index,
           pricingType,
-          unitPrice: price,
+          quantitySource,
+          quantityUnit,
+          quantity,
+          unitPrice,
           amount
         });
       }
     }
 
-    const total = perM2 * (area ?? 0) + fixedTotal;
     if (!hasPricedSelection || !Number.isFinite(total) || total > Number.MAX_SAFE_INTEGER) return null;
-
-    return {
-      total: Math.round(total),
-      perM2,
-      fixedTotal,
-      area,
-      breakdown
-    };
+    return { total: Math.round(total), perM2, fixedTotal, area, breakdown };
   }
 
-  root.CalculatorPricing = { calculate, fromLegacyConfig };
+  root.CalculatorPricing = { calculate, fromLegacyConfig, normalizeScenarios, VARIABLE_PRICING_TYPES };
 })(globalThis);

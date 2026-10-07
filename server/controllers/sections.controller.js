@@ -7,11 +7,17 @@ const VALID_SECTION_KEYS = [
   'clientVideo',
   'variants',
   'calculator',
+  'navigation',
   'cta',
   'faq',
   'process',
   'applications'
 ];
+
+const VALID_NAVIGATION_TARGETS = new Set([
+  '#hero', '#services', '#formats', '#gallery', '#clientVideo', '#about',
+  '#faq', '#calculator', '#application', '#contacts', '#process'
+]);
 
 // Fields stored in section content that must never leave the server
 // through the public sections list (admin panel still gets full content).
@@ -37,6 +43,34 @@ function stripFileArtifacts(value) {
 
 function isValidKey(key) {
   return VALID_SECTION_KEYS.includes(key);
+}
+
+function isMarked(value) {
+  return value === true || value === 1 || ['true', 'yes', 'on', '1'].includes(String(value).toLowerCase());
+}
+
+function validateSectionContent(key, content) {
+  if (key === 'navigation' && Array.isArray(content?.links)) {
+    for (const link of content.links) {
+      if (link?.target && !VALID_NAVIGATION_TARGETS.has(String(link.target).trim())) {
+        return 'В навигации можно ссылаться только на существующие разделы сайта';
+      }
+      if (String(link?.label || '').trim() && !VALID_NAVIGATION_TARGETS.has(String(link?.target || '').trim())) {
+        return 'Для каждого пункта навигации выберите раздел сайта';
+      }
+    }
+  }
+
+  if (key === 'variants') {
+    const variants = Array.isArray(content?.items)
+      ? content.items
+      : [content?.option1, content?.option2].filter(Boolean);
+    if (variants.filter(item => isMarked(item?.is_featured)).length > 1) {
+      return 'Можно выбрать только один рекомендуемый вариант';
+    }
+  }
+
+  return null;
 }
 
 // Reject content that carries script-capable URL schemes in any string
@@ -140,6 +174,16 @@ export async function upsertSection(req, res) {
         durationMs: Date.now() - startTime
       });
       return res.status(400).json({ success: false, message: 'URL содержит недопустимую схему (javascript:, data:, vbscript:)' });
+    }
+
+    const validationError = validateSectionContent(key, content);
+    if (validationError) {
+      logAdminEvent('ADMIN_DATA_UPDATE_FAILED', req, {
+        sectionKey: key,
+        reason: 'invalid_section_content',
+        durationMs: Date.now() - startTime
+      });
+      return res.status(400).json({ success: false, message: validationError });
     }
 
     const cleaned = stripFileArtifacts(content);

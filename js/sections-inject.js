@@ -28,8 +28,42 @@
   }
 
   function formatPrice(value) {
-    if (typeof value !== 'number') return '';
-    return new Intl.NumberFormat('ru-RU').format(value);
+    if (value == null || String(value).trim() === '' || !Number.isFinite(Number(value))) return '';
+    return new Intl.NumberFormat('ru-RU').format(Number(value));
+  }
+
+  const NAVIGATION_TARGETS = new Set([
+    '#hero', '#services', '#formats', '#gallery', '#clientVideo', '#about',
+    '#faq', '#calculator', '#application', '#contacts', '#process'
+  ]);
+  const DEFAULT_NAVIGATION_LINKS = [
+    { label: 'Портфолио', target: '#gallery' },
+    { label: 'Услуги', target: '#services' },
+    { label: 'Форматы', target: '#formats' },
+    { label: 'Обо мне', target: '#about' },
+    { label: 'Вопросы', target: '#faq' },
+    { label: 'Калькулятор', target: '#calculator' },
+    { label: 'Контакты', target: '#contacts' }
+  ];
+
+  function renderNavigation(content) {
+    const desktopLinks = document.getElementById('headerNavLinks');
+    const mobileLinks = document.getElementById('mobileNavLinks');
+    const links = Array.isArray(content?.links) ? content.links : DEFAULT_NAVIGATION_LINKS;
+    const validLinks = links.filter(link =>
+      link && String(link.label || '').trim() && NAVIGATION_TARGETS.has(String(link.target || '').trim())
+    );
+
+    if (desktopLinks) {
+      desktopLinks.innerHTML = validLinks.map(link => `
+        <li><a href="${sanitizeUrl(link.target)}" class="nav__link">${escapeHtml(String(link.label).trim())}</a></li>
+      `).join('');
+    }
+    if (mobileLinks) {
+      mobileLinks.innerHTML = validLinks.map(link => `
+        <a href="${sanitizeUrl(link.target)}" class="mobile-menu__link">${escapeHtml(String(link.label).trim())}</a>
+      `).join('');
+    }
   }
 
   // ---- HERO (id="hero") ----
@@ -152,46 +186,35 @@
     const root = document.getElementById('formats');
     if (!root) return;
 
-    const o1 = content.option1 || {};
-    const o2 = content.option2 || {};
+    const legacyItems = [content.option1, content.option2].filter(item =>
+      item && (item.title || item.desc || item.price != null)
+    );
+    const items = Array.isArray(content.items) ? content.items : legacyItems;
     const compare = content.compare || {};
+    let featuredAssigned = false;
+    const itemsHtml = items.map((item, index) => {
+      const isFeatured = !featuredAssigned && [true, 'true', 'yes', 'on', 1].includes(item?.is_featured);
+      featuredAssigned ||= isFeatured;
+      const title = String(item?.title || '').trim();
+      const description = String(item?.desc || '').trim();
+      const price = formatPrice(item?.price);
+      const included = Array.isArray(item?.include) ? item.include.filter(Boolean) : [];
+      const steps = Array.isArray(item?.steps) ? item.steps.filter(Boolean) : [];
+      const badge = String(item?.badge || '').trim();
 
-    const format1Html = `
-      <div class="format">
-        <span class="format__num">${escapeHtml(o1.num || '')}</span>
-        <h3 class="format__title">${escapeHtml(o1.title || '')}</h3>
-        <p class="format__desc">${escapeHtml(o1.desc || '')}</p>
-        ${typeof o1.price === 'number' ? `<p class="format__price"><span class="format__price-num">${formatPrice(o1.price)}</span> <span class="format__price-cur">₽</span></p>` : ''}
-        ${Array.isArray(o1.include) && o1.include.length ? `
-        <ul class="format__include">
-          ${o1.include.map(i => `<li>${escapeHtml(i)}</li>`).join('')}
-        </ul>
-        ` : ''}
-        <ol class="format__steps">
-          ${(Array.isArray(o1.steps) ? o1.steps : []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}
-        </ol>
-        <a href="${sanitizeUrl(o1.cta_href || '#')}" class="format__cta btn btn--ghost">${escapeHtml(o1.cta || '')}</a>
-      </div>
-    `;
-
-    const isFeatured = o2.is_featured && o2.is_featured !== 'off';
-    const format2Html = `
-      <div class="format${isFeatured ? ' format--featured' : ''}">
-        <span class="format__num">${escapeHtml(o2.num || '')}</span>
-        <h3 class="format__title">${escapeHtml(o2.title || '')}</h3>
-        <p class="format__desc">${escapeHtml(o2.desc || '')}</p>
-        ${typeof o2.price === 'number' ? `<p class="format__price"><span class="format__price-num">${formatPrice(o2.price)}</span> <span class="format__price-cur">₽</span></p>` : ''}
-        ${Array.isArray(o2.include) && o2.include.length ? `
-        <ul class="format__include">
-          ${o2.include.map(i => `<li>${escapeHtml(i)}</li>`).join('')}
-        </ul>
-        ` : ''}
-        <ol class="format__steps">
-          ${(Array.isArray(o2.steps) ? o2.steps : []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}
-        </ol>
-        <a href="${sanitizeUrl(o2.cta_href || '#')}" class="format__cta btn btn--primary">${escapeHtml(o2.cta || '')}</a>
-      </div>
-    `;
+      return `
+        <article class="format${isFeatured ? ' format--featured' : ''}" data-format-card>
+          ${isFeatured ? '<span class="format__badge">Рекомендуем</span>' : badge ? `<span class="format__badge">${escapeHtml(badge)}</span>` : ''}
+          <span class="format__num">${escapeHtml(item?.num || String(index + 1).padStart(2, '0'))}</span>
+          <h3 class="format__title">${escapeHtml(title)}</h3>
+          ${description ? `<p class="format__desc">${escapeHtml(description)}</p>` : ''}
+          ${price ? `<p class="format__price"><span class="format__price-num">${price}</span> <span class="format__price-cur">₽</span></p>` : ''}
+          ${included.length ? `<ul class="format__include">${included.map(value => `<li>${escapeHtml(value)}</li>`).join('')}</ul>` : ''}
+          ${steps.length ? `<ol class="format__steps">${steps.map(value => `<li>${escapeHtml(value)}</li>`).join('')}</ol>` : ''}
+          ${item?.cta ? `<a href="${sanitizeUrl(item.cta_href || '#')}" class="format__cta btn ${isFeatured ? 'btn--primary' : 'btn--ghost'}">${escapeHtml(item.cta)}</a>` : ''}
+        </article>
+      `;
+    }).join('');
 
     const compareHtml = `
       <div class="formats__compare">
@@ -211,10 +234,10 @@
         <div class="section-head">
           <h2 class="section-title" id="formats-title">${escapeHtml(content.title || '')}</h2>
         </div>
-        <div class="formats__grid">
-          ${format1Html}
-          ${format2Html}
+        <div class="formats__grid" id="formatsGrid">
+          ${itemsHtml}
         </div>
+        ${items.length > 4 ? '<button type="button" class="formats__more" data-formats-more="formatsGrid" aria-controls="formatsGrid" aria-expanded="false">Показать все</button>' : ''}
         ${compareHtml}
       </div>
     `;
@@ -652,6 +675,11 @@
       title,
       areaQuestion: content.area_question || 'Площадь квартиры по полу',
       callbackLabel: content.callback_label || 'Хочу оставить только заявку на звонок — без расчёта',
+      scenario_question: content.scenario_question || 'Что будем рассчитывать?',
+      scenarios: Array.isArray(content.scenarios) ? content.scenarios : [],
+      sidebarContentType: content.sidebar_content_type || 'none',
+      sidebarText: content.sidebar_text || '',
+      sidebarImage: content.sidebar_image || '',
       questions: Array.isArray(content.questions) ? content.questions : window.CalculatorPricing.fromLegacyConfig(content)
     };
     document.dispatchEvent(new CustomEvent('calculatorConfigLoaded', {
@@ -768,6 +796,7 @@
     gallery: renderGallery,
     clientVideo: renderClientVideo,
     calculator: renderCalculator,
+    navigation: renderNavigation,
     cta: renderCta,
     faq: renderFaq,
     process: renderProcess
@@ -794,11 +823,25 @@
           }
         }
       }
+      if (!byKey.navigation) renderNavigation(null);
       document.dispatchEvent(new CustomEvent('sectionsRendered'));
     } catch (err) {
       console.warn('[sections-inject] Could not load sections:', err.message);
+      renderNavigation(null);
     }
   }
+
+  document.addEventListener('click', event => {
+    const button = event.target.closest('[data-formats-more]');
+    if (!button) return;
+    const grid = document.getElementById(button.dataset.formatsMore);
+    if (!grid) return;
+    const expanded = grid.classList.toggle('formats__grid--expanded');
+    button.setAttribute('aria-expanded', String(expanded));
+    button.textContent = expanded ? 'Свернуть' : 'Показать все';
+  });
+
+  renderNavigation(null);
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadSections);

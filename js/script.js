@@ -63,9 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Close menu when clicking a nav link
-    mobileMenu.querySelectorAll('a').forEach((link) => {
-      link.addEventListener('click', () => setMenu(false));
+    // Delegation keeps dynamically loaded navigation links functional.
+    mobileMenu.addEventListener('click', (event) => {
+      if (event.target.closest('a')) setMenu(false);
     });
 
     // Close on Escape
@@ -147,13 +147,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const calcFooter = document.getElementById('calcFooter');
   const calcResultParams = document.getElementById('calcResultParams');
   const calcAreaQuestion = document.getElementById('calcAreaQuestion');
+  const calcSidebarContent = document.getElementById('calcSidebarContent');
 
   let currentStep = 1;
   let activeQuestions = [];
   let areaStep = 1;
+  let lastStep = 1;
+  let calculatorConfig = {};
+  let activeScenario = null;
+  let availableScenarios = [];
+  let hasScenarioSelector = false;
 
   function getCalcSteps() {
-    return [...calcQuestionsContainer.querySelectorAll('.calc__field'), calcAreaField];
+    return [...calcQuestionsContainer.querySelectorAll('.calc__field'), calcAreaField]
+      .sort((left, right) => Number(left.dataset.step) - Number(right.dataset.step));
   }
 
   // Clear calculator error when the user edits the area field
@@ -177,36 +184,46 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pricingType === 'none') return '';
     const price = answer.price == null || String(answer.price).trim() === '' ? null : Number(answer.price);
     if (price == null || !Number.isFinite(price) || price < 0) {
-      return pricingType === 'per_m2' ? 'Цена за м² площади пола не настроена' : 'Фиксированная цена не настроена';
+      return pricingType === 'fixed' ? 'Фиксированная цена не настроена' : 'Цена за единицу не настроена';
     }
-    return pricingType === 'per_m2'
-      ? `${formatNumber(price)} ₽ / м² пола`
-      : `${formatNumber(price)} ₽ фиксированно`;
+    const unitLabels = {
+      per_m2: 'м²',
+      per_linear_m: 'п.м.',
+      per_piece: 'шт.',
+      per_set: 'компл.'
+    };
+    return pricingType === 'fixed'
+      ? `${formatNumber(price)} ₽ фиксированно`
+      : `${formatNumber(price)} ₽ / ${unitLabels[pricingType] || 'ед.'}`;
   }
 
-  function renderQuestions(config = {}) {
-    const questions = Array.isArray(config.questions) ? config.questions : [];
-    activeQuestions = questions.map((question, index) => ({
+  function normalizeScenarioQuestions(scenario) {
+    return (Array.isArray(scenario?.questions) ? scenario.questions : []).map((question, index) => ({
       ...question,
-      id: `question-${index}`,
+      id: String(question?.key || question?.id || `question-${index + 1}`),
       question: String(question?.question ?? '').trim(),
       type: ['single', 'multiple', 'text', 'number'].includes(question?.type) ? question.type : 'single',
+      unit: String(question?.unit || '').trim(),
+      min: question?.min == null || question.min === '' ? null : Number(question.min),
+      max: question?.max == null || question.max === '' ? null : Number(question.max),
+      required: question?.required === false || question?.required === 'no' ? false : true,
       answers: Array.isArray(question?.answers)
         ? question.answers.map(answer => ({
             ...(answer || {}),
-            label: String(answer?.label ?? '').trim()
+            label: String(answer?.label ?? '').trim(),
+            enabled: answer?.enabled === false || answer?.enabled === 'no' || answer?.enabled === 'off' ? false : true
           }))
         : []
-    })).filter(question => question.question && (
-      question.type === 'text' || question.type === 'number' ||
-      question.answers.some(answer => typeof answer?.label === 'string' && answer.label.trim())
-    ));
+      })).filter(question => question.question && (
+        question.type === 'text' || question.type === 'number' ||
+        question.answers.some(answer => typeof answer?.label === 'string' && answer.label.trim() && answer.enabled)
+      ));
+  }
 
-    calcQuestionsContainer.replaceChildren();
-    activeQuestions.forEach((question, questionIndex) => {
+  function createQuestionField(question, questionIndex, firstStep) {
       const field = document.createElement('div');
       field.className = 'calc__field';
-      field.dataset.step = String(questionIndex + 1);
+      field.dataset.step = String(firstStep + questionIndex);
       field.dataset.questionId = question.id;
       field.dataset.questionType = question.type;
 
@@ -220,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
         options.className = 'calc__options';
         const inputType = question.type === 'multiple' ? 'checkbox' : 'radio';
         question.answers.forEach((answer, answerIndex) => {
-          if (typeof answer?.label !== 'string' || !answer.label.trim()) return;
+          if (typeof answer?.label !== 'string' || !answer.label.trim() || answer.enabled === false) return;
           const label = document.createElement('label');
           label.className = 'calc__option';
 
@@ -255,7 +272,12 @@ document.addEventListener('DOMContentLoaded', () => {
         input.name = `answer-${question.id}`;
         input.className = 'calc__input';
         input.placeholder = question.type === 'number' ? 'Введите число' : 'Введите ответ';
-        if (question.type === 'number') input.step = 'any';
+        if (question.type === 'number') {
+          input.step = 'any';
+          if (question.min != null) input.min = String(question.min);
+          if (question.max != null) input.max = String(question.max);
+          if (question.unit) input.dataset.unit = question.unit;
+        }
         input.setAttribute('aria-label', question.question);
         field.appendChild(input);
       }
@@ -265,16 +287,102 @@ document.addEventListener('DOMContentLoaded', () => {
       error.setAttribute('role', 'alert');
       error.hidden = true;
       field.appendChild(error);
-      calcQuestionsContainer.appendChild(field);
+      return field;
+  }
+
+  function renderActiveScenario(scenarioIndex) {
+    activeScenario = availableScenarios[scenarioIndex] || availableScenarios[0];
+    if (!activeScenario) return;
+    calculatorData.scenarioId = String(activeScenario.key || `scenario-${scenarioIndex + 1}`);
+    calculatorData.scenarioName = activeScenario.name;
+    calculatorData.scenarioType = activeScenario.type || 'custom';
+    activeQuestions = normalizeScenarioQuestions(activeScenario);
+
+    calcQuestionsContainer.querySelectorAll('.calc__field:not([data-scenario-selector])').forEach(field => field.remove());
+    const offset = hasScenarioSelector ? 1 : 0;
+    const areaAtStart = activeScenario.area_position === 'start';
+    let firstQuestionStep = offset + 1;
+    if (areaAtStart) firstQuestionStep++;
+    activeQuestions.forEach((question, questionIndex) => {
+      calcQuestionsContainer.appendChild(createQuestionField(question, questionIndex, firstQuestionStep));
     });
 
-    areaStep = activeQuestions.length + 1;
+    areaStep = areaAtStart ? offset + 1 : offset + activeQuestions.length + 1;
     calcAreaField.dataset.step = String(areaStep);
-    calcAreaQuestion.textContent = config.areaQuestion || 'Площадь квартиры по полу';
+    calcAreaField.dataset.min = String(activeScenario.area_min ?? 1);
+    calcAreaField.dataset.max = String(activeScenario.area_max ?? 500);
+    calcAreaField.dataset.required = String(activeScenario.area_required !== false && activeScenario.area_required !== 'no');
+    calcAreaQuestion.textContent = activeScenario.area_question || calculatorConfig.areaQuestion || 'Площадь помещения';
+    calcArea.placeholder = `${calcAreaQuestion.textContent}; ${calcAreaField.dataset.min}–${calcAreaField.dataset.max} м²`;
+    calcArea.min = calcAreaField.dataset.min;
+    calcArea.max = calcAreaField.dataset.max;
     calcArea.setAttribute('aria-label', calcAreaQuestion.textContent);
+    lastStep = Math.max(areaStep, offset + activeQuestions.length + (areaAtStart ? 1 : 0));
+  }
+
+  function activateScenario(scenarioIndex) {
+    const nextScenario = availableScenarios[scenarioIndex] || availableScenarios[0];
+    if (!nextScenario) return;
+    if (calculatorData.scenarioId && calculatorData.scenarioId !== String(nextScenario.key)) {
+      calculatorData.selections = {};
+      calculatorData.responses = [];
+      calculatorData.area = null;
+      if (calcArea) calcArea.value = '';
+    }
+    calculatorData.scenarioIndex = scenarioIndex;
+    renderActiveScenario(scenarioIndex);
+  }
+
+  function renderCalculatorSidebar(config) {
+    if (!calcSidebarContent) return;
+    calcSidebarContent.replaceChildren();
+    const type = config.sidebarContentType || 'none';
+    if (type === 'text' && config.sidebarText) {
+      const paragraph = document.createElement('p');
+      paragraph.className = 'calc__sidebar-text';
+      paragraph.textContent = config.sidebarText;
+      calcSidebarContent.appendChild(paragraph);
+    } else if (type === 'image' && config.sidebarImage) {
+      const image = document.createElement('img');
+      image.className = 'calc__sidebar-image';
+      image.src = config.sidebarImage;
+      image.alt = 'Изображение к калькулятору';
+      image.loading = 'lazy';
+      calcSidebarContent.appendChild(image);
+    }
+    calcSidebarContent.hidden = !calcSidebarContent.childElementCount;
+  }
+
+  function renderQuestions(config = {}) {
+    calculatorConfig = config;
+    availableScenarios = window.CalculatorPricing.normalizeScenarios(config);
+    hasScenarioSelector = availableScenarios.length > 1;
+    activeScenario = null;
+    calculatorData.scenarioId = null;
+    calcQuestionsContainer.replaceChildren();
+    if (hasScenarioSelector) {
+      const scenarioQuestion = {
+        id: '__scenario',
+        question: config.scenario_question || 'Что будем рассчитывать?',
+        type: 'single',
+        required: true,
+        answers: availableScenarios.map(scenario => ({ label: scenario.name, pricing_type: 'none' }))
+      };
+      const scenarioField = createQuestionField(scenarioQuestion, 0, 1);
+      scenarioField.dataset.scenarioSelector = 'true';
+      calcQuestionsContainer.appendChild(scenarioField);
+    }
+
+    activateScenario(0);
+    renderCalculatorSidebar(config);
     calcCallbackToggle.querySelector('span').textContent = config.callbackLabel || 'Хочу оставить только заявку на звонок — без расчёта';
     calculatorData.selections = {};
     calculatorData.responses = [];
+    calculatorData.area = null;
+    calculatorData.scenarioIndex = 0;
+    calculatorData.pricingBreakdown = [];
+    calculatorData.calculatedPrice = null;
+    if (calcCallbackOnly) calcCallbackOnly.checked = false;
     currentStep = 1;
     updateStepUI({ focus: false });
   }
@@ -290,15 +398,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function getFlowSteps() {
-    if (isCallbackOnlyFlow() && areaStep > 1) return [1, areaStep];
-    return Array.from({ length: areaStep }, (_, index) => index + 1);
+    if (isCallbackOnlyFlow()) return [...new Set([1, areaStep])];
+    return Array.from({ length: lastStep }, (_, index) => index + 1);
   }
 
   function getCurrentField() {
     return getCalcSteps().find(step => Number(step.dataset.step) === currentStep);
   }
 
-  function hasSelectedPerM2Rate() {
+  function hasSelectedAreaRate() {
     return activeQuestions.some(question => {
       if (!['single', 'multiple'].includes(question.type)) return false;
       const selected = calculatorData.selections[question.id];
@@ -307,9 +415,30 @@ document.addEventListener('DOMContentLoaded', () => {
         : selected == null || selected === '' ? [] : [selected];
       return indexes.some(index => {
         const answer = question.answers[Number(index)];
-        return (answer?.pricing_type || answer?.pricingType) === 'per_m2';
+        const pricingType = answer?.pricing_type || answer?.pricingType;
+        const quantitySource = answer?.quantity_source || answer?.quantitySource || (pricingType === 'per_m2' ? 'area' : '');
+        return window.CalculatorPricing.VARIABLE_PRICING_TYPES.includes(pricingType) && quantitySource === 'area';
       });
     });
+  }
+
+  function getRequiredQuantitySources() {
+    const sources = new Set();
+    activeQuestions.forEach(question => {
+      if (!['single', 'multiple'].includes(question.type)) return;
+      const selected = calculatorData.selections[question.id];
+      const indexes = question.type === 'multiple'
+        ? Array.isArray(selected) ? selected : []
+        : selected == null || selected === '' ? [] : [selected];
+      indexes.forEach(index => {
+        const answer = question.answers[Number(index)];
+        const pricingType = answer?.pricing_type || answer?.pricingType;
+        if (!window.CalculatorPricing.VARIABLE_PRICING_TYPES.includes(pricingType)) return;
+        const source = answer?.quantity_source || answer?.quantitySource || (pricingType === 'per_m2' ? 'area' : '');
+        if (source) sources.add(String(source));
+      });
+    });
+    return sources;
   }
 
   // Update UI for current step
@@ -323,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
     calcHint.textContent = currentStep === areaStep
       ? isCallbackOnlyFlow()
         ? 'Стоимость обсудим по телефону — расчёт не выполняется.'
-        : 'Площадь нужна для тарифов за м²; если выбраны только фиксированные цены, поле можно пропустить.'
+        : 'Укажите количество; оно будет использовано в тарифах, где выбрана эта единица измерения.'
       : '';
 
     // Show/hide fields
@@ -363,9 +492,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const nextText = calcNextBtn.querySelector('.calc__next-text');
     if (nextText) {
-      nextText.textContent = currentStep === areaStep
-        ? isCallbackOnlyFlow() ? 'Попросить перезвонить' : 'Получить результат'
-        : isCallbackOnlyFlow() && currentStep === 1 ? 'Указать площадь' : 'Далее';
+      nextText.textContent = isCallbackOnlyFlow() && currentStep === 1 && areaStep !== 1
+        ? 'Указать площадь'
+        : currentStep === flowSteps[flowSteps.length - 1]
+          ? isCallbackOnlyFlow() ? 'Попросить перезвонить' : 'Получить результат'
+          : 'Далее';
     }
   }
 
@@ -380,23 +511,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (currentField === calcAreaField) calcArea.classList.remove('invalid');
 
-    if (isCallbackOnlyFlow()) return true;
-
     if (currentField === calcAreaField) {
-      if (!calcArea.value.trim() && !hasSelectedPerM2Rate()) return true;
+      const areaRequired = calcAreaField.dataset.required === 'true' || isCallbackOnlyFlow() || hasSelectedAreaRate();
+      if (!calcArea.value.trim() && !areaRequired) return true;
       const area = Number(calcArea.value);
       if (!calcArea.value.trim() || !Number.isFinite(area)) {
-        showCalcError(calcArea.value.trim() ? 'Площадь должна быть числом' : 'Пожалуйста, введите площадь квартиры');
+        showCalcError(calcArea.value.trim() ? 'Введите корректное число' : `Пожалуйста, введите значение: ${calcAreaQuestion.textContent.toLowerCase()}`);
         calcArea.classList.add('invalid');
         return false;
       }
-      if (area < 10 || area > 500) {
-        showCalcError(area < 10 ? 'Площадь не может быть меньше 10 м²' : 'Площадь не может быть больше 500 м²');
+      const min = Number(calcAreaField.dataset.min || 1);
+      const max = Number(calcAreaField.dataset.max || 500);
+      if (area < min || area > max) {
+        showCalcError(area < min ? `Значение не может быть меньше ${min}` : `Значение не может быть больше ${max}`);
         calcArea.classList.add('invalid');
         return false;
       }
       return true;
     }
+
+    if (currentField.dataset.scenarioSelector) {
+      if (!currentField.querySelector('input[type="radio"]:checked')) {
+        showCalcError('Выберите, что нужно рассчитать');
+        return false;
+      }
+      return true;
+    }
+
+    if (isCallbackOnlyFlow() && currentStep !== areaStep) return true;
 
     const question = activeQuestions.find(item => item.id === currentField.dataset.questionId);
     if (!question) return true;
@@ -408,14 +550,52 @@ document.addEventListener('DOMContentLoaded', () => {
           : question.type === 'number'
             ? inputs[0]?.value.trim() !== '' && Number.isFinite(Number(inputs[0].value))
             : inputs[0]?.value.trim() !== '';
-    if (!hasAnswer && (question.required === false || question.required === 'no')) return true;
-    if (hasAnswer) return true;
+    const quantityRequired = question.type === 'number' && getRequiredQuantitySources().has(question.id);
+    if (!hasAnswer && (question.required === false || question.required === 'no') && !quantityRequired) return true;
+    if (hasAnswer) {
+      if (question.type === 'number' && inputs[0]?.value.trim()) {
+        const value = Number(inputs[0].value);
+        if (value < 0 || (question.min != null && value < question.min) || (question.max != null && value > question.max)) {
+          showCalcError(question.min != null && value < question.min
+            ? `Значение не может быть меньше ${question.min}`
+            : question.max != null && value > question.max
+              ? `Значение не может быть больше ${question.max}`
+              : 'Значение не может быть отрицательным');
+          return false;
+        }
+      }
+      return true;
+    }
 
     const message = question.type === 'multiple' || question.type === 'single'
       ? 'Выберите ответ'
       : question.type === 'number' ? 'Введите число' : 'Введите ответ';
     showCalcError(message);
     return false;
+  }
+
+  function validatePricingQuantities() {
+    const requiredSources = getRequiredQuantitySources();
+    if (requiredSources.has('area') && (calculatorData.area == null || calculatorData.area === '')) {
+      currentStep = areaStep;
+      updateStepUI();
+      showCalcError(`Пожалуйста, укажите значение: ${calcAreaQuestion.textContent.toLowerCase()}`);
+      calcArea.classList.add('invalid');
+      return false;
+    }
+
+    for (const question of activeQuestions) {
+      if (question.type !== 'number' || !requiredSources.has(question.id)) continue;
+      const value = calculatorData.selections[question.id];
+      if (value != null && value !== '' && Number.isFinite(Number(value))) continue;
+      const field = calcQuestionsContainer.querySelector(`.calc__field[data-question-id="${CSS.escape(question.id)}"]`);
+      if (!field) continue;
+      currentStep = Number(field.dataset.step);
+      updateStepUI();
+      showCalcError('Введите количество для выбранного тарифа');
+      return false;
+    }
+    return true;
   }
 
   // Show calculator error message
@@ -431,7 +611,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentField = getCurrentField();
     if (!currentField) return;
     if (currentField === calcAreaField) {
-      calculatorData.area = calcArea.value;
+      calculatorData.area = calcArea.value.trim() ? Number(calcArea.value) : null;
+      return;
+    }
+
+    if (currentField.dataset.scenarioSelector) {
+      const checked = currentField.querySelector('input[type="radio"]:checked');
+      if (checked) calculatorData.scenarioIndex = Number(checked.value);
       return;
     }
 
@@ -455,24 +641,29 @@ document.addEventListener('DOMContentLoaded', () => {
       if (question.type === 'text' || question.type === 'number') {
         return selected === '' || selected == null
           ? null
-          : { question: question.question, type: question.type, answer: selected };
+          : { questionId: question.id, question: question.question, type: question.type, unit: question.unit, answer: selected };
       }
       const indexes = question.type === 'multiple'
         ? Array.isArray(selected) ? selected : []
         : selected == null || selected === '' ? [] : [selected];
       const answers = indexes.map(value => question.answers[Number(value)]).filter(Boolean).map(answer => ({
+        index: question.answers.indexOf(answer),
         label: answer.label,
         pricingType: answer.pricing_type || answer.pricingType || 'none',
-        price: answer.price ?? null
+        price: answer.price ?? null,
+        quantitySource: answer.quantity_source || answer.quantitySource || null
       }));
-      return answers.length ? { question: question.question, type: question.type, answers } : null;
+      return answers.length ? { questionId: question.id, question: question.question, type: question.type, answers } : null;
     }).filter(Boolean);
   }
 
   // Calculate price
   function calculatePrice() {
     if (calculatorData.callbackOnly) return null;
-    return window.CalculatorPricing?.calculate(activeQuestions, calculatorData.selections, calculatorData.area) || null;
+    return window.CalculatorPricing?.calculate(activeQuestions, calculatorData.selections, calculatorData.area, {
+      areaMin: activeScenario?.area_min ?? 1,
+      areaMax: activeScenario?.area_max ?? 500
+    }) || null;
   }
 
   // Format number with spaces
@@ -480,19 +671,23 @@ document.addEventListener('DOMContentLoaded', () => {
     return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(Number(num));
   }
 
-  function formatResponseValue(response, pricingByAnswer, calculation) {
-    if (!response.answers) return response.answer;
+  function formatResponseValue(response, pricingByAnswer) {
+    if (!response.answers) {
+      if (response.type !== 'number') return response.answer;
+      const unit = response.unit ? ` ${response.unit}` : '';
+      return `${formatNumber(response.answer)}${unit}`;
+    }
 
+    const unitLabels = { per_m2: 'м²', per_linear_m: 'п.м.', per_piece: 'шт.', per_set: 'компл.' };
     return response.answers.map(answer => {
-      const key = JSON.stringify([response.question, answer.label]);
-      const pricingItems = pricingByAnswer.get(key);
-      const item = pricingItems?.shift();
+      const item = pricingByAnswer.get(JSON.stringify([response.questionId, answer.index]));
       if (!item) return answer.label;
-
-      const amount = item.pricingType === 'per_m2'
-        ? `${formatNumber(item.unitPrice)} ₽ / м² × ${formatNumber(calculation.area)} м² = ${formatNumber(item.amount)} ₽`
-        : `${formatNumber(item.amount)} ₽ фиксированно`;
-      return `${answer.label} — ${amount}`;
+      if (item.pricingType === 'fixed') return `${answer.label} — ${formatNumber(item.amount)} ₽ фиксированно`;
+      const quantityUnit = item.quantitySource === 'area'
+        ? item.quantityUnit || 'м²'
+        : activeQuestions.find(question => question.id === item.quantitySource)?.unit || 'ед.';
+      const rateUnit = unitLabels[item.pricingType] || quantityUnit;
+      return `${answer.label} — ${formatNumber(item.unitPrice)} ₽/${rateUnit} × ${formatNumber(item.quantity)} ${quantityUnit} = ${formatNumber(item.amount)} ₽`;
     }).join(', ');
   }
 
@@ -502,7 +697,6 @@ document.addEventListener('DOMContentLoaded', () => {
     calculatorData.pricingBreakdown = calculation?.breakdown || [];
     calculatorData.calculatedPrice = price;
 
-    if (calculatorData.callbackOnly) calculatorData.area = null;
     if (formCalculatorData) {
       formCalculatorData.value = JSON.stringify({
         ...calculatorData,
@@ -545,16 +739,17 @@ document.addEventListener('DOMContentLoaded', () => {
       calcResultParams.appendChild(row);
     };
     if (calculatorData.area != null && calculatorData.area !== '') {
-      addResultRow('Площадь', `${formatNumber(calculatorData.area)} м²`);
+      addResultRow(activeScenario?.area_question || 'Площадь', `${formatNumber(calculatorData.area)} м²`);
     }
     const pricingByAnswer = new Map();
     calculatorData.pricingBreakdown.forEach(item => {
-      const key = JSON.stringify([item.question, item.answer]);
-      if (!pricingByAnswer.has(key)) pricingByAnswer.set(key, []);
-      pricingByAnswer.get(key).push(item);
+      pricingByAnswer.set(JSON.stringify([item.questionId, item.answerIndex]), item);
     });
+    if (calculatorData.scenarioName) {
+      addResultRow('Расчёт', calculatorData.scenarioName);
+    }
     calculatorData.responses.forEach(response => {
-      addResultRow(response.question, formatResponseValue(response, pricingByAnswer, calculation));
+      addResultRow(response.question, formatResponseValue(response, pricingByAnswer));
     });
 
     const applicationLink = calcResult.querySelector('.calc__result__cta a[href="#application"]');
@@ -586,9 +781,14 @@ document.addEventListener('DOMContentLoaded', () => {
       responses: [],
       pricingBreakdown: [],
       area: null,
+      scenarioId: null,
+      scenarioName: null,
+      scenarioType: null,
+      scenarioIndex: 0,
       callbackOnly: false,
       calculatedPrice: null
     });
+    activateScenario(0);
 
     // Reset UI
     currentStep = 1;
@@ -637,14 +837,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!validateStep()) return;
     collectStepData();
 
-    if (currentStep === 1) {
-      if (isCallbackOnlyFlow()) {
-        showResult();
-        return;
-      }
+    if (hasScenarioSelector && currentStep === 1) {
+      activateScenario(calculatorData.scenarioIndex ?? 0);
+      currentStep = isCallbackOnlyFlow() ? areaStep : 2;
+      updateStepUI();
+      return;
     }
 
-    if (currentStep >= areaStep) {
+    if (isCallbackOnlyFlow()) {
+      if (currentStep !== areaStep) {
+        currentStep = areaStep;
+        updateStepUI();
+      } else {
+        showResult();
+      }
+      return;
+    }
+
+    if (currentStep >= lastStep) {
+      if (!validatePricingQuantities()) return;
       showResult();
       return;
     }
