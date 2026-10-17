@@ -3,11 +3,13 @@ import { listSections as fetchSections, getSectionByKey, upsertSection as upsert
 const VALID_SECTION_KEYS = [
   'hero',
   'services',
+  'about',
   'gallery',
   'clientVideo',
   'variants',
   'calculator',
   'navigation',
+  'privacy',
   'cta',
   'faq',
   'process',
@@ -70,6 +72,16 @@ function validateSectionContent(key, content) {
     }
   }
 
+  if (key === 'privacy') {
+    const sections = content?.sections;
+    if (!String(content?.title || '').trim() || !Array.isArray(sections) || !sections.length) {
+      return 'Укажите заголовок политики и добавьте хотя бы один раздел';
+    }
+    if (sections.some(section => !String(section?.title || '').trim() || !String(section?.body || '').trim())) {
+      return 'У каждого раздела политики должны быть название и текст';
+    }
+  }
+
   return null;
 }
 
@@ -102,7 +114,9 @@ function logAdminEvent(event, req, extra = {}) {
 
 export async function listSections(req, res) {
   try {
-    const sections = await fetchSections();
+    const sections = req.query?.key === 'privacy'
+      ? [await getSectionByKey('privacy')].filter(Boolean)
+      : await fetchSections();
     const publicSections = sections.map((section) => {
       const internalFields = INTERNAL_FIELDS_BY_SECTION[section.key];
       if (!internalFields || !section.content) return section;

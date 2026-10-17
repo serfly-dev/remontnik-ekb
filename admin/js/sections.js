@@ -8,11 +8,13 @@ import { api } from './api.js';
 const SECTION_KEYS = [
   { key: 'hero', label: 'Hero', description: 'Главный экран сайта: заголовок, подзаголовок, кнопки и главное фото' },
   { key: 'services', label: 'Услуги', description: 'Карточки услуг мастера с описанием и списком работ' },
+  { key: 'about', label: 'Обо мне', description: 'Заголовок и текст блока о мастере' },
   { key: 'gallery', label: 'Галерея', description: 'Фото работ клиентов: пары изображений до/после' },
   { key: 'clientVideo', label: 'Видео клиента', description: 'Видеоотзывы, которые выводятся на главной странице' },
   { key: 'variants', label: 'Варианты', description: 'Неограниченное число форматов работы и один рекомендуемый вариант' },
   { key: 'calculator', label: 'Калькулятор', description: 'Сценарии, вопросы, единицы измерения и правила расчёта' },
   { key: 'navigation', label: 'Навигация', description: 'Пункты меню для настольной и мобильной версии сайта' },
+  { key: 'privacy', label: 'Политика конфиденциальности', description: 'Текст политики обработки персональных данных' },
   { key: 'cta', label: 'Контакты', description: 'Финальный блок: призыв к действию, телефон, Telegram и WhatsApp' },
   { key: 'faq', label: 'Вопросы', description: 'Частые вопросы и ответы для посетителей' },
   { key: 'process', label: 'Процесс', description: 'Пошаговый путь клиента от заявки до результата' },
@@ -156,6 +158,22 @@ const SECTION_FIELDS = {
       ]}
     ]
   },
+  about: {
+    fields: [
+      { name: 'title', type: 'textarea', label: 'Заголовок' },
+      { name: 'text', type: 'textarea', label: 'Текст (абзацы разделяйте пустой строкой)' },
+      { name: 'photo', type: 'image', label: 'Фотография' }
+    ]
+  },
+  privacy: {
+    fields: [
+      { name: 'title', type: 'text', label: 'Заголовок страницы' },
+      { name: 'sections', type: 'repeater', label: 'Разделы политики', description: 'Абзацы разделяйте пустой строкой. Для списка начинайте каждую строку с «- ». Ссылки и адреса почты на странице станут кликабельными.', itemFields: [
+        { name: 'title', type: 'text', label: 'Название раздела' },
+        { name: 'body', type: 'textarea', label: 'Текст раздела', hint: 'Абзацы разделяйте пустой строкой; пункты списка начинайте с «- »' }
+      ]}
+    ]
+  },
   variants: {
     fields: [
       { name: 'title', type: 'text', label: 'Заголовок' },
@@ -164,22 +182,14 @@ const SECTION_FIELDS = {
         { name: 'title', type: 'text', label: 'Название' },
         { name: 'price', type: 'number', label: 'Цена (₽)' },
         { name: 'desc', type: 'textarea', label: 'Описание' },
-        { name: 'include', type: 'repeater', label: 'Что входит', itemFields: [
+        { name: 'include', type: 'repeater', label: 'Пункты', itemFields: [
           { name: '', type: 'text', label: 'Пункт' }
-        ]},
-        { name: 'steps', type: 'repeater', label: 'Этапы', itemFields: [
-          { name: '', type: 'text', label: 'Этап' }
         ]},
         { name: 'cta', type: 'text', label: 'Текст кнопки' },
         { name: 'cta_href', type: 'text', label: 'Ссылка кнопки' },
+        { name: 'comment', type: 'textarea', label: 'Комментарий под карточкой', hint: 'Можно добавить отдельно к каждой карточке' },
         { name: 'badge', type: 'text', label: 'Подпись-бейдж (необязательно)' },
         { name: 'is_featured', type: 'checkbox', label: 'Рекомендуемый' }
-      ]},
-      { name: 'compare', type: 'object', label: 'Сравнение', itemFields: [
-        { name: 'col1_title', type: 'text', label: 'Колонка 1 заголовок' },
-        { name: 'col1_text', type: 'textarea', label: 'Колонка 1 текст' },
-        { name: 'col2_title', type: 'text', label: 'Колонка 2 заголовок' },
-        { name: 'col2_text', type: 'textarea', label: 'Колонка 2 текст' }
       ]}
     ]
   },
@@ -438,14 +448,82 @@ async function fetchSection(key) {
   try {
     res = await api.get(`/api/sections/${key}`);
   } catch (err) {
-    if (key !== 'navigation' || err.status !== 404) throw err;
-    const section = { key, title: 'Навигация', content: { links: defaultNavigationLinks() } };
+    if (err.status !== 404) throw err;
+    const defaults = {
+      navigation: { title: 'Навигация', content: { links: defaultNavigationLinks() } },
+      about: { title: 'Обо мне', content: { title: 'Ваш комфорт —\nнаш приоритет', text: 'Я занимаюсь строительством уже более 10 лет. Начинал с фундаментов, участвовал в проектах Clever Park и аэропорта в Перми, прошёл путь от мастера СМР до руководителя проектов.\n\nСейчас я специализируюсь на ремонте квартир по дизайн-проектам. Главное для меня — прозрачность: понятная смета, аргументация решений, контроль расходов и результат, который радует.\n\nЯ стараюсь держать процесс максимально прозрачным и понятным для клиента. Клиент не должен переплачивать за ненужные процессы и лишних посредников.', photo: '/images/master-photo.jpg' } }
+    };
+    if (key === 'privacy') {
+      const section = { key, title: 'Политика конфиденциальности', content: await loadPrivacyDefaults() };
+      sectionCache.set(key, section);
+      return section;
+    }
+    if (!defaults[key]) throw err;
+    const section = { key, ...defaults[key] };
     sectionCache.set(key, section);
     return section;
   }
   if (!res.success) throw new Error(res.message);
   sectionCache.set(key, res.data);
   return res.data;
+}
+
+async function loadPrivacyDefaults() {
+  const response = await fetch('/privacy.html', { credentials: 'same-origin' });
+  if (!response.ok) throw new Error('Не удалось загрузить текущую политику конфиденциальности');
+
+  const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+  const content = page.querySelector('#privacyPolicyContent');
+  if (!content) throw new Error('На странице политики не найдена область с текстом');
+
+  const sections = Array.from(content.querySelectorAll('.policy-section')).map((section) => {
+    const title = section.querySelector('h2')?.textContent.trim() || '';
+    const blocks = [];
+
+    Array.from(section.children).forEach((element) => {
+      if (element.matches('h2')) return;
+
+      if (element.matches('ul, ol')) {
+        const items = Array.from(element.children)
+          .filter(item => item.matches('li'))
+          .map(item => '- ' + item.textContent.replace(/\s+/g, ' ').trim());
+        if (items.length) blocks.push(items.join('\n'));
+        return;
+      }
+
+      if (element.matches('dl')) {
+        const children = Array.from(element.children);
+        for (let index = 0; index < children.length; index += 1) {
+          if (!children[index].matches('dt')) continue;
+          const label = children[index].textContent.replace(/\s+/g, ' ').trim();
+          const value = children[index + 1];
+          if (!value?.matches('dd')) continue;
+          const list = value.querySelector('ul, ol');
+          if (list) {
+            blocks.push(label + ':');
+            const items = Array.from(list.children)
+              .filter(item => item.matches('li'))
+              .map(item => '- ' + item.textContent.replace(/\s+/g, ' ').trim());
+            if (items.length) blocks.push(items.join('\n'));
+          } else {
+            blocks.push(label + ': ' + value.textContent.replace(/\s+/g, ' ').trim());
+          }
+          index += 1;
+        }
+        return;
+      }
+
+      const text = element.textContent.replace(/\s+/g, ' ').trim();
+      if (text) blocks.push(text);
+    });
+
+    return { title, body: blocks.join('\n\n') };
+  }).filter(section => section.title);
+
+  return {
+    title: content.querySelector('h1')?.textContent.trim() || 'Политика в отношении обработки персональных данных',
+    sections
+  };
 }
 
 function renderEditor(key, section) {
@@ -475,6 +553,9 @@ function renderEditor(key, section) {
     content.sidebar_text ||= '';
     content.sidebar_image ||= '';
   }
+  if (key === 'about') {
+    content.photo ||= '/images/master-photo.jpg';
+  }
   if (key === 'variants') {
     if (!Array.isArray(content.items)) {
       content.items = [content.option1, content.option2]
@@ -486,17 +567,28 @@ function renderEditor(key, section) {
           is_featured: item.is_featured === true || item.is_featured === 'true' || item.is_featured === 'on'
         }));
     }
+    const legacyComments = [content.compare?.col1_text, content.compare?.col2_text];
     let featuredAssigned = false;
     content.items = content.items.map((item, index) => {
+      const { steps, ...itemContent } = item;
+      const points = [
+        ...(Array.isArray(item.include) ? item.include : []),
+        ...(Array.isArray(steps) ? steps : [])
+      ].filter(Boolean);
       const featured = !featuredAssigned && (item.is_featured === true || item.is_featured === 'true' || item.is_featured === 'on');
       featuredAssigned ||= featured;
+      const legacyComment = String(legacyComments[index] || '').trim();
+      const comment = String(item.comment || '').trim() || (legacyComment !== String(item.desc || '').trim() ? legacyComment : '');
       return {
-        ...item,
+        ...itemContent,
+        include: points,
         num: item.num || String(index + 1).padStart(2, '0'),
         badge: item.badge || item.num_badge || '',
+        comment,
         is_featured: featured
       };
     });
+    delete content.compare;
   }
   if (key === 'navigation' && !Array.isArray(content.links)) {
     content.links = defaultNavigationLinks();
@@ -910,7 +1002,7 @@ function renderImageField(name, value, pathPrefix) {
       <div class="section-editor__image-preview" id="preview-${escapeHtml(urlInputName.replace(/[.]/g, '_').replace(/\[/g, '_').replace(/]/g, '_'))}"${dataBg}></div>
       <input type="hidden" name="${escapeHtml(urlInputName)}" value="${escapeHtml(value || '')}">
       <div class="section-editor__image-controls">
-        <input type="file" name="${escapeHtml(fullFileName)}" class="section-editor__file-input" accept="image/*" data-preview="preview-${escapeHtml(urlInputName.replace(/[.]/g, '_').replace(/\[/g, '_').replace(/]/g, '_'))}" data-single-upload="true" data-field-name="${escapeHtml(name)}" data-url-input-name="${escapeHtml(urlInputName)}" data-path-prefix="${escapeHtml(prefix)}">
+        <input type="file" name="${escapeHtml(fullFileName)}" class="section-editor__file-input" accept="image/jpeg,image/png,image/webp" data-preview="preview-${escapeHtml(urlInputName.replace(/[.]/g, '_').replace(/\[/g, '_').replace(/]/g, '_'))}" data-single-upload="true" data-field-name="${escapeHtml(name)}" data-url-input-name="${escapeHtml(urlInputName)}" data-path-prefix="${escapeHtml(prefix)}">
       </div>
     </div>
   `;
@@ -1140,11 +1232,16 @@ async function uploadField(file, { fieldName, pathPrefix, urlInputName, previewI
       ? '/api/upload/gallery'
       : '/api/upload/image';
 
+  if (endpoint === '/api/upload/image' && file.size > 8 * 1024 * 1024) {
+    file = await resizeImageForUpload(file);
+  }
+
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     const ext = endpoint.includes('video') ? 'mp4' : 'webp';
     const formData = new FormData();
-    formData.append(fieldName, file, `${fieldName}.${ext}`);
+    const uploadFieldName = endpoint === '/api/upload/image' ? 'image' : fieldName;
+    formData.append(uploadFieldName, file, `${uploadFieldName}.${ext}`);
 
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable && onProgress) {
@@ -1169,7 +1266,7 @@ async function uploadField(file, { fieldName, pathPrefix, urlInputName, previewI
         return reject(new Error(data.message || 'Ошибка загрузки файла'));
       }
 
-      const url = data.paths?.[fieldName];
+      const url = data.paths?.[uploadFieldName];
       if (!url) {
         return reject(new Error('Не получен URL файла из ответа сервера'));
       }
@@ -1197,6 +1294,30 @@ async function uploadField(file, { fieldName, pathPrefix, urlInputName, previewI
     xhr.withCredentials = true;
     xhr.send(formData);
   });
+}
+
+async function resizeImageForUpload(file) {
+  const image = await createImageBitmap(file);
+  try {
+    const maxDimension = 2400;
+    const scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(image.width * scale));
+    canvas.height = Math.max(1, Math.round(image.height * scale));
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('Не удалось подготовить фотографию к загрузке');
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', 0.82));
+    if (!blob) throw new Error('Не удалось подготовить фотографию к загрузке');
+    if (blob.size > 10 * 1024 * 1024) {
+      throw new Error('Фотография после сжатия превышает лимит 10 МиБ');
+    }
+    const baseName = file.name.replace(/\.[^.]+$/, '') || 'image';
+    return new File([blob], `${baseName}.webp`, { type: 'image/webp' });
+  } finally {
+    image.close();
+  }
 }
 
 async function confirmCrop() {
@@ -1970,7 +2091,7 @@ function resetForm(key, form) {
 
 function escapeHtml(str) {
   if (str == null) return '';
-  if (typeof str !== 'string') return ''; // Guard: prevent [object Object] in inputs
+  if (typeof str !== 'string' && typeof str !== 'number') return '';
   return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')

@@ -191,6 +191,7 @@
     );
     const items = Array.isArray(content.items) ? content.items : legacyItems;
     const compare = content.compare || {};
+    const legacyComments = [compare.col1_text, compare.col2_text];
     let featuredAssigned = false;
     const itemsHtml = items.map((item, index) => {
       const isFeatured = !featuredAssigned && [true, 'true', 'yes', 'on', 1].includes(item?.is_featured);
@@ -200,45 +201,40 @@
       const price = formatPrice(item?.price);
       const included = Array.isArray(item?.include) ? item.include.filter(Boolean) : [];
       const steps = Array.isArray(item?.steps) ? item.steps.filter(Boolean) : [];
+      const checklist = [...included, ...steps];
       const badge = String(item?.badge || '').trim();
+      const legacyComment = String(legacyComments[index] || '').trim();
+      const comment = String(item?.comment || '').trim() || (legacyComment !== description ? legacyComment : '');
+      const badgeText = isFeatured ? (badge || 'Рекомендуем') : badge;
+      const hasAccentRibbon = isFeatured || Boolean(badgeText);
 
       return `
+        <div class="format-card">
         <article class="format${isFeatured ? ' format--featured' : ''}" data-format-card>
-          ${isFeatured ? '<span class="format__badge">Рекомендуем</span>' : badge ? `<span class="format__badge">${escapeHtml(badge)}</span>` : ''}
-          <span class="format__num">${escapeHtml(item?.num || String(index + 1).padStart(2, '0'))}</span>
-          <h3 class="format__title">${escapeHtml(title)}</h3>
-          ${description ? `<p class="format__desc">${escapeHtml(description)}</p>` : ''}
-          ${price ? `<p class="format__price"><span class="format__price-num">${price}</span> <span class="format__price-cur">₽</span></p>` : ''}
-          ${included.length ? `<ul class="format__include">${included.map(value => `<li>${escapeHtml(value)}</li>`).join('')}</ul>` : ''}
-          ${steps.length ? `<ol class="format__steps">${steps.map(value => `<li>${escapeHtml(value)}</li>`).join('')}</ol>` : ''}
-          ${item?.cta ? `<a href="${sanitizeUrl(item.cta_href || '#')}" class="format__cta btn ${isFeatured ? 'btn--primary' : 'btn--ghost'}">${escapeHtml(item.cta)}</a>` : ''}
+          <div class="format__ribbon${hasAccentRibbon ? ' format__ribbon--accent' : ' format__ribbon--quiet'}">
+            <span class="format__num">${escapeHtml(item?.num || String(index + 1).padStart(2, '0'))}</span>
+            ${badgeText ? `<span class="format__badge">${escapeHtml(badgeText)}</span>` : ''}
+          </div>
+          <div class="format__body">
+            <h3 class="format__title">${escapeHtml(title)}</h3>
+            ${description ? `<p class="format__desc">${escapeHtml(description)}</p>` : ''}
+            ${price ? `<p class="format__price"><span class="format__price-label">от</span><span class="format__price-row"><span class="format__price-num">${price}</span><span class="format__price-cur">₽</span></span></p>` : ''}
+            ${checklist.length ? `<ul class="format__include">${checklist.map(value => `<li>${escapeHtml(value)}</li>`).join('')}</ul>` : ''}
+            ${item?.cta ? `<a href="${sanitizeUrl(item.cta_href || '#')}" class="format__cta btn ${isFeatured ? 'btn--primary' : 'btn--ghost'}">${escapeHtml(item.cta)}</a>` : ''}
+          </div>
         </article>
+        ${comment ? `<p class="format__comment">${escapeHtml(comment)}</p>` : ''}
+        </div>
       `;
     }).join('');
 
-    const compareHtml = `
-      <div class="formats__compare">
-        <div class="formats__compare__col">
-          <h4>${escapeHtml(compare.col1_title || '')}</h4>
-          <p>${escapeHtml(compare.col1_text || '')}</p>
-        </div>
-        <div class="formats__compare__col">
-          <h4>${escapeHtml(compare.col2_title || '')}</h4>
-          <p>${escapeHtml(compare.col2_text || '')}</p>
-        </div>
-      </div>
-    `;
-
     root.innerHTML = `
       <div class="container">
-        <div class="section-head">
-          <h2 class="section-title" id="formats-title">${escapeHtml(content.title || '')}</h2>
-        </div>
-        <div class="formats__grid" id="formatsGrid">
+        <h2 class="section-title visually-hidden" id="formats-title">${escapeHtml(content.title || '')}</h2>
+        <div class="formats__grid${items.length > 0 && items.length < 3 ? ' formats__grid--compact' : ''}" id="formatsGrid">
           ${itemsHtml}
         </div>
         ${items.length > 4 ? '<button type="button" class="formats__more" data-formats-more="formatsGrid" aria-controls="formatsGrid" aria-expanded="false">Показать все</button>' : ''}
-        ${compareHtml}
       </div>
     `;
   }
@@ -789,9 +785,27 @@
     `;
   }
 
+  function renderAbout(content) {
+    const root = document.getElementById('about');
+    if (!root) return;
+    const title = root.querySelector('#about-title');
+    const text = root.querySelector('.about__text');
+    const photo = root.querySelector('.about__photo img');
+    if (title) title.innerHTML = escapeHtml(content.title || '').replace(/\n/g, '<br>');
+    if (text) {
+      text.innerHTML = String(content.text || '').split(/\n\s*\n/)
+        .map(paragraph => paragraph.trim())
+        .filter(Boolean)
+        .map(paragraph => `<p>${escapeHtml(paragraph).replace(/\n/g, '<br>')}</p>`)
+        .join('');
+    }
+    if (photo && content.photo) photo.src = sanitizeUrl(content.photo);
+  }
+
   const RENDERERS = {
     hero: renderHero,
     services: renderServices,
+    about: renderAbout,
     variants: renderVariants,
     gallery: renderGallery,
     clientVideo: renderClientVideo,

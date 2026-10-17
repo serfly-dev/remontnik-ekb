@@ -314,6 +314,17 @@ const SECTIONS = [
 ];
 
 const calculatorSection = SECTIONS.find(section => section.key === 'calculator');
+SECTIONS.push({
+  key: 'about',
+  title: 'Обо мне',
+  content: {
+    title: 'Ваш комфорт —\nнаш приоритет',
+    text: 'Я занимаюсь строительством уже более 10 лет. Начинал с фундаментов, участвовал в проектах Clever Park и аэропорта в Перми, прошёл путь от мастера СМР до руководителя проектов.\n\nСейчас я специализируюсь на ремонте квартир по дизайн-проектам. Главное для меня — прозрачность: понятная смета, аргументация решений, контроль расходов и результат, который радует.\n\nЯ стараюсь держать процесс максимально прозрачным и понятным для клиента. Клиент не должен переплачивать за ненужные процессы и лишних посредников.',
+    photo: '/images/master-photo.jpg'
+  },
+  order_index: 12
+});
+
 if (calculatorSection) {
   const legacyQuestions = calculatorSection.content.questions || [];
   calculatorSection.content.scenarios = [
