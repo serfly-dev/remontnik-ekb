@@ -74,10 +74,8 @@ initApplicationsRoutes(app);
 initSectionsRoutes(app);
 initPricesRoutes(app);
 initUploadRoutes(app);
-
-// Cache headers: media and fonts are content-addressed (unique generated
-// filenames, never rewritten) so a long immutable cache is safe; CSS/JS keep
-// ETag revalidation with a short max-age; HTML and API responses stay fresh.
+// Versioned public assets can be cached for one year; stable URLs remain short-lived,
+// while HTML and API responses stay fresh.
 const IMMUTABLE = [
   '.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.ico', '.avif',
   '.woff', '.woff2', '.ttf', '.otf', '.mp4', '.webm'
@@ -86,9 +84,11 @@ const SHORT_CACHE = ['.css', '.js', '.json'];
 app.use((req, res, next) => {
   const ext = path.extname(req.path).toLowerCase();
   if (req.path.startsWith('/api/')) return next();
-  if (IMMUTABLE.includes(ext)) {
+  const versionedAsset = /(?:\/\d{10,}-[a-f0-9-]{12,}|[-.]v\d+)\.[a-z0-9]+$/i.test(req.path)
+    || (typeof req.query.v === 'string' && /^\d+(?:\.\d+)*$/.test(req.query.v));
+  if ((IMMUTABLE.includes(ext) || SHORT_CACHE.includes(ext)) && versionedAsset) {
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-  } else if (SHORT_CACHE.includes(ext)) {
+  } else if (SHORT_CACHE.includes(ext) || IMMUTABLE.includes(ext)) {
     res.setHeader('Cache-Control', 'public, max-age=3600');
   } else {
     res.setHeader('Cache-Control', 'no-cache');

@@ -132,6 +132,23 @@
   --section-y: clamp(4rem, 8vw, 8rem);
 }
 
+[hidden] {
+  display: none !important;
+}
+
+.calc__load-status {
+  grid-column: 1 / -1;
+}
+
+.calc__load-status .btn {
+  margin: 0.5rem 0.5rem 0.5rem 0;
+}
+
+.gallery__empty {
+  padding: 2rem;
+  min-height: 12rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root {
     --t-fast: 0ms linear;
@@ -496,8 +513,8 @@ p {
    6. REVEAL & MOTION PRIMITIVES — Design System Premium Construction
    ========================================================================= */
 .reveal {
-  opacity: 0;
-  transform: translateY(16px);
+  opacity: 1;
+  transform: none;
   transition: opacity var(--t-slow), transform var(--t-slow);
 }
 
@@ -760,6 +777,8 @@ p {
 }
 
 .burger {
+  min-width: 44px;
+  min-height: 44px;
   display: inline-flex;
   flex-direction: column;
   justify-content: center;
@@ -803,6 +822,8 @@ p {
 .mobile-menu {
   position: fixed;
   inset: 0;
+  bottom: var(--cookie-banner-height, 0px);
+  overflow: hidden;
   background: var(--bg);
   z-index: 110;
   padding: 6rem var(--gutter) 2rem;
@@ -821,6 +842,9 @@ p {
 }
 
 .mobile-menu__nav {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -848,6 +872,7 @@ p {
 }
 
 .mobile-menu__cta {
+  flex-shrink: 0;
   margin-top: auto;
   padding-top: 2rem;
   display: flex;
@@ -859,8 +884,8 @@ p {
   position: absolute;
   top: 1.25rem;
   right: var(--gutter);
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2085,6 +2110,8 @@ section#formats {
 }
 
 .video-carousel__arrow {
+  min-width: 44px;
+  min-height: 44px;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -2145,23 +2172,32 @@ section#formats {
 
 .video-carousel__dots {
   display: flex;
-  gap: var(--space-2);
+  flex-wrap: wrap;
 }
 
 .video-carousel__dot {
-  width: 1.75rem;
-  height: 0.5rem;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.video-carousel__dot::before {
+  content: '';
+  width: 1.75rem;
+  height: 0.5rem;
   border-radius: var(--radius-pill);
   background: var(--color-gray-300);
-  cursor: pointer;
   transform-origin: left;
   transform: scaleX(0.2857);
   transition: transform var(--t-mid) var(--ease-precise), background var(--t-mid) var(--ease-precise);
 }
 
-.video-carousel__dot[aria-selected="true"] {
+.video-carousel__dot[aria-selected="true"]::before {
   transform: scaleX(1);
   background: var(--color-brand-orange);
 }

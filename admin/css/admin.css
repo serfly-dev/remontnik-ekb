@@ -764,8 +764,11 @@ main { padding: var(--space-7) 0 var(--section-y); }
   border-radius: var(--radius-sm);
   background-size: cover; background-position: center;
 }
-.section-editor__image-controls { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.section-editor__image-controls { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
 .section-editor__file-input {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   font-size: 0.75rem;
   padding: 6px;
   border: 1px solid var(--rule);

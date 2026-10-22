@@ -9,8 +9,8 @@
     content="Ремонт квартир в Екатеринбурге по дизайн-проекту. Никита Начаткин — более 10 лет в строительстве, прозрачная смета и контроль расходов.">
   <meta name="author" content="Никита Начаткин">
   <link rel="canonical" href="https://remontnik-ekb.ru/">
-  <link rel="stylesheet" href="/css/fonts.css">
-  <link rel="stylesheet" href="/css/style.css?v=8">
+  <link rel="stylesheet" href="/css/fonts.css?v=2">
+  <link rel="stylesheet" href="/css/style.css?v=10">
   <meta property="og:locale" content="ru_RU">
   <meta property="og:site_name" content="РемонтНик квартир">
   <meta property="og:title" content="Ремонт квартир в Екатеринбурге — Никита Начаткин">
@@ -41,7 +41,7 @@
     "url": "https://remontnik-ekb.ru/",
     "telephone": "+79502085138",
     "image": "https://remontnik-ekb.ru/images/og-cover.jpg",
-    "logo": "https://remontnik-ekb.ru/images/logo_orange-green.png",
+    "logo": "https://remontnik-ekb.ru/images/logo_orange-green-v1.webp",
     "areaServed": {
       "@type": "City",
       "name": "Екатеринбург"
@@ -62,12 +62,10 @@
   <header class="header" id="header">
     <div class="container header__inner">
       <a class="logo" href="#hero" aria-label="На главную">
-        <img src="images/logo_orange-green.png" alt="Никита Начаткин — ремонт квартир" class="logo__mark" width="70"
-          height="48" aria-hidden="true">
+        <img src="images/logo_orange-green-v1.webp" alt="Никита Начаткин — ремонт квартир" class="logo__mark" width="70" height="48" aria-hidden="true">
       </a>
       <nav class="nav" aria-label="Основная навигация">
-        <ul class="nav__list" id="headerNavLinks">
-        </ul>
+        <ul class="nav__list" id="headerNavLinks"><li><a class="nav__link" href="#services">Услуги</a></li><li><a class="nav__link" href="#calculator">Калькулятор</a></li><li><a class="nav__link" href="#contacts">Контакты</a></li></ul>
       </nav>
       <div class="header__actions">
         <a class="header__phone" href="tel:+79502085138" aria-label="Позвонить">
@@ -103,45 +101,56 @@
      HERO
      ================================================================ -->
     <section class="hero" id="hero" aria-labelledby="hero-title">
-      <div class="container"></div>
+      <div class="container"><div class="hero__grid"><div class="hero__copy">
+          <h1 class="hero__title" id="hero-title"><span class="echo"><span class="echo__base">Ремонт квартиры</span></span></h1>
+          <p class="hero__sub">Под ключ в Екатеринбурге — от черновой отделки до готового интерьера. Собственная бригада, подробная смета и мой личный контроль на каждом этапе. Работаем по дизайн-проектам и без них.</p>
+          <div class="hero__cta"><a href="#application" class="btn btn--primary">Забронировать замер</a><a href="#calculator" class="btn btn--ghost">Рассчитать стоимость</a></div>
+          <p><a href="tel:+79502085138">+7 950 208 51 38</a></p>
+        </div><div class="hero__visual"><div class="hero__media"><img src="/images/hero-mobile-v1.webp" alt="Фото отремонтированной квартиры" width="900" height="1100" fetchpriority="high" decoding="async"><span class="hero__media__caption">Пример работы — гостиная</span></div></div></div></div>
     </section>
 
     <!-- ================================================================
      SERVICES
      ================================================================ -->
     <section class="services" id="services" aria-labelledby="services-title">
-      <div class="container"></div>
+      <div class="container"><div class="section-head"><h2 class="section-title" id="services-title">Чем могу помочь</h2></div><ul class="services__index"><li class="service-row"><h3 class="service-row__title">Ремонт новостройки</h3><p class="service-row__desc">Комплексный ремонт квартиры без отделки или с подготовкой white box — до готового интерьера.</p></li><li class="service-row"><h3 class="service-row__title">Ремонт вторичной квартиры</h3><p class="service-row__desc">Обновление квартиры с заменой старой отделки и необходимых коммуникаций.</p></li><li class="service-row"><h3 class="service-row__title">Ремонт по дизайн-проекту</h3><p class="service-row__desc">Реализация вашего проекта во взаимодействии с дизайнером — с вниманием к материалам, геометрии и деталям.</p></li><li class="service-row"><h3 class="service-row__title">Ремонт ванной</h3><p class="service-row__desc">Отдельный ремонт санузла — от плитки до сантехники.</p></li><li class="service-row"><h3 class="service-row__title">Отделочные работы</h3><p class="service-row__desc">Покраска, обои, плитка, полы — часть ремонта или отдельно.</p></li></ul></div>
     </section>
 
     <!-- ================================================================
      FORMATS
      ================================================================ -->
     <section class="formats" id="formats" aria-labelledby="formats-title">
-      <div class="container"></div>
+      <div class="container"><h2 class="section-title" id="formats-title">Форматы работы</h2><p>Обсудим подходящий формат и смету. <a href="#application">Оставить заявку</a></p></div>
     </section>
 
     <!-- ================================================================
      GALLERY
      ================================================================ -->
     <section class="gallery" id="gallery" aria-labelledby="gallery-title">
-      <div class="container"></div>
+      <div class="container"><h2 class="section-title" id="gallery-title">Примеры работ</h2><p>Фотографии загружаются. Если они не появились, <a href="#contacts">свяжитесь со мной</a> — расскажу о выполненных проектах.</p></div>
     </section>
 
     <!-- ================================================================
      CLIENT VIDEO
      ================================================================ -->
     <section class="client-video" id="clientVideo" aria-labelledby="clientVideo-title">
-      <div class="container"></div>
+      <div class="container"><h2 class="section-title" id="clientVideo-title">Видео о ремонте</h2><p>Видео загружается. <a href="#contacts">Связаться со мной</a></p></div>
     </section>
 
     <!-- ================================================================
      CALCULATOR
      ================================================================ -->
-    <section class="calculator" id="calculator" aria-labelledby="calculator-title">
+    <section class="calculator" id="calculator" data-state="loading" aria-busy="true" aria-labelledby="calculator-title">
       <div class="container">
         <h2 class="section-title calculator__title" id="calculator-title">Ориентировочная стоимость ремонта</h2>
         <div class="calc">
-          <div class="calc__meta" id="calcMeta">
+          <div class="calc__load-status" id="calcLoadStatus">
+            <p id="calcLoadMessage" role="status">Загружаем вопросы калькулятора…</p>
+            <button type="button" class="btn btn--ghost" id="calcRetry" hidden>Повторить</button>
+            <a href="#application" class="btn btn--primary">Оставить заявку</a>
+            <noscript><p>Для расчёта включите JavaScript или свяжитесь со мной по телефону <a href="tel:+79502085138">+7 950 208 51 38</a>.</p></noscript>
+          </div>
+          <div class="calc__meta" id="calcMeta" hidden>
             <div class="calc__progress">
               <div class="calc__progress__bar" id="calcProgress"></div>
             </div>
@@ -152,7 +161,7 @@
             <p class="calc__hint" id="calcHint"></p>
             <div class="calc__sidebar-content" id="calcSidebarContent" hidden></div>
           </div>
-          <div class="calc__body" id="calcBody">
+          <div class="calc__body" id="calcBody" hidden>
             <div id="calcQuestions"></div>
             <label class="calc__short-request" id="calcCallbackToggle">
               <input type="checkbox" name="callbackOnly" id="calcCallbackOnly">
@@ -165,9 +174,9 @@
               <p class="calc__error" id="calcError" role="alert" hidden></p>
             </div>
           </div>
-          <div class="calc__footer" id="calcFooter">
-            <button class="btn btn--ghost calc__back" id="calcBack">Назад</button>
-            <button class="btn btn--primary calc__next" id="calcNext"><span
+          <div class="calc__footer" id="calcFooter" hidden>
+            <button class="btn btn--ghost calc__back" id="calcBack" disabled>Назад</button>
+            <button class="btn btn--primary calc__next" id="calcNext" disabled><span
                 class="calc__next-text">Далее</span></button>
           </div>
           <div class="calc__result" id="calcResult" hidden>
@@ -463,9 +472,9 @@
 
   <script src="js/vendor/gsap.min.js" defer></script>
   <script src="js/vendor/ScrollTrigger.min.js" defer></script>
-  <script src="js/calculator-pricing.js" defer></script>
-  <script src="js/sections-inject.js?v=6" defer></script>
-  <script src="js/script.js?v=6" defer></script>
+  <script src="js/calculator-pricing.js?v=2" defer></script>
+  <script src="js/sections-inject.js?v=8" defer></script>
+  <script src="js/script.js?v=8" defer></script>
 
   <!-- Cookie banner -->
   <div class="cookie-banner" id="cookieBanner" hidden>

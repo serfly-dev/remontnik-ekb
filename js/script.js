@@ -17,19 +17,27 @@ document.addEventListener('DOMContentLoaded', () => {
   // Cookie banner
   const cookieBanner = document.getElementById('cookieBanner');
   const cookieAcceptBtn = document.getElementById('cookieAcceptBtn');
+    let consentAccepted = false;
   if (cookieBanner && cookieAcceptBtn) {
     function updateCookieBanner() {
-      if (localStorage.getItem('cookieAccepted') !== 'true') {
+      let accepted = consentAccepted;
+      try { accepted = accepted || localStorage.getItem('cookieAccepted') === 'true'; } catch (_) { /* Storage can be unavailable in private browsing. */ }
+      if (!accepted) {
         cookieBanner.hidden = false;
         document.body.style.paddingBottom = cookieBanner.offsetHeight + 'px';
+        document.documentElement.style.setProperty('--cookie-banner-height', `${cookieBanner.offsetHeight}px`);
+      } else {
+        cookieBanner.hidden = true;
+        document.body.style.paddingBottom = '';
+        document.documentElement.style.removeProperty('--cookie-banner-height');
       }
     }
     updateCookieBanner();
     window.addEventListener('resize', updateCookieBanner);
     cookieAcceptBtn.addEventListener('click', () => {
-      localStorage.setItem('cookieAccepted', 'true');
-      cookieBanner.hidden = true;
-      document.body.style.paddingBottom = '';
+      consentAccepted = true;
+      try { localStorage.setItem('cookieAccepted', 'true'); } catch (_) { /* Consent still closes the banner for this visit. */ }
+      updateCookieBanner();
     });
   }
 
@@ -148,6 +156,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const calcResultParams = document.getElementById('calcResultParams');
   const calcAreaQuestion = document.getElementById('calcAreaQuestion');
   const calcSidebarContent = document.getElementById('calcSidebarContent');
+  const calculator = document.getElementById('calculator');
+  const calcLoadStatus = document.getElementById('calcLoadStatus');
+  const calcLoadMessage = document.getElementById('calcLoadMessage');
+  const calcRetry = document.getElementById('calcRetry');
+  let calculatorReady = false;
+
+  function setCalculatorLoadState(state) {
+    if (calculatorReady) return;
+    calculator.dataset.state = state;
+    calculator.setAttribute('aria-busy', String(state === 'loading'));
+    calcNextBtn.disabled = true;
+    calcBackBtn.disabled = true;
+    calcMeta.hidden = calcBody.hidden = calcFooter.hidden = true;
+    calcLoadStatus.hidden = false;
+    calcRetry.hidden = state !== 'error';
+    calcLoadMessage.textContent = state === 'error'
+      ? 'Не удалось загрузить калькулятор. Повторите попытку или оставьте заявку — мы поможем с расчётом.'
+      : 'Загружаем вопросы калькулятора…';
+  }
 
   let currentStep = 1;
   let activeQuestions = [];
@@ -355,7 +382,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderQuestions(config = {}) {
     calculatorConfig = config;
-    availableScenarios = window.CalculatorPricing.normalizeScenarios(config);
+    availableScenarios = window.CalculatorPricing.normalizeScenarios(config)
+      .filter(scenario => normalizeScenarioQuestions(scenario).length);
     hasScenarioSelector = availableScenarios.length > 1;
     activeScenario = null;
     calculatorData.scenarioId = null;
@@ -387,11 +415,34 @@ document.addEventListener('DOMContentLoaded', () => {
     updateStepUI({ focus: false });
   }
 
-  document.addEventListener('calculatorConfigLoaded', event => {
-    window.SECTION_CALCULATOR = event.detail || {};
-    renderQuestions(window.SECTION_CALCULATOR);
-  });
-  renderQuestions(window.SECTION_CALCULATOR || {});
+  function initialiseCalculator(config) {
+    if (calculatorReady) return;
+    try {
+      if (!config || !window.CalculatorPricing || (!Array.isArray(config.questions) && !Array.isArray(config.scenarios))) {
+        throw new Error('Calculator configuration unavailable');
+      }
+      const scenarios = window.CalculatorPricing.normalizeScenarios(config);
+      if (!scenarios.some(scenario => normalizeScenarioQuestions(scenario).length)) {
+        throw new Error('Calculator questions unavailable');
+      }
+      renderQuestions(config);
+      calculatorReady = true;
+      calculator.dataset.state = 'ready';
+      calculator.setAttribute('aria-busy', 'false');
+      calcLoadStatus.hidden = true;
+      calcNextBtn.disabled = false;
+      calcBackBtn.disabled = false;
+      calcMeta.hidden = calcBody.hidden = calcFooter.hidden = false;
+    } catch (error) {
+      calcQuestionsContainer.replaceChildren();
+      console.warn('[calculator] Configuration error:', error.message);
+      setCalculatorLoadState('error');
+    }
+  }
+  document.addEventListener('calculatorConfigLoaded', event => initialiseCalculator(event.detail));
+  document.addEventListener('calculatorLoadState', event => setCalculatorLoadState(event.detail));
+  setCalculatorLoadState(window.CALCULATOR_LOAD_STATE || 'loading');
+  if (window.SECTION_CALCULATOR) initialiseCalculator(window.SECTION_CALCULATOR);
 
   function isCallbackOnlyFlow() {
     return Boolean(calcCallbackOnly?.checked);
@@ -886,7 +937,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Each question fades out and the next fades in — no page scroll.
   calcBody.addEventListener('change', event => {
     const radio = event.target;
-    if (!radio.matches('.calc__field input[type="radio"]') || currentStep === 1 || isCallbackOnlyFlow()) return;
+    if (!radio.matches('.calc__field input[type="radio"]') || currentStep === 1 || currentStep >= lastStep || isCallbackOnlyFlow()) return;
     const selectedStep = currentStep;
     const currentField = getCurrentField();
     if (!currentField?.contains(radio)) return;
@@ -1077,6 +1128,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (phoneInput) {
       phoneInput.addEventListener('input', (e) => {
         let val = e.target.value.replace(/\D/g, '');
+        if (val && !/^[78]/.test(val)) val = '7' + val;
+        if (val.startsWith('8')) val = '7' + val.slice(1);
         if (val.length > 11) val = val.slice(0, 11);
         let masked = '+7';
         if (val.length > 1) {
@@ -1107,6 +1160,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // portfolio). The fallback covers the case where no FAQ section exists
   // in the DB and the static markup stays.
   function initFaqMotion() {
+    if (!window.gsap || !window.ScrollTrigger || window.matchMedia('(max-width: 767px), (prefers-reduced-motion: reduce)').matches) return;
     const faqItems = gsap.utils.toArray('#accordion .accordion__item');
     if (faqItems.length === 0) return;
     const motion = !prefersReducedMotion.matches;
@@ -1114,6 +1168,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (motion) {
       gsap.registerPlugin(ScrollTrigger);
       gsap.from(faqItems, {
+        immediateRender: false,
         autoAlpha: 0,
         y: 28,
         duration: 0.7,
@@ -1282,9 +1337,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================================
   // GSAP — portfolio motion (gallery + client video)
   // ============================================================
-  gsap.registerPlugin(ScrollTrigger);
-
   function initPortfolioMotion() {
+    // Content stays visible if optional motion dependencies fail.
+    if (!window.gsap || !window.ScrollTrigger || window.matchMedia('(max-width: 767px), (prefers-reduced-motion: reduce)').matches) return;
+    gsap.registerPlugin(ScrollTrigger);
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const gate = reduceMotion ? { duration: 0 } : { duration: 0.9, ease: 'expo.out' };
 
@@ -1303,13 +1359,13 @@ document.addEventListener('DOMContentLoaded', () => {
       tl.fromTo(
         panels,
         { clipPath: 'inset(10% 8% 10% 8% round 24px)', y: 40, autoAlpha: 0 },
-        { clipPath: 'inset(0% 0% 0% 0% round 24px)', y: 0, autoAlpha: 1, stagger: 0.16 }
+        { immediateRender: false, clipPath: 'inset(0% 0% 0% 0% round 24px)', y: 0, autoAlpha: 1, stagger: 0.16 }
       );
       if (arrow) {
         tl.fromTo(
           arrow,
           { scale: 0, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.7)' },
+          { immediateRender: false, scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.7)' },
           '-=0.25'
         );
       }
@@ -1320,7 +1376,7 @@ document.addEventListener('DOMContentLoaded', () => {
       gsap.fromTo(
         videoSection,
         { autoAlpha: 0, y: 40 },
-        { autoAlpha: 1, y: 0, ...gate, scrollTrigger: { trigger: videoSection, start: 'top 82%', onEnter: () => console.log('[QA-ST] video enter'), onLeave: () => console.log('[QA-ST] video leave') } }
+        { immediateRender: false, autoAlpha: 1, y: 0, ...gate, scrollTrigger: { trigger: videoSection, start: 'top 82%', onEnter: () => console.log('[QA-ST] video enter'), onLeave: () => console.log('[QA-ST] video leave') } }
       );
     }
   }

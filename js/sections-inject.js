@@ -7,6 +7,14 @@
 (function () {
   'use strict';
 
+  // New URLs bypass the original media's year-long immutable browser cache.
+  const OPTIMIZED_MEDIA = {
+    '/img/1792447841815-73fb0533-f451-4216-99f1-9e0a38b7144a.webp': { src: '/images/hero-mobile-v1.webp' },
+    '/img/video/1792473407270-42654cdc-d754-4cc7-a85f-f655a5788b7f.mp4': {
+      src: '/img/video/renovation-mobile-v1.mp4', poster: '/images/video-cover-v1.webp', aspect: 720 / 1280
+    }
+  };
+
   function escapeHtml(str) {
     if (str == null) return '';
     return String(str)
@@ -70,6 +78,7 @@
   // The admin-set hero photo (content.image) always wins. The «До → После»
   // comparison from the gallery is only a fallback when no hero photo is set.
   function buildHeroVisual(content, all) {
+    const image = OPTIMIZED_MEDIA[content.image]?.src || content.image;
     const pair = !content.image && (all && all.gallery && Array.isArray(all.gallery.items))
       ? all.gallery.items.find(item => item && item.before && item.after)
       : null;
@@ -97,8 +106,8 @@
     }
 
     return `
-      <div class="hero__media" ${content.image ? `style="background-image:url('${sanitizeUrl(content.image)}')"` : ''}>
-        <img src="${sanitizeUrl(content.image || '')}" alt="${escapeHtml(content.imageAlt || '')}" width="900" height="1100" loading="eager" decoding="async" fetchpriority="high">
+      <div class="hero__media">
+        <img src="${sanitizeUrl(image || '/images/hero-mobile-v1.webp')}" alt="${escapeHtml(content.imageAlt || '')}" width="900" height="1100" loading="eager" decoding="async" fetchpriority="high">
         <span class="hero__media__caption">${escapeHtml(content.imageCaption || '')}</span>
       </div>
     `;
@@ -146,6 +155,11 @@
         </div>
       </div>
     `;
+    const heroImage = root.querySelector('.hero__media > img');
+    heroImage?.addEventListener('error', () => {
+      heroImage.src = '/images/hero-mobile-v1.webp';
+    }, { once: true });
+
   }
 
   // ---- SERVICES (id="services") ----
@@ -261,8 +275,8 @@
       <article class="ba-pair ${index === 0 ? 'ba-pair--featured' : 'ba-pair--stacked'}" data-ba-pair>
         <div class="ba-pair__layout">
           <figure class="ba-panel ba-panel--before">
-            <img class="ba-panel__img" src="${sanitizeUrl(item.before || '')}"
-              alt="${escapeHtml(item.name ? 'До: ' + item.name : 'До')}" loading="lazy" decoding="async" draggable="false">
+            ${item.before ? `<img class="ba-panel__img" src="${sanitizeUrl(item.before)}"
+              alt="${escapeHtml(item.name ? 'До: ' + item.name : 'До')}" width="600" height="800" loading="lazy" decoding="async" draggable="false">` : '<p class="gallery__empty">Фотография «До» пока не добавлена.</p>'}
             <figcaption class="ba-panel__label" aria-hidden="true">До</figcaption>
           </figure>
           <div class="ba-pair__arrow" aria-hidden="true">
@@ -271,8 +285,8 @@
             </svg>
           </div>
           <figure class="ba-panel ba-panel--after">
-            <img class="ba-panel__img" src="${sanitizeUrl(item.after || '')}"
-              alt="${escapeHtml(item.name ? 'После: ' + item.name : 'После')}" loading="lazy" decoding="async" draggable="false">
+            ${item.after ? `<img class="ba-panel__img" src="${sanitizeUrl(item.after)}"
+              alt="${escapeHtml(item.name ? 'После: ' + item.name : 'После')}" width="600" height="800" loading="lazy" decoding="async" draggable="false">` : '<p class="gallery__empty">Фотография «После» пока не добавлена.</p>'}
             <figcaption class="ba-panel__label" aria-hidden="true">После</figcaption>
           </figure>
         </div>
@@ -346,21 +360,25 @@
     }
 
     const pad = (n) => String(n).padStart(2, '0');
-    const itemsHtml = items.map((item, i) => `
-      <div class="cv-item" data-index="${i}" data-active="${i === 0 ? 'true' : 'false'}" aria-hidden="${i === 0 ? 'false' : 'true'}" style="opacity:0">
+    const itemsHtml = items.map((item, i) => {
+      const media = OPTIMIZED_MEDIA[item.video] || {};
+      return `
+      <div class="cv-item" data-index="${i}" data-active="${i === 0 ? 'true' : 'false'}" aria-hidden="${i === 0 ? 'false' : 'true'}" style="--ar:${media.aspect || 16 / 9}">
         <div class="cv-media">
-          <video class="cv-video" preload="metadata" playsinline muted aria-label="${escapeHtml(item.name || 'Видео клиента')}">
-            <source src="${sanitizeUrl(item.video || '')}" type="video/mp4">
+          <video class="cv-video" preload="none" playsinline poster="${sanitizeUrl(item.poster || media.poster || '/images/og-cover.jpg')}" aria-label="${escapeHtml(item.name || 'Видео клиента')}">
+            <source data-src="${sanitizeUrl(media.src || item.video || '')}" type="video/mp4">
           </video>
           <button class="cv-play" type="button" aria-label="Воспроизвести видео" aria-pressed="false">
             <svg class="cv-play__icon cv-play__icon--play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
             <svg class="cv-play__icon cv-play__icon--pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg>
           </button>
         </div>
+        <p class="cv-error" role="status" hidden>Не удалось воспроизвести видео. Нажмите кнопку ещё раз или свяжитесь со мной.</p>
         ${item.name ? `<p class="cv-name">${escapeHtml(item.name)}</p>` : ''}
         ${item.description ? `<p class="cv-desc">${escapeHtml(item.description)}</p>` : ''}
       </div>
-    `).join('');
+    `;
+    }).join('');
 
     root.innerHTML = `
       <div class="section-head">
@@ -409,7 +427,10 @@
     const DUR = reducedMotion ? 0 : 0.7;
     const GAP = 44;
     const hasGsap = typeof window.gsap !== 'undefined';
-    const setVars = (el, vars) => hasGsap ? gsap.set(el, vars) : Object.assign(el.style, vars);
+    const setVars = (el, vars) => {
+      if (hasGsap) gsap.set(el, vars);
+      else Object.entries(vars).forEach(([key, value]) => el.style.setProperty(key, String(value)));
+    };
 
     if (!hasGsap) {
       console.warn('[sections-inject] GSAP not loaded, carousel falls back to instant layout.');
@@ -461,13 +482,7 @@
     }
 
     function layout(animate) {
-      if (!hasGsap) {
-        items.forEach((it) => { it.style.opacity = '1'; });
-        viewport.style.height = 'auto';
-        return;
-      }
-
-      if (!xPercentReady) {
+      if (hasGsap && !xPercentReady) {
         gsap.set(items, { xPercent: -50, y: 0, transformOrigin: '50% 50%' });
         xPercentReady = true;
       }
@@ -488,7 +503,11 @@
           ease: reducedMotion ? 'none' : 'expo.inOut',
           overwrite: 'auto'
         };
-        if (animate) {
+        if (!hasGsap) {
+          it.style.transform = `translateX(calc(-50% + ${target.x}px)) scale(${target.scale})`;
+          it.style.opacity = String(target.opacity);
+          it.style.zIndex = String(target.zIndex);
+        } else if (animate) {
           gsap.to(it, target);
         } else {
           gsap.set(it, target);
@@ -508,19 +527,9 @@
         dot.setAttribute('aria-selected', String(i === activeIndex));
       });
 
-      // Play only the visible slide (muted autoplay), pause the rest.
-      // Slides in manual playback (is-playing) keep their sound state.
       videos.forEach((video, i) => {
         if (!video) return;
-        if (i === activeIndex) {
-          if (video.paused && !items[i].classList.contains('is-playing')) {
-            const p = video.play();
-            if (p && p.catch) p.catch(() => {});
-          }
-        } else {
-          video.pause();
-          video.muted = true; // restoration to muted autoplay when it returns to center
-        }
+        if (i !== activeIndex) video.pause();
       });
     }
 
@@ -593,19 +602,45 @@
         if (button) button.setAttribute('aria-pressed', 'false');
         items[i].classList.remove('is-playing');
       } else {
-        video.currentTime = 0; // always start from the beginning
+        const error = items[i].querySelector('.cv-error');
+        error.hidden = true;
+        const source = video.querySelector('source');
+        if (!video.hasAttribute('src')) {
+          video.src = source.dataset.src;
+          video.load();
+        } else if (video.error) {
+          video.load();
+        }
+        if (video.readyState >= 1) video.currentTime = 0;
         video.muted = false;
         const p = video.play();
-        if (p && p.catch) p.catch(() => {});
-        if (button) button.setAttribute('aria-pressed', 'true');
-        items[i].classList.add('is-playing');
+        if (p && p.catch) p.catch(playError => {
+          error.hidden = playError.name === 'AbortError';
+          items[i].classList.remove('is-playing');
+          if (button) button.setAttribute('aria-pressed', 'false');
+        });
       }
     }
     playBtns.forEach((button, i) => {
       button.addEventListener('click', () => togglePlay(i));
     });
     videos.forEach((video, i) => {
-      video.addEventListener('click', () => togglePlay(i));
+      video.addEventListener('playing', () => {
+        if (i !== activeIndex || !sectionVisible) { video.pause(); return; }
+        video.controls = true;
+        items[i].classList.add('is-playing');
+        playBtns[i]?.setAttribute('aria-pressed', 'true');
+      });
+      const reset = () => {
+        items[i].classList.remove('is-playing');
+        playBtns[i]?.setAttribute('aria-pressed', 'false');
+      };
+      video.addEventListener('pause', reset);
+      video.addEventListener('ended', reset);
+      video.addEventListener('error', () => {
+        reset();
+        items[i].querySelector('.cv-error').hidden = false;
+      });
     });
 
     let resizeTimer;
@@ -621,7 +656,7 @@
     // zero-area targets never intersect an observer, so a distance fallback
     // mirroring the page's own reveal-scroll pattern is kept alongside IO.
     let entered = false;
-    let sectionVisible = false;
+    let sectionVisible = true;
     const section = document.getElementById('clientVideo');
     const startCarousel = () => {
       if (entered) return;
@@ -633,6 +668,9 @@
       items.forEach((it) => it.classList.remove('is-playing'));
       playBtns.forEach((b) => b && b.setAttribute('aria-pressed', 'false'));
     };
+
+    // Layout uses poster dimensions; it never starts media downloads.
+    layout(false);
 
     if (section && typeof IntersectionObserver !== 'undefined') {
       const io = new IntersectionObserver(([entry]) => {
@@ -676,7 +714,7 @@
       sidebarContentType: content.sidebar_content_type || 'none',
       sidebarText: content.sidebar_text || '',
       sidebarImage: content.sidebar_image || '',
-      questions: Array.isArray(content.questions) ? content.questions : window.CalculatorPricing.fromLegacyConfig(content)
+      questions: Array.isArray(content.questions) ? content.questions : []
     };
     document.dispatchEvent(new CustomEvent('calculatorConfigLoaded', {
       detail: window.SECTION_CALCULATOR
@@ -816,34 +854,82 @@
     process: renderProcess
   };
 
+  let loading = false;
+  let loaded = false;
+
+  function calculatorLoadState(state) {
+    window.CALCULATOR_LOAD_STATE = state;
+    document.dispatchEvent(new CustomEvent('calculatorLoadState', { detail: state }));
+  }
+
+  async function fetchSections() {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8000);
+      try {
+        const res = await fetch('/api/sections', { credentials: 'omit', signal: controller.signal, headers: { Accept: 'application/json' } });
+        if (!res.ok) {
+          const error = new Error(`Sections HTTP ${res.status}`);
+          error.retryable = res.status >= 500;
+          throw error;
+        }
+        const data = await res.json();
+        if (!data?.success || !Array.isArray(data.data)) throw new Error('Invalid sections response');
+        return data;
+      } catch (error) {
+        const retryable = error.retryable || error.name === 'AbortError' || error instanceof TypeError;
+        if (attempt || !retryable) throw error;
+      } finally {
+        clearTimeout(timer);
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+
   async function loadSections() {
+    if (loading) return;
+    loading = true;
+    calculatorLoadState('loading');
     try {
-      const res = await fetch('/api/sections', { credentials: 'omit' });
-      if (!res.ok) return;
-      const data = await res.json();
-      if (!data.success || !Array.isArray(data.data)) return;
+      const data = await fetchSections();
 
       const byKey = {};
       for (const section of data.data) {
-        if (section && section.key && section.content) byKey[section.key] = section.content;
+        if (section && section.key && section.content && typeof section.content === 'object' && !Array.isArray(section.content)) byKey[section.key] = section.content;
       }
+      let hasCalculator = false;
       for (const section of data.data) {
+        if (!section || !byKey[section.key]) continue;
+        // Retrying the calculator must not replace other interactive sections.
+        if (loaded && section.key !== 'calculator') continue;
         const renderer = RENDERERS[section.key];
-        if (renderer && section.content) {
+        if (typeof renderer === 'function' && section.content) {
           try {
+            if (['hero', 'services'].includes(section.key) && !String(section.content.title || '').trim()) {
+              throw new Error('Section title unavailable');
+            }
             renderer(section.content, byKey);
+            if (section.key === 'calculator') hasCalculator = true;
           } catch (err) {
             console.warn(`[sections-inject] Failed to render ${section.key}:`, err);
           }
         }
       }
+      if (!hasCalculator) calculatorLoadState('error');
       if (!byKey.navigation) renderNavigation(null);
-      document.dispatchEvent(new CustomEvent('sectionsRendered'));
+      if (!loaded) document.dispatchEvent(new CustomEvent('sectionsRendered'));
+      loaded = true;
     } catch (err) {
       console.warn('[sections-inject] Could not load sections:', err.message);
-      renderNavigation(null);
+      calculatorLoadState('error');
+    } finally {
+      loading = false;
     }
   }
+
+  document.addEventListener('click', event => {
+    if (event.target.closest('#calcRetry')) loadSections();
+  });
 
   document.addEventListener('click', event => {
     const button = event.target.closest('[data-formats-more]');

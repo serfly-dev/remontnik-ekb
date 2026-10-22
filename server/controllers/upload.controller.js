@@ -6,6 +6,7 @@ import path from 'path';
 import multer from 'multer';
 import config from '../config/index.js';
 import { optimizeUploadedImage } from '../services/image.optimizer.js';
+import { optimizeUploadedVideo } from '../services/video.optimizer.js';
 
 // ─── Robust MP4 dimension parsing ──────────────────────────────────────────
 // Width/height are read from the `tkhd` (Track Header) box, which per
@@ -657,6 +658,7 @@ export async function uploadVideoHandler(req, res) {
     }
 
     const uploadedFiles = getUploadedFiles(req);
+    await Promise.all(uploadedFiles.map(optimizeUploadedVideo));
     console.info(JSON.stringify({
       event: 'ADMIN_UPLOAD_SUCCESS',
       timestamp: new Date().toISOString(),

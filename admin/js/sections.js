@@ -1224,8 +1224,8 @@ function formatRatio(ratio) {
 // Unified file upload — handles single image, crop-image and video fields.
 // Determines the endpoint from the logical field name, uploads the file,
 // updates the hidden _url input + preview, and deletes the old file on success.
-// Accepts optional { onProgress, signal } for progress UI and cancellation.
-async function uploadField(file, { fieldName, pathPrefix, urlInputName, previewId, previousUrl }, { onProgress, signal } = {}) {
+// Accepts optional progress, processing, and cancellation callbacks.
+async function uploadField(file, { fieldName, pathPrefix, urlInputName, previewId, previousUrl }, { onProgress, onProcessing, signal } = {}) {
   const endpoint = fieldName === 'video'
     ? '/api/upload/video'
     : fieldName === 'before' || fieldName === 'after'
@@ -1247,6 +1247,9 @@ async function uploadField(file, { fieldName, pathPrefix, urlInputName, previewI
       if (e.lengthComputable && onProgress) {
         onProgress(Math.round((e.loaded / e.total) * 100));
       }
+    };
+    xhr.upload.onload = () => {
+      if (fieldName === 'video' && onProcessing) onProcessing();
     };
 
     xhr.onload = async () => {
@@ -1793,6 +1796,9 @@ async function handleSave(e, key, form, saveBtn) {
             } else {
               saveStatusEl.textContent = `Загружается: ${percent}%`;
             }
+          },
+          onProcessing: () => {
+            saveStatusEl.textContent = 'Сервер обрабатывает видео…';
           },
           signal: currentAbortController.signal
         });

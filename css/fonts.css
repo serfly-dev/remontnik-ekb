@@ -1,85 +1,15 @@
-/* =========================================================================
-   LOCAL FONTS — shared by main site and admin panel
-   ========================================================================= */
-
-/* Golos Text — headings H1–H6 */
+/* Shared local variable fonts: only the 400–700 weights used by site and admin. */
 @font-face {
   font-family: 'Golos Text';
-  src: url('../font/Golos_Text/static/GolosText-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Golos Text';
-  src: url('../font/Golos_Text/static/GolosText-Medium.ttf') format('truetype');
-  font-weight: 500;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Golos Text';
-  src: url('../font/Golos_Text/static/GolosText-SemiBold.ttf') format('truetype');
-  font-weight: 600;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Golos Text';
-  src: url('../font/Golos_Text/static/GolosText-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Golos Text';
-  src: url('../font/Golos_Text/static/GolosText-ExtraBold.ttf') format('truetype');
-  font-weight: 800;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Golos Text';
-  src: url('../font/Golos_Text/static/GolosText-Black.ttf') format('truetype');
-  font-weight: 900;
-  font-display: swap;
-}
-
-/* Manrope — body text, buttons, navigation, forms, UI */
-@font-face {
-  font-family: 'Manrope';
-  src: url('../font/Manrope/static/Manrope-ExtraLight.ttf') format('truetype');
-  font-weight: 200;
+  src: url('../font/GolosText-400-700-v1.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Manrope';
-  src: url('../font/Manrope/static/Manrope-Light.ttf') format('truetype');
-  font-weight: 300;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Manrope';
-  src: url('../font/Manrope/static/Manrope-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Manrope';
-  src: url('../font/Manrope/static/Manrope-Medium.ttf') format('truetype');
-  font-weight: 500;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Manrope';
-  src: url('../font/Manrope/static/Manrope-SemiBold.ttf') format('truetype');
-  font-weight: 600;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Manrope';
-  src: url('../font/Manrope/static/Manrope-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Manrope';
-  src: url('../font/Manrope/static/Manrope-ExtraBold.ttf') format('truetype');
-  font-weight: 800;
+  src: url('../font/Manrope-400-700-v1.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
   font-display: swap;
 }

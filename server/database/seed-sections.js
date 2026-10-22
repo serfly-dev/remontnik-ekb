@@ -39,7 +39,7 @@ const SECTIONS = [
       cta_primary_href: '#formats',
       cta_secondary: 'Рассчитать стоимость',
       cta_secondary_href: '#calculator',
-      image: 'public/images/hero-interior.jpg',
+      image: '/images/hero-mobile-v1.webp',
       imageAlt: 'Фото отремонтированной квартиры',
       imageCaption: 'Пример работы — гостиная',
       proof: [
